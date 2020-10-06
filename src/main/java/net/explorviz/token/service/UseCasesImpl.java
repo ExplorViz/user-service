@@ -11,14 +11,14 @@ import net.explorviz.token.persistence.LandscapeTokenRepository;
  * Implements the use cases for managing and accessing tokens.
  */
 @ApplicationScoped
-public class UserCasesImpl implements UseCases {
+public class UseCasesImpl implements UseCases {
 
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
 
   @Inject
-  public UserCasesImpl(final TokenGenerator generator,
-                       final LandscapeTokenRepository repository) {
+  public UseCasesImpl(final TokenGenerator generator,
+                      final LandscapeTokenRepository repository) {
     this.generator = generator;
     this.repository = repository;
   }
@@ -32,7 +32,7 @@ public class UserCasesImpl implements UseCases {
 
   @Override
   public Collection<LandscapeToken> getOwningTokens(final String ownerId) {
-    return null;
+    return repository.findForUser(ownerId);
   }
 
   @Override

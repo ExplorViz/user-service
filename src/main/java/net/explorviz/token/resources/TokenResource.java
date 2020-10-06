@@ -1,8 +1,10 @@
 package net.explorviz.token.resources;
 
 import java.awt.*;
+import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -29,5 +31,10 @@ public class TokenResource {
     return useCases.createNewToken(userId);
   }
 
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Collection<LandscapeToken> getToken(@PathParam("uid") String userId) {
+    return useCases.getOwningTokens(userId);
+  }
 }
 
