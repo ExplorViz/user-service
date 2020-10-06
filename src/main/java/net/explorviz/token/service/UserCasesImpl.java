@@ -5,6 +5,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
+import net.explorviz.token.persistence.LandscapeTokenRepository;
 
 /**
  * Implements the use cases for managing and accessing tokens.
@@ -12,16 +13,21 @@ import net.explorviz.token.model.LandscapeToken;
 @ApplicationScoped
 public class UserCasesImpl implements UseCases {
 
-  private TokenGenerator generator;
+  private final TokenGenerator generator;
+  private final LandscapeTokenRepository repository;
 
   @Inject
-  public UserCasesImpl(final TokenGenerator generator) {
+  public UserCasesImpl(final TokenGenerator generator,
+                       final LandscapeTokenRepository repository) {
     this.generator = generator;
+    this.repository = repository;
   }
 
   @Override
   public LandscapeToken createNewToken(final String ownerId) {
-    return generator.generateToken(ownerId);
+    LandscapeToken token = generator.generateToken(ownerId);
+    repository.persist(token);
+    return token;
   }
 
   @Override

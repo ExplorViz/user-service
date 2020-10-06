@@ -1,11 +1,17 @@
 package net.explorviz.token.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.inject.Inject;
 import net.explorviz.token.model.LandscapeToken;
+import net.explorviz.token.persistence.LandscapeTokenRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 
 class UserCasesImplTest {
@@ -15,6 +21,14 @@ class UserCasesImplTest {
 
     @Inject
     UseCases useCases;
+
+    LandscapeTokenRepository mockRepo;
+
+    @BeforeEach
+    void setUp() {
+      mockRepo = Mockito.mock(LandscapeTokenRepository.class);
+      QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
+    }
 
     @Test
     void distinctToken() {
