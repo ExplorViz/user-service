@@ -2,6 +2,7 @@ package net.explorviz.token.model;
 
 import com.google.common.base.Objects;
 import io.quarkus.mongodb.panache.MongoEntity;
+import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 /**
@@ -22,32 +23,23 @@ public class LandscapeToken {
 
   private String ownerId;
 
-  public LandscapeToken(final String value, final String ownerId) {
+  @BsonCreator
+  public LandscapeToken(@BsonProperty("value") final String value, @BsonProperty("owner") final String ownerId) {
     this.value = value;
     this.ownerId = ownerId;
   }
 
   public LandscapeToken() { /*Jackson*/ }
 
-
   @BsonProperty("value")
   public String getValue() {
     return value;
   }
 
-  @BsonProperty("value")
-  public void setValue(final String value) {
-    this.value = value;
-  }
 
   @BsonProperty("owner")
   public String getOwnerId() {
     return ownerId;
-  }
-
-  @BsonProperty("owner")
-  public void setOwnerId(final String ownerId) {
-    this.ownerId = ownerId;
   }
 
   @Override
@@ -66,5 +58,8 @@ public class LandscapeToken {
     return Objects.hashCode(value, ownerId);
   }
 
-
+  @Override
+  public String toString() {
+    return super.toString();
+  }
 }

@@ -3,7 +3,7 @@ package net.explorviz.token.service;
 import java.util.Collection;
 import net.explorviz.token.model.LandscapeToken;
 
-public interface UseCases {
+public interface TokenService {
 
 
   /**

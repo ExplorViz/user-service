@@ -23,7 +23,7 @@ class UseCasesImplTest {
   static class TokenCreation {
 
     @Inject
-    UseCases useCases;
+    TokenService tokenService;
 
     LandscapeTokenRepository mockRepo;
 
@@ -36,22 +36,22 @@ class UseCasesImplTest {
     @Test
     void distinctToken() {
       final String sampleUid = "user|0123";
-      LandscapeToken t1 = useCases.createNewToken(sampleUid);
-      LandscapeToken t2 = useCases.createNewToken(sampleUid);
+      LandscapeToken t1 = tokenService.createNewToken(sampleUid);
+      LandscapeToken t2 = tokenService.createNewToken(sampleUid);
       assertNotEquals(t1, t2);
     }
 
     @Test
     void correctOwnerId() {
       final String sampleUid = "user|0123";
-      LandscapeToken t1 = useCases.createNewToken(sampleUid);
+      LandscapeToken t1 = tokenService.createNewToken(sampleUid);
       assertEquals(sampleUid, t1.getOwnerId());
     }
 
     @Test
     void valueNotEmpty() {
       final String sampleUid = "user|0123";
-      LandscapeToken t1 = useCases.createNewToken(sampleUid);
+      LandscapeToken t1 = tokenService.createNewToken(sampleUid);
       assertFalse(t1.getValue() == null || t1.getValue().isEmpty() || t1.getValue().isBlank());
     }
 
@@ -61,7 +61,7 @@ class UseCasesImplTest {
   static class TokenRetrieval {
 
     @Inject
-    UseCases useCases;
+    TokenService tokenService;
 
     TestUtils.MockRepo mockRepo;
 
@@ -78,7 +78,7 @@ class UseCasesImplTest {
       LandscapeToken t2 = new LandscapeToken("t1", "otheruid");
       mockRepo.persist(t1);
       mockRepo.persist(t2);
-      Collection<LandscapeToken> got = useCases.getOwningTokens(uid);
+      Collection<LandscapeToken> got = tokenService.getOwningTokens(uid);
       assertEquals(1, got.size());
       assertTrue(got.contains(t1));
     }
@@ -89,7 +89,7 @@ class UseCasesImplTest {
       for (int i= 0; i<100; i++) {
         mockRepo.persist(new LandscapeToken(String.valueOf(i), uid));
       }
-      Collection<LandscapeToken> got = useCases.getOwningTokens(uid);
+      Collection<LandscapeToken> got = tokenService.getOwningTokens(uid);
       assertTrue(got.containsAll(mockRepo.getTokens()));
     }
 
