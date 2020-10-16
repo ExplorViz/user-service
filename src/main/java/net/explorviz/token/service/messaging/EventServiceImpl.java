@@ -1,43 +1,29 @@
 package net.explorviz.token.service.messaging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Properties;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import net.explorviz.avro.TokenEvent;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+
 
 @ApplicationScoped
+public
 class EventServiceImpl implements EventService {
 
   private KafkaProducer<String, String> producer;
   private String eventTopic;
 
-  @Inject
-  public EventServiceImpl(KafkaConfig kafkaConfig) {
-    final Properties kafkaProps = new Properties();
-    kafkaProps.put("bootstrap.servers", kafkaConfig.getBootstrapServer());
-    kafkaProps
-        .put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // NOCS
-    kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    this.producer = new KafkaProducer<>(kafkaProps);
 
-    this.eventTopic = kafkaConfig.getTopicTokenEvents();
-  }
+  @Channel("token-events")
+  @Inject
+  Emitter<TokenEvent> eventEmitter;
+
 
   @Override
   public void dispatch(final TokenEvent event) {
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      final String eventJson = mapper.writeValueAsString(event);
-      final ProducerRecord<String, String> record =
-          new ProducerRecord<>(eventTopic, event.getUserId(), eventJson);
-      this.producer.send(record);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
+    eventEmitter.send(event);
   }
 
 }

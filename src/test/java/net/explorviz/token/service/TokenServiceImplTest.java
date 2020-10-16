@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import net.explorviz.token.TestUtils;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
+import net.explorviz.token.service.messaging.EventService;
+import net.explorviz.token.service.messaging.EventServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,6 +33,8 @@ class TokenServiceImplTest {
     void setUp() {
       mockRepo = Mockito.mock(LandscapeTokenRepository.class);
       QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
+      EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
+      QuarkusMock.installMockForType(mockEventService, EventService.class);
     }
 
     @Test
@@ -69,6 +73,8 @@ class TokenServiceImplTest {
     void setUp() {
       mockRepo = new TestUtils.MockRepo();
       QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
+      EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
+      QuarkusMock.installMockForType(mockEventService, EventService.class);
     }
 
     @Test
