@@ -15,6 +15,13 @@ public interface TokenService {
   Collection<LandscapeToken> getOwningTokens(String ownerId);
 
   /**
+   * Delete a token.
+   *
+   * @param token the token to delete.
+   */
+  void deleteToken(LandscapeToken token);
+
+  /**
    * Create a new token for a given user.
    *
    * @param ownerId the user to create the token for

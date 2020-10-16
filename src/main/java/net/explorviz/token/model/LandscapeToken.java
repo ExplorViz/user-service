@@ -3,6 +3,7 @@ package net.explorviz.token.model;
 import com.google.common.base.Objects;
 import io.quarkus.mongodb.panache.MongoEntity;
 import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 /**
@@ -14,17 +15,16 @@ public class LandscapeToken {
   /**
    * The actual token value.
    */
-
   private String value;
 
   /**
    * The id of the user owning this token.
    */
-
   private String ownerId;
 
   @BsonCreator
-  public LandscapeToken(@BsonProperty("value") final String value, @BsonProperty("owner") final String ownerId) {
+  public LandscapeToken(@BsonProperty("value") final String value,
+                        @BsonProperty("owner") final String ownerId) {
     this.value = value;
     this.ownerId = ownerId;
   }

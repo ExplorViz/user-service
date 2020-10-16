@@ -99,7 +99,33 @@ class TokenServiceImplTest {
       assertTrue(got.containsAll(mockRepo.getTokens()));
     }
 
+  }
 
+  @QuarkusTest
+  static class TokenDeletion {
+
+    @Inject
+    TokenService tokenService;
+
+    TestUtils.MockRepo mockRepo;
+
+    @BeforeEach
+    void setUp() {
+      mockRepo = new TestUtils.MockRepo();
+      QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
+      EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
+      QuarkusMock.installMockForType(mockEventService, EventService.class);
+    }
+
+    @Test
+    void deleteExisting() {
+      final String uid = "uid";
+      final String tokenValue = "token";
+      LandscapeToken t = new LandscapeToken(tokenValue, uid);
+      mockRepo.persist(t);
+      tokenService.deleteToken(t);
+      assertEquals(0, mockRepo.getTokens().size());
+    }
   }
 
 }

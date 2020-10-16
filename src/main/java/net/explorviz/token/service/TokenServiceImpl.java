@@ -43,6 +43,12 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
+  public void deleteToken(final LandscapeToken token) {
+    repository.delete(token);
+    eventService.dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId()));
+  }
+
+  @Override
   public void grantAccess(final LandscapeToken token, final String userId) {
 
   }

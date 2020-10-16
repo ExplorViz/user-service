@@ -34,6 +34,11 @@ public class TestUtils {
     public void persist(final LandscapeToken token) {
       this.tokens.add(token);
     }
+
+    @Override
+    public void delete(final LandscapeToken token) {
+      tokens.remove(token);
+    }
   }
 
 }
