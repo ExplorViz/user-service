@@ -35,5 +35,6 @@ public class TokenResource {
   public Collection<LandscapeToken> getToken(@PathParam("uid") String userId) {
     return tokenService.getOwningTokens(userId);
   }
+
 }
 

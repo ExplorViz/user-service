@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Properties;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import net.explorviz.avro.TokenEvent;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -32,12 +33,11 @@ class EventServiceImpl implements EventService {
     try {
       final String eventJson = mapper.writeValueAsString(event);
       final ProducerRecord<String, String> record =
-          new ProducerRecord<>(eventTopic, event.getToken().getOwnerId(), eventJson);
+          new ProducerRecord<>(eventTopic, event.getUserId(), eventJson);
       this.producer.send(record);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
-
   }
 
 }

@@ -1,16 +1,24 @@
 plugins {
   id 'java'
   id 'io.quarkus'
+  id 'com.adarshr.test-logger' version '2.1.0'
+  id "com.commercehub.gradle.plugin.avro" version "0.21.0"
 }
 
 repositories {
   mavenLocal()
   mavenCentral()
+  maven {
+    url "https://packages.confluent.io/maven/"
+  }
 }
 
 dependencies {
   implementation 'io.quarkus:quarkus-resteasy-jackson'
-  implementation 'io.quarkus:quarkus-kafka-client'
+
+  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '5.5.0'
+  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '5.5.0'
+
   implementation 'io.quarkus:quarkus-oidc'
 
   implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
@@ -19,7 +27,9 @@ dependencies {
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.rest-assured:rest-assured'
   testImplementation "org.mockito:mockito-core:2.+"
+
 }
+
 
 group 'net.explorviz'
 version '1.0.0-SNAPSHOT'

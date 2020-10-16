@@ -3,11 +3,12 @@ package net.explorviz.token.service;
 import java.util.Collection;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import net.explorviz.avro.EventType;
+import net.explorviz.avro.TokenEvent;
 import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
-import net.explorviz.token.service.messaging.TokenEvent;
 
 /**
  * Implements the use cases for managing and accessing tokens.
@@ -32,7 +33,7 @@ public class TokenServiceImpl implements TokenService {
   public LandscapeToken createNewToken(final String ownerId) {
     LandscapeToken token = generator.generateToken(ownerId);
     repository.persist(token);
-    eventService.dispatch(new TokenEvent(TokenEvent.Type.CREATED, token));
+    eventService.dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId()));
     return token;
   }
 

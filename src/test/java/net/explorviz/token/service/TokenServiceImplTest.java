@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 
-class UseCasesImplTest {
+class TokenServiceImplTest {
 
   @QuarkusTest
   static class TokenCreation {

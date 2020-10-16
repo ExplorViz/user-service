@@ -14,10 +14,14 @@ class KafkaConfig {
 
   private String topicTokenEvents;
 
+
   public KafkaConfig(@ConfigProperty(name = "kafka.bootstrap.servers") final String bootstrapServer,
-                     @ConfigProperty(name = "explorviz.events.tokens.topic") final String topicTokenEvents) {
+                     @ConfigProperty(name = "explorviz.events.tokens.topic")
+                     final String topicTokenEvents) {
     this.bootstrapServer = bootstrapServer;
     this.topicTokenEvents = topicTokenEvents;
+
+
   }
 
   public String getBootstrapServer() {
@@ -28,4 +32,7 @@ class KafkaConfig {
   public String getTopicTokenEvents() {
     return topicTokenEvents;
   }
+
+
+
 }
