@@ -1,6 +1,7 @@
 package net.explorviz.token.service;
 
 import java.util.Collection;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
@@ -35,6 +36,11 @@ public class TokenServiceImpl implements TokenService {
     repository.persist(token);
     eventService.dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId()));
     return token;
+  }
+
+  @Override
+  public Optional<LandscapeToken> getByValue(final String tokenValue) {
+    return repository.findByIdOptional(tokenValue);
   }
 
   @Override

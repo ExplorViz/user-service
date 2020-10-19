@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.util.Collection;
+import java.util.Optional;
 import javax.inject.Inject;
 import net.explorviz.token.TestUtils;
 import net.explorviz.token.model.LandscapeToken;
@@ -61,6 +63,7 @@ class TokenServiceImplTest {
 
   }
 
+
   @QuarkusTest
   static class TokenRetrieval {
 
@@ -90,9 +93,33 @@ class TokenServiceImplTest {
     }
 
     @Test
+    void getByTokenValue() {
+      final String uid = "testuid";
+      final String value = "t1";
+      LandscapeToken t1 = new LandscapeToken("t1", uid);
+      mockRepo.persist(t1);
+      Optional<LandscapeToken> got = tokenService.getByValue(value);
+      if (got.isPresent()) {
+        assertEquals(t1, got.get());
+      } else {
+        fail();
+      }
+    }
+
+    @Test
+    void getByUnknownTokenValue() {
+      final String uid = "testuid";
+      final String value = "t1";
+      LandscapeToken t1 = new LandscapeToken("t1", uid);
+      mockRepo.persist(t1);
+      Optional<LandscapeToken> got = tokenService.getByValue("other");
+      assertFalse(got.isPresent());
+    }
+
+    @Test
     void retrieveMultipleToken() {
       final String uid = "testuid";
-      for (int i= 0; i<100; i++) {
+      for (int i = 0; i < 100; i++) {
         mockRepo.persist(new LandscapeToken(String.valueOf(i), uid));
       }
       Collection<LandscapeToken> got = tokenService.getOwningTokens(uid);
@@ -100,6 +127,7 @@ class TokenServiceImplTest {
     }
 
   }
+
 
   @QuarkusTest
   static class TokenDeletion {

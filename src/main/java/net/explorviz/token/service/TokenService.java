@@ -1,10 +1,18 @@
 package net.explorviz.token.service;
 
 import java.util.Collection;
+import java.util.Optional;
 import net.explorviz.token.model.LandscapeToken;
 
 public interface TokenService {
 
+
+  /**
+   * Find a landscape token by its value
+   * @param tokenValue the token value
+   * @return an optional containing the token if it exists
+   */
+  Optional<LandscapeToken> getByValue(String tokenValue);
 
   /**
    * Retrieve all tokens owned by a given user.

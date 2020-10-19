@@ -15,6 +15,7 @@ public class LandscapeToken {
   /**
    * The actual token value.
    */
+  @BsonId
   private String value;
 
   /**

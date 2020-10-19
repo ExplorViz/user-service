@@ -2,6 +2,7 @@ package net.explorviz.token;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
@@ -38,6 +39,11 @@ public class TestUtils {
     @Override
     public void delete(final LandscapeToken token) {
       tokens.remove(token);
+    }
+
+    @Override
+    public Optional<LandscapeToken> findByIdOptional(final String s) {
+      return tokens.stream().filter(t -> t.getValue().equals(s)).findAny();
     }
   }
 
