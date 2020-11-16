@@ -10,12 +10,16 @@ import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the use cases for managing and accessing tokens.
  */
 @ApplicationScoped
 public class TokenServiceImpl implements TokenService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
 
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
@@ -40,7 +44,7 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public Optional<LandscapeToken> getByValue(final String tokenValue) {
-    return repository.findByIdOptional(tokenValue);
+    return repository.find("value = ?1", tokenValue).stream().findFirst();
   }
 
   @Override
@@ -49,9 +53,11 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public void deleteToken(final LandscapeToken token) {
-    repository.delete(token);
-    eventService.dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId()));
+  public void deleteByValue(final LandscapeToken token) {
+    long docsAffected = repository.delete("value = ?1", token.getValue());
+    if (docsAffected == 1) {
+      eventService.dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId()));
+    }
   }
 
   @Override

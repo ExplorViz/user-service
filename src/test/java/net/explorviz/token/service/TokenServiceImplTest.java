@@ -151,7 +151,7 @@ class TokenServiceImplTest {
       final String tokenValue = "token";
       LandscapeToken t = new LandscapeToken(tokenValue, uid);
       mockRepo.persist(t);
-      tokenService.deleteToken(t);
+      tokenService.deleteByValue(t);
       assertEquals(0, mockRepo.getTokens().size());
     }
   }

@@ -3,7 +3,6 @@ package net.explorviz.token.model;
 import com.google.common.base.Objects;
 import io.quarkus.mongodb.panache.MongoEntity;
 import org.bson.codecs.pojo.annotations.BsonCreator;
-import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 /**
@@ -12,11 +11,16 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 @MongoEntity
 public class LandscapeToken {
 
+
+
   /**
    * The actual token value.
    */
-  @BsonId
   private String value;
+
+  // Property should unique, panache mongodb does not yet
+  // support indices: https://github.com/quarkusio/quarkus/issues/9801
+
 
   /**
    * The id of the user owning this token.

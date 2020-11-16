@@ -27,7 +27,7 @@ public interface TokenService {
    *
    * @param token the token to delete.
    */
-  void deleteToken(LandscapeToken token);
+  void deleteByValue(LandscapeToken token);
 
   /**
    * Create a new token for a given user.

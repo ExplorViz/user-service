@@ -13,13 +13,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.service.TokenService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Path("token/{tid}")
 @ApplicationScoped
 public class TokenResource {
 
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
+
   private final TokenService tokenService;
+
 
   @Inject
   public TokenResource(final TokenService tokenService) {
@@ -30,6 +36,7 @@ public class TokenResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public LandscapeToken getTokenByValue(@PathParam("tid") String tokenVal) {
+    LOGGER.info("Trying to find token with value {}", tokenVal);
     Optional<LandscapeToken> got = tokenService.getByValue(tokenVal);
     return got.orElseThrow(() -> new NotFoundException("No token with such value"));
 
@@ -41,7 +48,7 @@ public class TokenResource {
   public Response deleteToken(@PathParam("tid") String tokenVal) {
     Optional<LandscapeToken> token = tokenService.getByValue(tokenVal);
     if (token.isPresent()) {
-      tokenService.deleteToken(token.get());
+      tokenService.deleteByValue(token.get());
       return Response.noContent().build();
     } else {
       return Response.status(Response.Status.NOT_FOUND).build();
