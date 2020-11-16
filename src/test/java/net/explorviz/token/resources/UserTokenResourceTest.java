@@ -6,87 +6,104 @@ import static org.hamcrest.CoreMatchers.is;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import net.explorviz.token.TestUtils;
+import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
+import net.explorviz.token.service.messaging.EventService;
+import net.explorviz.token.service.messaging.EventServiceImpl;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+@QuarkusTest
 class UserTokenResourceTest {
 
-  @QuarkusTest
-  static class TokenCreation {
+  LandscapeTokenRepository repo;
+  InMemRepo inMemRepo;
 
-    @BeforeAll
-    static void beforeAll() {
-      LandscapeTokenRepository mockRepo = new TestUtils.MockRepo();
-      QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
-    }
 
-    @Test
-    public void testTokenCreationEndpoint() {
-      final String sampleUid = "testuid";
-      given()
-          .when().post("user/" + sampleUid + "/token/")
-          .then()
-          .statusCode(200)
-          .body("ownerId", equalTo(sampleUid))
-          .body("value", CoreMatchers.notNullValue())
-          .body("value", CoreMatchers.isA(String.class));
-    }
-  }
+  @BeforeEach
+  void setUp() {
 
-  @QuarkusTest
-  static class TokenRetrieval {
 
-    @Test
-    public void testTokenRetrieveEmpty() {
-      LandscapeTokenRepository mockRepo = new TestUtils.MockRepo();
-      QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
-      final String sampleUid = "testuid";
-      given()
-          .when().get("user/" + sampleUid + "/token/")
-          .then()
-          .statusCode(200)
-          .body("size()", is(0));
-    }
+    repo = Mockito.mock(LandscapeTokenRepository.class);
+    QuarkusMock.installMockForType(repo, LandscapeTokenRepository.class);
+    EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
+    QuarkusMock.installMockForType(mockEventService, EventService.class);
 
-    @Test
-    public void testTokenRetrieve() {
-      LandscapeTokenRepository mockRepo = new TestUtils.MockRepo();
-      QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
 
-      final String uid = "testuid";
-      final String value = "token";
-      mockRepo.persist(new LandscapeToken(value, uid));
-      given()
-          .when().get("user/" + uid + "/token")
-          .then()
-          .statusCode(200)
-          .body("size()", is(1))
-          .body("[0].ownerId", is(uid))
-          .body("[0].value", is(value));
-    }
+    inMemRepo = new InMemRepo();
+    Mockito.doAnswer(invocation -> {
+      inMemRepo.addToken(invocation.getArgument(0));
+      return null;
+    }).when(repo).persist(Mockito.any(LandscapeToken.class));
 
-    @Test
-    public void testTokenRetrieveMutliple() {
-      LandscapeTokenRepository mockRepo = new TestUtils.MockRepo();
-      QuarkusMock.installMockForType(mockRepo, LandscapeTokenRepository.class);
+    Mockito.when(repo.findForUser(Mockito.anyString())).thenAnswer(
+        invocation -> inMemRepo.findForUser(invocation.getArgument(0)));
 
-      final String uid = "testuid";
-      final int tokens = 100;
-      for (int i = 0; i < tokens; i++) {
-        mockRepo.persist(new LandscapeToken(String.valueOf(i), uid));
-        mockRepo.persist(new LandscapeToken(String.valueOf(i), "other"));
-      }
-      given()
-          .when().get("user/" + uid + "/token")
-          .then()
-          .statusCode(200)
-          .body("size()", is(tokens));
-    }
+
 
   }
+
+  @Test
+  public void testTokenCreationEndpoint() {
+    final String sampleUid = "testuid";
+    given()
+        .when().post("user/" + sampleUid + "/token/")
+        .then()
+        .statusCode(200)
+        .body("ownerId", equalTo(sampleUid))
+        .body("value", CoreMatchers.notNullValue())
+        .body("value", CoreMatchers.isA(String.class));
+  }
+
+
+
+  @Test
+  public void testTokenRetrieveEmpty() {
+
+
+    final String sampleUid = "testuid";
+    given()
+        .when().get("user/" + sampleUid + "/token/")
+        .then()
+        .statusCode(200)
+        .body("size()", is(0));
+  }
+
+  @Test
+  public void testTokenRetrieve() {
+
+
+    final String uid = "testuid";
+    final String value = "token";
+    repo.persist(new LandscapeToken(value, uid));
+    given()
+        .when().get("user/" + uid + "/token")
+        .then()
+        .statusCode(200)
+        .body("size()", is(1))
+        .body("[0].ownerId", is(uid))
+        .body("[0].value", is(value));
+  }
+
+  @Test
+  public void testTokenRetrieveMultiple() {
+
+    final String uid = "testuid";
+    final int tokens = 100;
+    for (int i = 0; i < tokens; i++) {
+      repo.persist(new LandscapeToken(String.valueOf(i), uid));
+      repo.persist(new LandscapeToken(String.valueOf(i), "other"));
+    }
+    given()
+        .when().get("user/" + uid + "/token")
+        .then()
+        .statusCode(200)
+        .body("size()", is(tokens));
+  }
+
+
 
 }
