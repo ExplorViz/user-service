@@ -14,7 +14,6 @@ public class FakeKafkaResource implements QuarkusTestResourceLifecycleManager {
   @Override
   public Map<String, String> start() {
     Map<String, String> props2 = InMemoryConnector.switchOutgoingChannelsToInMemory("token-events");
-    System.out.println("JAADKOAPSD");
     return new HashMap<>(props2);
   }
 
