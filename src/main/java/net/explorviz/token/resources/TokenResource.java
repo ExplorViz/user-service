@@ -1,9 +1,11 @@
 package net.explorviz.token.resources;
 
+import io.quarkus.security.UnauthorizedException;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -13,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.service.TokenService;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +29,12 @@ public class TokenResource {
 
   private final TokenService tokenService;
 
+  @Inject
+  JsonWebToken jwt;
 
   @Inject
-  public TokenResource(final TokenService tokenService) {
+  public TokenResource(final TokenService tokenService, final JsonWebToken jwt) {
+    this.jwt = jwt;
     this.tokenService = tokenService;
   }
 
@@ -36,23 +42,38 @@ public class TokenResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public LandscapeToken getTokenByValue(@PathParam("tid") String tokenVal) {
+
+    if (jwt.getSubject() == null || jwt.getSubject().isEmpty()) {
+      throw new UnauthorizedException();
+    }
+
     LOGGER.info("Trying to find token with value {}", tokenVal);
-    Optional<LandscapeToken> got = tokenService.getByValue(tokenVal);
-    return got.orElseThrow(() -> new NotFoundException("No token with such value"));
+    LandscapeToken got = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
-
+    if (got.getOwnerId().equals(jwt.getSubject())) {
+      return got;
+    } else {
+      throw new ForbiddenException();
+    }
   }
 
   @DELETE
   @Produces(MediaType.TEXT_PLAIN)
   public Response deleteToken(@PathParam("tid") String tokenVal) {
-    Optional<LandscapeToken> token = tokenService.getByValue(tokenVal);
-    if (token.isPresent()) {
-      tokenService.deleteByValue(token.get());
+
+    if (jwt.getSubject() == null || jwt.getSubject().isEmpty()) {
+      throw new UnauthorizedException("Unauthorized");
+    }
+
+    LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
+
+    if (token.getOwnerId().equals(jwt.getSubject())) {
+      tokenService.deleteByValue(token);
       return Response.noContent().build();
     } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
+      throw new ForbiddenException();
     }
+
   }
 
 }
