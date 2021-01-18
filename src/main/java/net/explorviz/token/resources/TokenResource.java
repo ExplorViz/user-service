@@ -69,11 +69,12 @@ public class TokenResource {
   public Response deleteToken(@PathParam("tid") String tokenVal) {
 
     LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
-
-    if (tokenAccessService.canDelete(token, securityIdentity.getPrincipal().getName())) {
+    String uid =  securityIdentity.getPrincipal().getName();
+    if (tokenAccessService.canDelete(token, uid)) {
       tokenService.deleteByValue(token);
       return Response.noContent().build();
     } else {
+      LOGGER.info("Denied deletion-access for user {} to token with owner {}", uid, token.getOwnerId());
       throw new ForbiddenException();
     }
 

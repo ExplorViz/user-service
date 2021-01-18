@@ -11,6 +11,7 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,9 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
+  @ConfigProperty(name = "disable.authorization", defaultValue = "false")
+  boolean disableAuthorization;
+
   @Context
   ResourceInfo resourceInfo;
 
@@ -29,6 +33,12 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
+
+    if (disableAuthorization) {
+      LOGGER.warn("Authorization is disabled, skipping ownership check");
+      return;
+    }
+
     Principal p = requestContext.getSecurityContext().getUserPrincipal();
     String uidParam = resourceInfo.getResourceMethod().getAnnotation(ResourceOwnership.class).uidField();
 
