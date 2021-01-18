@@ -1,7 +1,10 @@
 package net.explorviz.token.resources;
 
+import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
+import io.quarkus.security.identity.SecurityIdentity;
 import java.util.Optional;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -28,9 +31,10 @@ public class TokenResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
 
   private final TokenService tokenService;
+  JsonWebToken jwt;
 
   @Inject
-  JsonWebToken jwt;
+  SecurityIdentity securityIdentity;
 
   @Inject
   public TokenResource(final TokenService tokenService, final JsonWebToken jwt) {
@@ -40,12 +44,9 @@ public class TokenResource {
 
 
   @GET
+  @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
   public LandscapeToken getTokenByValue(@PathParam("tid") String tokenVal) {
-
-    if (jwt.getSubject() == null || jwt.getSubject().isEmpty()) {
-      throw new UnauthorizedException();
-    }
 
     LOGGER.info("Trying to find token with value {}", tokenVal);
     LandscapeToken got = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
@@ -58,12 +59,9 @@ public class TokenResource {
   }
 
   @DELETE
+  @Authenticated
   @Produces(MediaType.TEXT_PLAIN)
   public Response deleteToken(@PathParam("tid") String tokenVal) {
-
-    if (jwt.getSubject() == null || jwt.getSubject().isEmpty()) {
-      throw new UnauthorizedException("Unauthorized");
-    }
 
     LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
