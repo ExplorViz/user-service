@@ -44,14 +44,6 @@ public class UserTokenResource {
   @ResourceOwnership(uidField = "uid")
   public LandscapeToken generateToken(@PathParam("uid") String userId) {
 
-    if (jwt.getSubject() == null || jwt.getSubject().isEmpty()) {
-      throw new UnauthorizedException("Unauthorized");
-    }
-
-    if (!userId.equals(jwt.getSubject())) {
-      throw new ForbiddenException("Forbidden");
-    }
-
     return tokenService.createNewToken(userId);
   }
 
