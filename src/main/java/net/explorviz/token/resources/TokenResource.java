@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.explorviz.token.model.LandscapeToken;
+import net.explorviz.token.service.TokenAccessService;
 import net.explorviz.token.service.TokenService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
@@ -31,14 +32,18 @@ public class TokenResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
 
   private final TokenService tokenService;
-  JsonWebToken jwt;
+
+  private final TokenAccessService tokenAccessService;
 
   @Inject
   SecurityIdentity securityIdentity;
 
   @Inject
-  public TokenResource(final TokenService tokenService, final JsonWebToken jwt) {
-    this.jwt = jwt;
+  public TokenResource(final TokenService tokenService,
+                       final TokenAccessService tokenAccessService,
+                       final SecurityIdentity securityIdentity) {
+    this.securityIdentity = securityIdentity;
+    this.tokenAccessService = tokenAccessService;
     this.tokenService = tokenService;
   }
 
@@ -49,10 +54,10 @@ public class TokenResource {
   public LandscapeToken getTokenByValue(@PathParam("tid") String tokenVal) {
 
     LOGGER.info("Trying to find token with value {}", tokenVal);
-    LandscapeToken got = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
+    LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
-    if (got.getOwnerId().equals(jwt.getSubject())) {
-      return got;
+    if (tokenAccessService.canRead(token, securityIdentity.getPrincipal().getName())) {
+      return token;
     } else {
       throw new ForbiddenException();
     }
@@ -65,7 +70,7 @@ public class TokenResource {
 
     LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
-    if (token.getOwnerId().equals(jwt.getSubject())) {
+    if (tokenAccessService.canDelete(token, securityIdentity.getPrincipal().getName())) {
       tokenService.deleteByValue(token);
       return Response.noContent().build();
     } else {
