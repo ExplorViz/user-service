@@ -16,7 +16,9 @@ import net.explorviz.token.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * HTTP endpoint to get and delete {@link LandscapeToken}s.
+ */
 @Path("token/{tid}")
 @ApplicationScoped
 public class TokenResource {
@@ -35,9 +37,9 @@ public class TokenResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public LandscapeToken getTokenByValue(@PathParam("tid") String tokenVal) {
+  public LandscapeToken getTokenByValue(@PathParam("tid") final String tokenVal) {
     LOGGER.info("Trying to find token with value {}", tokenVal);
-    Optional<LandscapeToken> got = tokenService.getByValue(tokenVal);
+    final Optional<LandscapeToken> got = this.tokenService.getByValue(tokenVal);
     return got.orElseThrow(() -> new NotFoundException("No token with such value"));
 
 
@@ -45,10 +47,10 @@ public class TokenResource {
 
   @DELETE
   @Produces(MediaType.TEXT_PLAIN)
-  public Response deleteToken(@PathParam("tid") String tokenVal) {
-    Optional<LandscapeToken> token = tokenService.getByValue(tokenVal);
+  public Response deleteToken(@PathParam("tid") final String tokenVal) {
+    final Optional<LandscapeToken> token = this.tokenService.getByValue(tokenVal);
     if (token.isPresent()) {
-      tokenService.deleteByValue(token.get());
+      this.tokenService.deleteByValue(token.get());
       return Response.noContent().build();
     } else {
       return Response.status(Response.Status.NOT_FOUND).build();

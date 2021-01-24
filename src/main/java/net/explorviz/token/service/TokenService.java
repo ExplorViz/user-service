@@ -4,11 +4,15 @@ import java.util.Collection;
 import java.util.Optional;
 import net.explorviz.token.model.LandscapeToken;
 
+/**
+ * Interface to manage {@link LandscapeToken}s.
+ */
 public interface TokenService {
 
 
   /**
-   * Find a landscape token by its value
+   * Find a landscape token by its value.
+   *
    * @param tokenValue the token value
    * @return an optional containing the token if it exists
    */
@@ -40,7 +44,7 @@ public interface TokenService {
   /**
    * Grant access to a landscape for a user.
    *
-   * @param token  the token of the landscape
+   * @param token the token of the landscape
    * @param userId the id of the user to grant access
    */
   void grantAccess(LandscapeToken token, String userId);
@@ -48,7 +52,7 @@ public interface TokenService {
   /**
    * Revoke access to a landscape for a given user.
    *
-   * @param token  the token of the landscape
+   * @param token the token of the landscape
    * @param userId the id of the user to revoke access
    */
   void revokeAccess(LandscapeToken token, String userId);

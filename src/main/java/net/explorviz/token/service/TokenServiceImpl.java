@@ -10,8 +10,6 @@ import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implements the use cases for managing and accessing tokens.
@@ -19,7 +17,8 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class TokenServiceImpl implements TokenService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
+  private static final int DELETE_FLAG = 1;
+  private static final String DELETE_FLAG_QUERY = "value = ?1";
 
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
@@ -27,8 +26,8 @@ public class TokenServiceImpl implements TokenService {
 
   @Inject
   public TokenServiceImpl(final TokenGenerator generator,
-                          final LandscapeTokenRepository repository,
-                          final EventService eventService) {
+      final LandscapeTokenRepository repository,
+      final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
     this.eventService = eventService;
@@ -36,37 +35,39 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public LandscapeToken createNewToken(final String ownerId) {
-    LandscapeToken token = generator.generateToken(ownerId);
-    repository.persist(token);
-    eventService.dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId()));
+    final LandscapeToken token = this.generator.generateToken(ownerId);
+    this.repository.persist(token);
+    this.eventService
+        .dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId()));
     return token;
   }
 
   @Override
   public Optional<LandscapeToken> getByValue(final String tokenValue) {
-    return repository.find("value = ?1", tokenValue).stream().findFirst();
+    return this.repository.find(DELETE_FLAG_QUERY, tokenValue).stream().findFirst();
   }
 
   @Override
   public Collection<LandscapeToken> getOwningTokens(final String ownerId) {
-    return repository.findForUser(ownerId);
+    return this.repository.findForUser(ownerId);
   }
 
   @Override
   public void deleteByValue(final LandscapeToken token) {
-    long docsAffected = repository.delete("value = ?1", token.getValue());
-    if (docsAffected == 1) {
-      eventService.dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId()));
+    final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
+    if (docsAffected == DELETE_FLAG) {
+      this.eventService
+          .dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId()));
     }
   }
 
   @Override
   public void grantAccess(final LandscapeToken token, final String userId) {
-
+    // Not implemented
   }
 
   @Override
   public void revokeAccess(final LandscapeToken token, final String userId) {
-
+    // Not implemented
   }
 }

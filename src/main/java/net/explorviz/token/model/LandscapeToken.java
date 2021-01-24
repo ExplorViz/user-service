@@ -29,42 +29,40 @@ public class LandscapeToken {
 
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
-                        @BsonProperty("owner") final String ownerId) {
+      @BsonProperty("owner") final String ownerId) {
     this.value = value;
     this.ownerId = ownerId;
   }
 
-  public LandscapeToken() { /*Jackson*/ }
+  public LandscapeToken() { /* Jackson */ }
 
   @BsonProperty("value")
   public String getValue() {
-    return value;
+    return this.value;
   }
 
 
   @BsonProperty("owner")
   public String getOwnerId() {
-    return ownerId;
+    return this.ownerId;
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || this.getClass() != o.getClass()) {
       return false;
+    }
     final LandscapeToken token = (LandscapeToken) o;
-    return Objects.equal(value, token.value) &&
-        Objects.equal(ownerId, token.ownerId);
+    return Objects.equal(this.value, token.value)
+        && Objects.equal(this.ownerId, token.ownerId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(value, ownerId);
+    return Objects.hashCode(this.value, this.ownerId);
   }
 
-  @Override
-  public String toString() {
-    return super.toString();
-  }
 }
