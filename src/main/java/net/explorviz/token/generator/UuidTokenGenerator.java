@@ -8,11 +8,11 @@ import net.explorviz.token.model.LandscapeToken;
  * Generates landscape tokens as random UUIDs (UUID v4).
  */
 @ApplicationScoped
-public class UUIDTokenGenerator implements TokenGenerator {
+public class UuidTokenGenerator implements TokenGenerator {
 
   @Override
-  public LandscapeToken generateToken(String ownerId) {
-    String value =  UUID.randomUUID().toString();
+  public LandscapeToken generateToken(final String ownerId) {
+    final String value = UUID.randomUUID().toString();
     return new LandscapeToken(value, ownerId);
   }
 }

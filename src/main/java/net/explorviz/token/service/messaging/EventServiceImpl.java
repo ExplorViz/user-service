@@ -8,21 +8,22 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Kafka-based emitter service to send information about {@link TokenEvent}s to other services.
+ */
 @ApplicationScoped
-public
-class EventServiceImpl implements EventService {
+public class EventServiceImpl implements EventService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
 
-  @Channel("token-events")
+  @Channel("token-events") // NOPMD
   @Inject
-  Emitter<TokenEvent> eventEmitter;
+  /* default */ Emitter<TokenEvent> eventEmitter; // NOCS
 
 
   @Override
   public void dispatch(final TokenEvent event) {
-    eventEmitter.send(event);
+    this.eventEmitter.send(event);
     LOGGER.info("Sent new event {}", event);
   }
 

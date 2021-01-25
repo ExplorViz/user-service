@@ -28,16 +28,16 @@ class EventServiceImplTest {
   void dispatchEvent() {
     final String token = "testtoken";
     final String uid = "testuid";
-    TokenEvent testEvent = TokenEvent.newBuilder()
+    final TokenEvent testEvent = TokenEvent.newBuilder()
         .setToken(token)
         .setUserId(uid)
         .setType(EventType.CREATED)
         .build();
 
-    InMemorySink<TokenEvent> events = connector.sink("token-events");
-    service.dispatch(testEvent);
+    final InMemorySink<TokenEvent> events = this.connector.sink("token-events");
+    this.service.dispatch(testEvent);
 
-    TokenEvent got = events.received().get(0).getPayload();
+    final TokenEvent got = events.received().get(0).getPayload();
     Assertions.assertEquals(testEvent, got);
   }
 

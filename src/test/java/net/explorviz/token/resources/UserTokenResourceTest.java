@@ -3,7 +3,6 @@ package net.explorviz.token.resources;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import net.explorviz.token.InMemRepo;
@@ -14,6 +13,7 @@ import net.explorviz.token.service.messaging.EventServiceImpl;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 @QuarkusTest
@@ -27,20 +27,20 @@ class UserTokenResourceTest {
   void setUp() {
 
 
-    repo = Mockito.mock(LandscapeTokenRepository.class);
-    QuarkusMock.installMockForType(repo, LandscapeTokenRepository.class);
-    EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
+    this.repo = Mockito.mock(LandscapeTokenRepository.class);
+    QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
+    final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
 
 
-    inMemRepo = new InMemRepo();
+    this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(invocation -> {
-      inMemRepo.addToken(invocation.getArgument(0));
+      this.inMemRepo.addToken(invocation.getArgument(0));
       return null;
-    }).when(repo).persist(Mockito.any(LandscapeToken.class));
+    }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
 
-    Mockito.when(repo.findForUser(Mockito.anyString())).thenAnswer(
-        invocation -> inMemRepo.findForUser(invocation.getArgument(0)));
+    Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString())).thenAnswer(
+        invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
 
 
@@ -78,7 +78,7 @@ class UserTokenResourceTest {
 
     final String uid = "testuid";
     final String value = "token";
-    repo.persist(new LandscapeToken(value, uid));
+    this.repo.persist(new LandscapeToken(value, uid));
     given()
         .when().get("user/" + uid + "/token")
         .then()
@@ -94,8 +94,8 @@ class UserTokenResourceTest {
     final String uid = "testuid";
     final int tokens = 100;
     for (int i = 0; i < tokens; i++) {
-      repo.persist(new LandscapeToken(String.valueOf(i), uid));
-      repo.persist(new LandscapeToken(String.valueOf(i), "other"));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), uid));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), "other"));
     }
     given()
         .when().get("user/" + uid + "/token")
