@@ -78,24 +78,30 @@ class UserTokenResourceTest {
 
     final String uid = "testuid";
     final String value = "token";
-    this.repo.persist(new LandscapeToken(value, uid));
+    final long created = System.currentTimeMillis();
+    final String alias = "somealias";
+    this.repo.persist(new LandscapeToken(value, uid,created, alias));
     given()
         .when().get("user/" + uid + "/token")
         .then()
         .statusCode(200)
         .body("size()", is(1))
         .body("[0].ownerId", is(uid))
-        .body("[0].value", is(value));
+        .body("[0].value", is(value))
+        .body("[0].created", is(created))
+        .body("[0].alias", is(alias));
   }
 
   @Test
   public void testTokenRetrieveMultiple() {
 
     final String uid = "testuid";
+    final long created = System.currentTimeMillis();
+    final String alias = "somealias";
     final int tokens = 100;
     for (int i = 0; i < tokens; i++) {
-      this.repo.persist(new LandscapeToken(String.valueOf(i), uid));
-      this.repo.persist(new LandscapeToken(String.valueOf(i), "other"));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), uid, created, alias));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), "other", created, alias));
     }
     given()
         .when().get("user/" + uid + "/token")

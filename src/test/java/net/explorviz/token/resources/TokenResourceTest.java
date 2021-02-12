@@ -53,7 +53,7 @@ class TokenResourceTest {
 
 
 
-    this.repo.persist(new LandscapeToken(value, uid));
+    this.repo.persist(new LandscapeToken(value, uid,System.currentTimeMillis(), "alias"));
     given()
         .when().get("token/" + value)
         .then()
@@ -88,7 +88,7 @@ class TokenResourceTest {
         .thenAnswer(
             invocation -> this.inMemRepo.deleteByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, uid));
+    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), ""));
 
     given()
         .when().delete("token/" + value)

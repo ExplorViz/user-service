@@ -27,11 +27,25 @@ public class LandscapeToken {
    */
   private String ownerId;
 
+  /**
+   * Timestamp when the token was created.
+   */
+  private long created;
+
+  /**
+   * User defined alias.
+   */
+  private String alias;
+
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
-      @BsonProperty("owner") final String ownerId) {
+                        @BsonProperty("owner") final String ownerId,
+                        @BsonProperty("created") final long created,
+                        @BsonProperty("alias") final String alias) {
     this.value = value;
     this.ownerId = ownerId;
+    this.created = created;
+    this.alias = alias;
   }
 
   public LandscapeToken() { /* Jackson */ }
@@ -41,10 +55,19 @@ public class LandscapeToken {
     return this.value;
   }
 
-
   @BsonProperty("owner")
   public String getOwnerId() {
     return this.ownerId;
+  }
+
+  @BsonProperty("created")
+  public long getCreated() {
+    return created;
+  }
+
+  @BsonProperty("alias")
+  public String getAlias() {
+    return alias;
   }
 
   @Override
@@ -57,7 +80,9 @@ public class LandscapeToken {
     }
     final LandscapeToken token = (LandscapeToken) o;
     return Objects.equal(this.value, token.value)
-        && Objects.equal(this.ownerId, token.ownerId);
+        && Objects.equal(this.ownerId, token.ownerId)
+        && Objects.equal(this.created, token.created)
+        && Objects.equal(this.alias, token.alias);
   }
 
   @Override

@@ -11,8 +11,9 @@ import net.explorviz.token.model.LandscapeToken;
 public class UuidTokenGenerator implements TokenGenerator {
 
   @Override
-  public LandscapeToken generateToken(final String ownerId) {
+  public LandscapeToken generateToken(final String ownerId, final String alias) {
     final String value = UUID.randomUUID().toString();
-    return new LandscapeToken(value, ownerId);
+    final long created = System.currentTimeMillis();
+    return new LandscapeToken(value, ownerId, created, alias);
   }
 }
