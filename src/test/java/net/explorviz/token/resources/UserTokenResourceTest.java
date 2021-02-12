@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import javax.ws.rs.core.MediaType;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
@@ -49,7 +50,7 @@ class UserTokenResourceTest {
   @Test
   public void testTokenCreationEndpoint() {
     final String sampleUid = "testuid";
-    given()
+    given().contentType(MediaType.APPLICATION_JSON)
         .when().post("user/" + sampleUid + "/token/")
         .then()
         .statusCode(200)

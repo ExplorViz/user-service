@@ -47,7 +47,8 @@ public class UserTokenResource {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public LandscapeToken generateToken(@PathParam("uid") final String userId, final TokenAlias alias) {
+  public LandscapeToken generateToken(@PathParam("uid") final String userId,
+                                      final TokenAlias alias) {
     if (alias == null || alias.alias.isBlank()) {
       return this.tokenService.createNewToken(userId);
     } else {
