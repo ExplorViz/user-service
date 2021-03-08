@@ -1,8 +1,10 @@
 package net.explorviz.token.resources;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Collection;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -26,11 +28,32 @@ public class UserTokenResource {
     this.tokenService = tokenService;
   }
 
+  /**
+   * Helper class for retrieving aliases a body data.
+   */
+  private static class TokenAlias {
+    private final String alias;
+
+    @JsonCreator
+    public TokenAlias(final String alias) {
+      this.alias = alias;
+    }
+
+    public String getAlias() {
+      return alias;
+    }
+  }
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public LandscapeToken generateToken(@PathParam("uid") final String userId) {
-    return this.tokenService.createNewToken(userId);
+  @Consumes(MediaType.APPLICATION_JSON)
+  public LandscapeToken generateToken(@PathParam("uid") final String userId,
+                                      final TokenAlias alias) {
+    if (alias == null || alias.alias.isBlank()) {
+      return this.tokenService.createNewToken(userId);
+    } else {
+      return this.tokenService.createNewToken(userId, alias.alias);
+    }
   }
 
 

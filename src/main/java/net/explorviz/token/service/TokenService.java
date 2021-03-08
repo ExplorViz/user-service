@@ -39,7 +39,17 @@ public interface TokenService {
    * @param ownerId the user to create the token for
    * @return a new token
    */
-  LandscapeToken createNewToken(String ownerId);
+  default LandscapeToken createNewToken(String ownerId) {
+    return this.createNewToken(ownerId, "");
+  }
+
+  /**
+   * Create a new token for a given user with an alias.
+   *
+   * @param ownerId the user to create the token for
+   * @return a new token
+   */
+  LandscapeToken createNewToken(String ownerId, String alias);
 
   /**
    * Grant access to a landscape for a user.
