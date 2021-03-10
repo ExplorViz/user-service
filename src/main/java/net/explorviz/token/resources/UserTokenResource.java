@@ -1,10 +1,7 @@
 package net.explorviz.token.resources;
 
 import io.quarkus.security.Authenticated;
-import io.quarkus.security.ForbiddenException;
-import io.quarkus.security.UnauthorizedException;
 import java.util.Collection;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -19,19 +16,21 @@ import net.explorviz.token.service.TokenAccessService;
 import net.explorviz.token.service.TokenService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
-
+/**
+ * HTTP endpoint to get and create {@link LandscapeToken}s for a user.
+ */
 @Path("user/{uid}/token")
 @RequestScoped
 public class UserTokenResource {
 
   private final TokenService tokenService;
   private final JsonWebToken jwt;
-  private  final TokenAccessService tokenAccessService;
+  private final TokenAccessService tokenAccessService;
 
   @Inject
   public UserTokenResource(final TokenService tokenService,
-                           final TokenAccessService tokenAccessService,
-                           final JsonWebToken jwt) {
+      final TokenAccessService tokenAccessService,
+      final JsonWebToken jwt) {
     this.tokenService = tokenService;
     this.jwt = jwt;
     this.tokenAccessService = tokenAccessService;
@@ -42,9 +41,8 @@ public class UserTokenResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
   @ResourceOwnership(uidField = "uid")
-  public LandscapeToken generateToken(@PathParam("uid") String userId) {
-
-    return tokenService.createNewToken(userId);
+  public LandscapeToken generateToken(@PathParam("uid") final String userId) {
+    return this.tokenService.createNewToken(userId);
   }
 
 
@@ -53,8 +51,8 @@ public class UserTokenResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
   @ResourceOwnership(uidField = "uid")
-  public Collection<LandscapeToken> getToken(@PathParam("uid") String userId) {
-    return tokenService.getOwningTokens(userId);
+  public Collection<LandscapeToken> getToken(@PathParam("uid") final String userId) {
+    return this.tokenService.getOwningTokens(userId);
   }
 
 }

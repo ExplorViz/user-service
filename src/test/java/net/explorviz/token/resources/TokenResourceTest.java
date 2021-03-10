@@ -18,6 +18,7 @@ import net.explorviz.token.service.messaging.EventService;
 import net.explorviz.token.service.messaging.EventServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 @QuarkusTest
@@ -43,14 +44,14 @@ class TokenResourceTest {
     QuarkusMock.installMockForType(mockEventService, EventService.class);
 
 
-    inMemRepo = new InMemRepo();
+    this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(invocation -> {
-      inMemRepo.addToken(invocation.getArgument(0));
+      this.inMemRepo.addToken(invocation.getArgument(0));
       return null;
-    }).when(repo).persist(Mockito.any(LandscapeToken.class));
+    }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
 
-    Mockito.when(repo.findForUser(Mockito.anyString())).thenAnswer(
-        invocation -> inMemRepo.findForUser(invocation.getArgument(0)));
+    Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString())).thenAnswer(
+        invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
   }
 
 
@@ -103,12 +104,12 @@ class TokenResourceTest {
 
   @Test
   void getTokenByUnknownValue() {
-    String value = "unknown";
-    Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
-        .thenAnswer(invocation -> inMemRepo.findByValue(value));
+    final String value = "unknown";
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
     given()
-        .when().get("token/"+ value)
+        .when().get("token/" + value)
         .then()
         .statusCode(404);
   }
@@ -130,7 +131,7 @@ class TokenResourceTest {
     Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
         invocation -> inMemRepo.deleteByValue(value));
 
-    repo.persist(new LandscapeToken(value, uid));
+    this.repo.persist(new LandscapeToken(value, uid));
 
     given()
         .when().delete("token/" + value)
@@ -175,11 +176,13 @@ class TokenResourceTest {
   @Test
   void deleteUnknownToken() {
 
-    String value = "unknown";
-    Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
-        .thenAnswer(invocation -> inMemRepo.findByValue(value));
-    Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
-        invocation -> inMemRepo.deleteByValue(value));
+    final String value = "unknown";
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
+    Mockito
+        .when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(
+            invocation -> this.inMemRepo.deleteByValue(value));
     given()
         .when().delete("token/" + value)
         .then()

@@ -1,10 +1,7 @@
 package net.explorviz.token.resources;
 
 import io.quarkus.security.Authenticated;
-import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
-import java.util.Optional;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -19,11 +16,12 @@ import javax.ws.rs.core.Response;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.service.TokenAccessService;
 import net.explorviz.token.service.TokenService;
-import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * HTTP endpoint to get and delete {@link LandscapeToken}s.
+ */
 @Path("token/{tid}")
 @ApplicationScoped
 public class TokenResource {
@@ -40,8 +38,8 @@ public class TokenResource {
 
   @Inject
   public TokenResource(final TokenService tokenService,
-                       final TokenAccessService tokenAccessService,
-                       final SecurityIdentity securityIdentity) {
+      final TokenAccessService tokenAccessService,
+      final SecurityIdentity securityIdentity) {
     this.securityIdentity = securityIdentity;
     this.tokenAccessService = tokenAccessService;
     this.tokenService = tokenService;
@@ -51,12 +49,13 @@ public class TokenResource {
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public LandscapeToken getTokenByValue(@PathParam("tid") String tokenVal) {
+  public LandscapeToken getTokenByValue(@PathParam("tid") final String tokenVal) {
 
     LOGGER.info("Trying to find token with value {}", tokenVal);
-    LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
+    final LandscapeToken token =
+        this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
-    if (tokenAccessService.canRead(token, securityIdentity.getPrincipal().getName())) {
+    if (this.tokenAccessService.canRead(token, this.securityIdentity.getPrincipal().getName())) {
       return token;
     } else {
       throw new ForbiddenException();
@@ -66,15 +65,17 @@ public class TokenResource {
   @DELETE
   @Authenticated
   @Produces(MediaType.TEXT_PLAIN)
-  public Response deleteToken(@PathParam("tid") String tokenVal) {
+  public Response deleteToken(@PathParam("tid") final String tokenVal) {
 
-    LandscapeToken token = tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
-    String uid =  securityIdentity.getPrincipal().getName();
-    if (tokenAccessService.canDelete(token, uid)) {
-      tokenService.deleteByValue(token);
+    final LandscapeToken token =
+        this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
+    final String uid = this.securityIdentity.getPrincipal().getName();
+    if (this.tokenAccessService.canDelete(token, uid)) {
+      this.tokenService.deleteByValue(token);
       return Response.noContent().build();
     } else {
-      LOGGER.info("Denied deletion-access for user {} to token with owner {}", uid, token.getOwnerId());
+      LOGGER.info("Denied deletion-access for user {} to token with owner {}", uid,
+          token.getOwnerId());
       throw new ForbiddenException();
     }
 

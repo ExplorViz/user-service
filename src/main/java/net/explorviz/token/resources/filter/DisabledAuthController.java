@@ -5,7 +5,6 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.interceptor.Interceptor;
-import javax.ws.rs.core.Context;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
@@ -22,6 +21,6 @@ public class DisabledAuthController extends AuthorizationController {
 
   @Override
   public boolean isAuthorizationEnabled() {
-    return !disableAuthorization;
+    return !this.disableAuthorization;
   }
 }

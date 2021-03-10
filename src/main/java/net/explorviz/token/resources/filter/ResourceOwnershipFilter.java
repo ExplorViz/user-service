@@ -34,15 +34,16 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
 
-    if (disableAuthorization) {
+    if (this.disableAuthorization) {
       LOGGER.warn("Authorization is disabled, skipping ownership check");
       return;
     }
 
-    Principal p = requestContext.getSecurityContext().getUserPrincipal();
-    String uidParam = resourceInfo.getResourceMethod().getAnnotation(ResourceOwnership.class).uidField();
+    final Principal p = requestContext.getSecurityContext().getUserPrincipal();
+    final String uidParam =
+        this.resourceInfo.getResourceMethod().getAnnotation(ResourceOwnership.class).uidField();
 
-    String uid = uriInfo.getPathParameters().get(uidParam).get(0);
+    final String uid = this.uriInfo.getPathParameters().get(uidParam).get(0);
 
     if (!p.getName().equals(uid)) {
       LOGGER.info("Denied access for user {} (owner: {})", p.getName(), uid);
