@@ -5,15 +5,12 @@ import static org.hamcrest.CoreMatchers.is;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.security.runtime.SecurityIdentityProxy;
-import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.security.Principal;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
-import net.explorviz.token.service.TokenAccessService;
-import net.explorviz.token.service.TokenAccessServiceImpl;
 import net.explorviz.token.service.messaging.EventService;
 import net.explorviz.token.service.messaging.EventServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +67,8 @@ class TokenResourceTest {
         .thenAnswer(invocation -> inMemRepo.findByValue(value));
 
 
-    repo.persist(new LandscapeToken(value, uid));
+
+    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
     given()
         .when().get("token/" + value)
         .then()
@@ -95,7 +93,7 @@ class TokenResourceTest {
 
 
 
-    repo.persist(new LandscapeToken(value, uid));
+    repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
     given()
         .when().get("token/" + value)
         .then()
@@ -131,7 +129,7 @@ class TokenResourceTest {
     Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
         invocation -> inMemRepo.deleteByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, uid));
+    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), ""));
 
     given()
         .when().delete("token/" + value)
@@ -160,7 +158,7 @@ class TokenResourceTest {
     Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
         invocation -> inMemRepo.deleteByValue(value));
 
-    repo.persist(new LandscapeToken(value, uid));
+    repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
 
     given()
         .when().delete("token/" + value)

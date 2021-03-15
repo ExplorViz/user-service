@@ -33,9 +33,10 @@ public class TokenServiceImpl implements TokenService {
     this.eventService = eventService;
   }
 
+
   @Override
-  public LandscapeToken createNewToken(final String ownerId) {
-    final LandscapeToken token = this.generator.generateToken(ownerId);
+  public LandscapeToken createNewToken(final String ownerId, final String alias) {
+    final LandscapeToken token = this.generator.generateToken(ownerId, alias);
     this.repository.persist(token);
     this.eventService
         .dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId()));
