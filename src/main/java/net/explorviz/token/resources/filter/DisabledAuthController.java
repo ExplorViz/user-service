@@ -16,11 +16,11 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class DisabledAuthController extends AuthorizationController {
 
-  @ConfigProperty(name = "disable.authorization", defaultValue = "false")
-  boolean disableAuthorization;
+  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true")
+  boolean authEnabled;
 
   @Override
   public boolean isAuthorizationEnabled() {
-    return !this.disableAuthorization;
+    return this.authEnabled;
   }
 }

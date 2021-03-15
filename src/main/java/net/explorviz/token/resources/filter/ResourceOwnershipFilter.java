@@ -22,8 +22,8 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "disable.authorization", defaultValue = "false")
-  boolean disableAuthorization;
+  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true")
+  boolean authEnabled;
 
   @Context
   ResourceInfo resourceInfo;
@@ -34,7 +34,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {
 
-    if (this.disableAuthorization) {
+    if (!this.authEnabled) {
       LOGGER.warn("Authorization is disabled, skipping ownership check");
       return;
     }
