@@ -16,8 +16,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class DisabledAuthController extends AuthorizationController {
 
-  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true")
-  boolean authEnabled;
+  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true") // NOPMD
+  /* default */ boolean authEnabled; // NOCS
 
   @Override
   public boolean isAuthorizationEnabled() {

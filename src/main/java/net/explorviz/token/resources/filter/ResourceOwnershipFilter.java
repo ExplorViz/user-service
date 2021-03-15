@@ -15,6 +15,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Checks whether the calling user is the owner of the accessed resource. If not,
+ * a "403 - Forbidden" is returned.
+ */
 @Priority(Priorities.AUTHENTICATION)
 @Provider
 @ResourceOwnership
@@ -22,14 +26,14 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true")
-  boolean authEnabled;
+  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true") // NOPMD
+  /* default */ boolean authEnabled; // NOCS
 
-  @Context
-  ResourceInfo resourceInfo;
+  @Context // NOPMD
+  /* default */ ResourceInfo resourceInfo; // NOCS
 
-  @Context
-  UriInfo uriInfo;
+  @Context // NOPMD
+  /* default */ UriInfo uriInfo; // NOCS
 
   @Override
   public void filter(final ContainerRequestContext requestContext) throws IOException {

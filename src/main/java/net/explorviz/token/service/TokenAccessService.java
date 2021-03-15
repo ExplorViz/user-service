@@ -11,7 +11,7 @@ public interface TokenAccessService {
   TokenPermission[] getPermissions(LandscapeToken token, String userId);
 
   /**
-   * Checks whether a user can read a landscape token
+   * Checks whether a user can read a landscape token.
    *
    * @param token the token
    * @param userId the id of the user
@@ -22,7 +22,7 @@ public interface TokenAccessService {
   }
 
   /**
-   * Checks whether a user can delete a landscape token
+   * Checks whether a user can delete a landscape token.
    *
    * @param token the token
    * @param userId the id of the user
