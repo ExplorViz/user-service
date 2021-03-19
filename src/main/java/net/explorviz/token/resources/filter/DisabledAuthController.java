@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class DisabledAuthController extends AuthorizationController {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(DisabledAuthController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DisabledAuthController.class);
 
   @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true") // NOPMD
   /* default */ boolean authEnabled; // NOCS
