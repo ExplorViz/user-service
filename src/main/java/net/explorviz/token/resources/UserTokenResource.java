@@ -67,8 +67,8 @@ public class UserTokenResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @Authenticated
   @ResourceOwnership(uidField = UID_PARAM)
+  @Authenticated
   public Collection<LandscapeToken> getToken(@PathParam(UID_PARAM) final String userId) {
     return this.tokenService.getOwningTokens(userId);
   }
