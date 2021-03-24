@@ -26,7 +26,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "explorviz.auth.enabled", defaultValue = "true") // NOPMD
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
   /* default */ boolean authEnabled; // NOCS
 
   @Context // NOPMD
@@ -50,6 +50,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
     // Somehow Quarkus executes this filter before RoleAllowed are checked.
     // In this case, return 401 if no user principals are given in the request
     if (p == null) {
+      LOGGER.info("Restricted route accessed anonymously, aborting request");
       requestContext.abortWith(
           Response.status(Response.Status.UNAUTHORIZED.getStatusCode())
               .build()
