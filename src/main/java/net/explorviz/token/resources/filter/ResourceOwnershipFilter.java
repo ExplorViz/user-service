@@ -2,6 +2,7 @@ package net.explorviz.token.resources.filter;
 
 import java.security.Principal;
 import javax.annotation.Priority;
+import javax.enterprise.inject.Instance;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -16,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checks whether the calling user is the owner of the accessed resource. If not,
- * a "403 - Forbidden" is returned.
+ * Checks whether the calling user is the owner of the accessed resource. If not, a "403 -
+ * Forbidden" is returned.
  */
 @Priority(Priorities.AUTHORIZATION)
 @Provider
@@ -27,7 +28,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
-  /* default */ boolean authEnabled; // NOCS
+  /* default */ Instance<Boolean> authEnabled; // NOCS
 
   @Context // NOPMD
   /* default */ ResourceInfo resourceInfo; // NOCS
@@ -39,8 +40,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
   @Override
   public void filter(final ContainerRequestContext requestContext) {
 
-
-    if (!this.authEnabled) {
+    if (LOGGER.isWarnEnabled() && !this.authEnabled.get().booleanValue()) {
       LOGGER.warn("Authorization is disabled, skipping ownership check");
       return;
     }
@@ -53,8 +53,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
       LOGGER.info("Restricted route accessed anonymously, aborting request");
       requestContext.abortWith(
           Response.status(Response.Status.UNAUTHORIZED.getStatusCode())
-              .build()
-      );
+              .build());
       return;
     }
 
