@@ -43,7 +43,7 @@ public class UserTokenResource {
       return alias;
     }
   }
-
+ 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
@@ -55,13 +55,13 @@ public class UserTokenResource {
       return this.tokenService.createNewToken(userId, alias.alias);
     }
   }
-
-
-
+  
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Collection<LandscapeToken> getToken(@PathParam("uid") final String userId) {
-    return this.tokenService.getOwningTokens(userId);
+    final Collection<LandscapeToken> tokens = this.tokenService.getOwningTokens(userId);
+    tokens.addAll(this.tokenService.getSharedTokens(userId));
+    return tokens;
   }
 
 }

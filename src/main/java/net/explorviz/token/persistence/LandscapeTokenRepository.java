@@ -16,4 +16,7 @@ public class LandscapeTokenRepository
     return this.list("owner", userId);
   }
 
+  public Collection<LandscapeToken> findSharedForUser(final String userId) {
+    return this.list("sharedUsers in ?1", userId);
+  }
 }

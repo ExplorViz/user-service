@@ -6,9 +6,11 @@ import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.explorviz.token.model.LandscapeToken;
@@ -41,8 +43,6 @@ public class TokenResource {
     LOGGER.info("Trying to find token with value {}", tokenVal);
     final Optional<LandscapeToken> got = this.tokenService.getByValue(tokenVal);
     return got.orElseThrow(() -> new NotFoundException("No token with such value"));
-
-
   }
 
   @DELETE
@@ -57,4 +57,21 @@ public class TokenResource {
     }
   }
 
+  @Path("/{uid}")
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response grantAccessToToken(@PathParam("tid") final String tokenId,
+      @PathParam("uid") final String userId, @QueryParam("method") final String method) {
+    final Optional<LandscapeToken> token = this.tokenService.getByValue(tokenId);
+    if (token.isPresent()) {
+      if ("revoke".equals(method)) {
+        this.tokenService.revokeAccess(token.get(), userId);
+      } else {
+        this.tokenService.grantAccess(token.get(), userId);
+      }
+      return Response.noContent().build();
+    } else {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
 }

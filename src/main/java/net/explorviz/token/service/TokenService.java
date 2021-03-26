@@ -27,6 +27,14 @@ public interface TokenService {
   Collection<LandscapeToken> getOwningTokens(String ownerId);
 
   /**
+   * Retrieve all tokens shared with a given user.
+   *
+   * @param userId the id of user
+   * @return collection of all tokens shared with a given user
+   */
+  Collection<LandscapeToken> getSharedTokens(String userId);
+
+  /**
    * Delete a token.
    *
    * @param token the token to delete.
