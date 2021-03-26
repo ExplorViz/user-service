@@ -1,8 +1,9 @@
 package net.explorviz.token.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import io.quarkus.security.Authenticated;
 import java.util.Collection;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,16 +13,19 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import net.explorviz.token.model.LandscapeToken;
+import net.explorviz.token.resources.filter.ResourceOwnership;
 import net.explorviz.token.service.TokenService;
 
 /**
  * HTTP endpoint to get and create {@link LandscapeToken}s for a user.
  */
 @Path("user/{uid}/token")
-@ApplicationScoped
+@RequestScoped
 public class UserTokenResource {
 
+  private static final String UID_PARAM = "uid";
   private final TokenService tokenService;
+
 
   @Inject
   public UserTokenResource(final TokenService tokenService) {
@@ -46,6 +50,8 @@ public class UserTokenResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
+  @Authenticated
+  @ResourceOwnership(uidField = UID_PARAM)
   @Consumes(MediaType.APPLICATION_JSON)
   public LandscapeToken generateToken(@PathParam("uid") final String userId,
                                       final TokenAlias alias) {
@@ -54,13 +60,16 @@ public class UserTokenResource {
     } else {
       return this.tokenService.createNewToken(userId, alias.alias);
     }
+
   }
 
 
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<LandscapeToken> getToken(@PathParam("uid") final String userId) {
+  @ResourceOwnership(uidField = UID_PARAM)
+  @Authenticated
+  public Collection<LandscapeToken> getToken(@PathParam(UID_PARAM) final String userId) {
     return this.tokenService.getOwningTokens(userId);
   }
 
