@@ -2,6 +2,7 @@ package net.explorviz.token.model;
 
 import com.google.common.base.Objects;
 import io.quarkus.mongodb.panache.MongoEntity;
+import java.util.ArrayList;
 import java.util.List;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -64,7 +65,7 @@ public class LandscapeToken {
     this.ownerId = ownerId;
     this.created = created;
     this.alias = alias;
-    this.sharedUsersIds = List.of();
+    this.sharedUsersIds = new ArrayList<>(List.of());
   }
 
   public LandscapeToken() { /* Jackson */ }

@@ -1,15 +1,18 @@
-package net.explorviz.token.service;
+package net.explorviz.token;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.inject.Inject;
+import net.explorviz.token.model.LandscapeToken;
+import net.explorviz.token.service.TokenService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import net.explorviz.token.model.LandscapeToken;
-
 @QuarkusTest
+@QuarkusTestResource(MongoDBTestResource.class)
+@QuarkusTestResource(KafkaTestResource.class)
 class TokenServiceImplIntegrationTest {
 
   @Inject

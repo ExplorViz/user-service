@@ -16,6 +16,34 @@ repositories {
   }
 }
 
+sourceSets {
+  integrationTest {
+    java.srcDir file('src/integrationTest/java')
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+}
+
+task integrationTest(type: Test) {
+  description = 'Runs integration tests.'
+  group = 'verification'
+
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+  shouldRunAfter test
+}
+
+check.dependsOn integrationTest
+
+configurations {
+  integrationTestImplementation.extendsFrom implementation
+  integrationTestRuntimeOnly.extendsFrom runtimeOnly
+
+  integrationTestImplementation.setCanBeResolved(true)
+  integrationTestRuntimeOnly.setCanBeResolved(true)
+}
+
+
 dependencies {
   implementation 'io.quarkus:quarkus-resteasy-jackson'
 
@@ -36,8 +64,13 @@ dependencies {
   testImplementation 'io.rest-assured:rest-assured'
   testImplementation "org.mockito:mockito-core:2.+"
 
-}
+  // Integration Testing
+  integrationTestImplementation 'io.quarkus:quarkus-junit5'  
+  integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
+  integrationTestImplementation "org.testcontainers:testcontainers:1.15.2"
+  integrationTestImplementation "org.testcontainers:kafka:1.15.2"
 
+}
 
 group 'net.explorviz'
 version '1.0.0-SNAPSHOT'
@@ -60,6 +93,9 @@ test {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
 
+integrationTest {
+  systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
 
 idea {
   module {
