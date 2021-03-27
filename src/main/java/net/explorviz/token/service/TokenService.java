@@ -75,4 +75,12 @@ public interface TokenService {
    */
   void revokeAccess(LandscapeToken token, String userId);
 
+  /**
+   * Clone a given token.
+   *
+   * @param token the token of the landscape to be cloned
+   * @param userId the id of the user that will own the cloned token
+   * @param alias the alias of the cloned token
+   */
+  LandscapeToken cloneToken(String token, String ownerId, String alias);
 }
