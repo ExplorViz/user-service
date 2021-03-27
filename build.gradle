@@ -4,6 +4,7 @@ plugins {
   id 'io.quarkus'
   id 'com.adarshr.test-logger' version '2.1.0'
   id "com.commercehub.gradle.plugin.avro" version "0.21.0"
+  id 'eclipse'
 }
 
 apply from: 'buildscripts/code-analysis.gradle'
@@ -21,6 +22,13 @@ sourceSets {
     java.srcDir file('src/integrationTest/java')
     compileClasspath += sourceSets.main.output
     runtimeClasspath += sourceSets.main.output
+  }
+}
+
+eclipse {
+  classpath {
+    plusConfigurations.add configurations.integrationTestRuntimeOnly
+    plusConfigurations.add configurations.integrationTestImplementation
   }
 }
 
