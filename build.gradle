@@ -53,21 +53,24 @@ configurations {
 
 
 dependencies {
+  implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+
+  implementation 'io.quarkus:quarkus-container-image-jib'
+
   implementation 'io.quarkus:quarkus-resteasy-jackson'
 
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
 
-
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '5.5.0'
   implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '5.5.0'
 
   implementation 'io.quarkus:quarkus-oidc'
 
-  implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
   implementation 'io.quarkus:quarkus-resteasy'
   implementation 'io.quarkus:quarkus-mongodb-panache'
+  
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.rest-assured:rest-assured'
   testImplementation "org.mockito:mockito-core:2.+"
