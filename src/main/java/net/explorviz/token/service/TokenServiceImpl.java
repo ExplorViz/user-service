@@ -33,13 +33,22 @@ public class TokenServiceImpl implements TokenService {
     this.eventService = eventService;
   }
 
-
   @Override
   public LandscapeToken createNewToken(final String ownerId, final String alias) {
     final LandscapeToken token = this.generator.generateToken(ownerId, alias);
     this.repository.persist(token);
     this.eventService
-        .dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId()));
+        .dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId(), ""));
+    return token;
+  }
+
+  @Override
+  public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId, 
+      final String alias) {
+    final var token = createNewToken(newOwnerId, alias);
+    this.eventService
+        .dispatch(new TokenEvent(EventType.CLONED, token.getValue(), 
+        token.getOwnerId(), oldTokenId));
     return token;
   }
 
@@ -54,21 +63,38 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
+  public Collection<LandscapeToken> getSharedTokens(final String userId) {
+    return this.repository.findSharedForUser(userId);
+  }
+
+  @Override
   public void deleteByValue(final LandscapeToken token) {
     final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
     if (docsAffected == DELETE_FLAG) {
       this.eventService
-          .dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId()));
+          .dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId(), ""));
     }
   }
 
   @Override
   public void grantAccess(final LandscapeToken token, final String userId) {
-    // Not implemented
+    // Document doc = new Document("$push", new Document("sharedUsers", userId));
+    // this.repository.mongoCollection().updateOne(
+    // Filters.eq("value", token.getValue()),
+    // doc);
+
+    // the $set is a workaround till quarkus 1.13
+    // https://github.com/quarkusio/quarkus/issues/9956
+    this.repository
+        .update("{ $addToSet: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
+        .where(DELETE_FLAG_QUERY, token.getValue());
+    // update("{ $push: { sharedUsers: ?1 } } }", userId).where(DELETE_FLAG_QUERY,
+    // token.getValue());
   }
 
   @Override
   public void revokeAccess(final LandscapeToken token, final String userId) {
-    // Not implemented
+    this.repository.update("{ $pull: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
+        .where(DELETE_FLAG_QUERY, token.getValue());
   }
 }

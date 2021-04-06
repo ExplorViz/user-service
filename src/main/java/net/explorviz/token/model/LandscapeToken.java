@@ -2,6 +2,8 @@ package net.explorviz.token.model;
 
 import com.google.common.base.Objects;
 import io.quarkus.mongodb.panache.MongoEntity;
+import java.util.ArrayList;
+import java.util.List;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
@@ -37,15 +39,33 @@ public class LandscapeToken {
    */
   private String alias;
 
+  /**
+   *  Users that may access this token.
+   */
+  private List<String> sharedUsersIds;
+
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
                         @BsonProperty("owner") final String ownerId,
                         @BsonProperty("created") final long created,
-                        @BsonProperty("alias") final String alias) {
+                        @BsonProperty("alias") final String alias,
+                        @BsonProperty("sharedUsers") final List<String> sharedUsers) {
     this.value = value;
     this.ownerId = ownerId;
     this.created = created;
     this.alias = alias;
+    this.sharedUsersIds = sharedUsers;
+  }
+
+  public LandscapeToken(final String value,
+                        final String ownerId,
+                        final long created,
+                        final String alias) {
+    this.value = value;
+    this.ownerId = ownerId;
+    this.created = created;
+    this.alias = alias;
+    this.sharedUsersIds = new ArrayList<>(List.of());
   }
 
   public LandscapeToken() { /* Jackson */ }
@@ -70,6 +90,11 @@ public class LandscapeToken {
     return alias;
   }
 
+  @BsonProperty("sharedUsers")
+  public List<String> getSharedUsersIds() {
+    return sharedUsersIds;
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (this == o) {
@@ -82,7 +107,8 @@ public class LandscapeToken {
     return Objects.equal(this.value, token.value)
         && Objects.equal(this.ownerId, token.ownerId)
         && Objects.equal(this.created, token.created)
-        && Objects.equal(this.alias, token.alias);
+        && Objects.equal(this.alias, token.alias)
+        && Objects.equal(this.sharedUsersIds, token.sharedUsersIds);
   }
 
   @Override

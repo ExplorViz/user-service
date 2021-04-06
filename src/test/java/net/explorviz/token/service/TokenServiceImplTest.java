@@ -11,15 +11,16 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.util.Collection;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
 import net.explorviz.token.service.messaging.EventServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 @QuarkusTest
 class TokenServiceImplTest {
@@ -47,6 +48,9 @@ class TokenServiceImplTest {
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString())).thenAnswer(
         invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
+
+    Mockito.when(this.repo.findSharedForUser(ArgumentMatchers.anyString())).thenAnswer(
+        invocation -> this.inMemRepo.findSharedForUser(invocation.getArgument(0)));
   }
 
 
@@ -83,6 +87,20 @@ class TokenServiceImplTest {
     final Collection<LandscapeToken> got = this.tokenService.getOwningTokens(uid);
     assertEquals(1, got.size());
     assertTrue(got.contains(t1));
+  }
+
+  @Test
+  void retrieveSharedTokens() {
+    final String uid = "testuid";
+    final LandscapeToken t1 = new LandscapeToken("t1", uid, System.currentTimeMillis(), "t1");
+    final LandscapeToken t2 =
+        new LandscapeToken("t1", "otheruid", System.currentTimeMillis(), "t2");
+    t2.getSharedUsersIds().add(uid);
+    this.repo.persist(t1);
+    this.repo.persist(t2);
+    final Collection<LandscapeToken> got = this.tokenService.getSharedTokens(uid);
+    assertEquals(1, got.size());
+    assertTrue(got.contains(t2));
   }
 
   @Test

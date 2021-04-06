@@ -32,6 +32,7 @@ class EventServiceImplTest {
         .setToken(token)
         .setUserId(uid)
         .setType(EventType.CREATED)
+        .setClonedToken("")
         .build();
 
     final InMemorySink<TokenEvent> events = this.connector.sink("token-events");

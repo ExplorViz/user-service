@@ -8,9 +8,11 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.explorviz.token.model.LandscapeToken;
@@ -83,4 +85,23 @@ public class TokenResource {
 
   }
 
+  @Path("/{uid}")
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response modifyAccessToToken(@PathParam("tid") final String tokenId,
+      @PathParam("uid") final String userId, @QueryParam("method") final String method) {
+    final Optional<LandscapeToken> token = this.tokenService.getByValue(tokenId);
+    if (token.isPresent()) {
+      if ("revoke".equals(method)) {
+        this.tokenService.revokeAccess(token.get(), userId);
+      } else if ("grant".equals(method)) {
+        this.tokenService.grantAccess(token.get(), userId);
+      } else if ("clone".equals(method)) {
+        this.tokenService.cloneToken(tokenId, userId, token.get().getAlias());
+      }
+      return Response.noContent().build();
+    } else {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
 }

@@ -47,7 +47,7 @@ public class UserTokenResource {
       return alias;
     }
   }
-
+ 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
@@ -62,9 +62,7 @@ public class UserTokenResource {
     }
 
   }
-
-
-
+  
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @ResourceOwnership(uidField = UID_PARAM)
