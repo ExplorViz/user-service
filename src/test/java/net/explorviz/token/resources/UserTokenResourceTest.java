@@ -23,8 +23,6 @@ class UserTokenResourceTest {
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
 
-  private static final String SECRET = "secret";
-
 
   @BeforeEach
   void setUp() {
@@ -83,7 +81,7 @@ class UserTokenResourceTest {
     final String value = "token";
     final long created = System.currentTimeMillis();
     final String alias = "somealias";
-    this.repo.persist(new LandscapeToken(value, SECRET, uid,created, alias));
+    this.repo.persist(new LandscapeToken(value, uid,created, alias));
     given()
         .when().get("user/" + uid + "/token")
         .then()
@@ -103,8 +101,8 @@ class UserTokenResourceTest {
     final String alias = "somealias";
     final int tokens = 100;
     for (int i = 0; i < tokens; i++) {
-      this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, uid, created, alias));
-      this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, "other", created, alias));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), uid, created, alias));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), "other", created, alias));
     }
     given()
         .when().get("user/" + uid + "/token")

@@ -22,8 +22,6 @@ public class LandscapeToken {
   // support indices: https://github.com/quarkusio/quarkus/issues/9801
 
 
-  private String secret;
-
   /**
    * The id of the user owning this token.
    */
@@ -41,7 +39,6 @@ public class LandscapeToken {
 
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
-                        @BsonProperty("secret") final String secret,
                         @BsonProperty("owner") final String ownerId,
                         @BsonProperty("created") final long created,
                         @BsonProperty("alias") final String alias) {
@@ -49,53 +46,28 @@ public class LandscapeToken {
     this.ownerId = ownerId;
     this.created = created;
     this.alias = alias;
-    this.secret = secret;
   }
 
   public LandscapeToken() { /* Jackson */ }
 
-  /**
-   * The actual token, that uniquely identifies a landscape
-   * @return the token
-   */
   @BsonProperty("value")
   public String getValue() {
     return this.value;
   }
 
-  /**
-   * @return Owner user-id of the landscape
-   */
   @BsonProperty("owner")
   public String getOwnerId() {
     return this.ownerId;
   }
 
-  /**
-   *
-   * @return timestamp (epoch) when the landscape was created
-   */
   @BsonProperty("created")
   public long getCreated() {
     return created;
   }
 
-  /**
-   *
-   * @return Human-friendly alias, specified by the user at creation
-   */
   @BsonProperty("alias")
   public String getAlias() {
     return alias;
-  }
-
-  /**
-   *
-   * @return the secret required to write to the landscape
-   */
-  @BsonProperty("secret")
-  public String getSecret() {
-    return secret;
   }
 
   @Override
@@ -110,8 +82,7 @@ public class LandscapeToken {
     return Objects.equal(this.value, token.value)
         && Objects.equal(this.ownerId, token.ownerId)
         && Objects.equal(this.created, token.created)
-        && Objects.equal(this.alias, token.alias)
-        && Objects.equal(this.secret, token.secret);
+        && Objects.equal(this.alias, token.alias);
   }
 
   @Override

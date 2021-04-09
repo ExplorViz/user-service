@@ -25,8 +25,6 @@ class TokenResourceTest {
   InMemRepo inMemRepo;
   SecurityIdentity identity;
 
-  private static final String SECRET = "secret";
-
 
   @BeforeEach
   void setUp() {
@@ -70,7 +68,7 @@ class TokenResourceTest {
 
 
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
     given()
         .when().get("token/" + value)
         .then()
@@ -95,7 +93,7 @@ class TokenResourceTest {
 
 
 
-    repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
     given()
         .when().get("token/" + value)
         .then()
@@ -131,7 +129,7 @@ class TokenResourceTest {
     Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
         invocation -> inMemRepo.deleteByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), ""));
+    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), ""));
 
     given()
         .when().delete("token/" + value)
@@ -160,7 +158,7 @@ class TokenResourceTest {
     Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
         invocation -> inMemRepo.deleteByValue(value));
 
-    repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
 
     given()
         .when().delete("token/" + value)
