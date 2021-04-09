@@ -90,4 +90,20 @@ public class LandscapeToken {
     return Objects.hashCode(this.value, this.ownerId);
   }
 
+
+  /**
+   * Serializes the token to the corresponding avro model.
+   *
+   * @return avro representation of this token
+   */
+  public net.explorviz.avro.LandscapeToken toAvro() {
+    return net.explorviz.avro.LandscapeToken.newBuilder()
+        .setValue(this.value)
+        .setSecret(this.secret)
+        .setOwnerId(this.ownerId)
+        .setAlias(this.alias)
+        .setCreated(this.getCreated())
+        .build();
+  }
+
 }
