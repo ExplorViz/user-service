@@ -8,6 +8,7 @@ import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
+import net.explorviz.token.model.LandscapeToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,11 +27,12 @@ class EventServiceImplTest {
 
   @Test
   void dispatchEvent() {
-    final String token = "testtoken";
+    final String tokenValue = "testtoken";
     final String uid = "testuid";
+    LandscapeToken token = new LandscapeToken(tokenValue, "secret", uid, 0, "");
+
     final TokenEvent testEvent = TokenEvent.newBuilder()
-        .setToken(token)
-        .setUserId(uid)
+        .setToken(token.toAvro())
         .setType(EventType.CREATED)
         .build();
 
