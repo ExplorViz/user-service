@@ -55,7 +55,8 @@ public class LandscapeToken {
   public LandscapeToken() { /* Jackson */ }
 
   /**
-   * The actual token, that uniquely identifies a landscape
+   * The actual token, that uniquely identifies a landscape.
+   *
    * @return the token
    */
   @BsonProperty("value")
@@ -64,6 +65,8 @@ public class LandscapeToken {
   }
 
   /**
+   * Id of the owner of the landscape token, i.e., the user that created it.
+   *
    * @return Owner user-id of the landscape
    */
   @BsonProperty("owner")
@@ -72,6 +75,7 @@ public class LandscapeToken {
   }
 
   /**
+   * The timestamp the token was created.
    *
    * @return timestamp (epoch) when the landscape was created
    */
@@ -81,6 +85,7 @@ public class LandscapeToken {
   }
 
   /**
+   * An alias of the token than was specified by the user upon creation.
    *
    * @return Human-friendly alias, specified by the user at creation
    */
@@ -90,6 +95,7 @@ public class LandscapeToken {
   }
 
   /**
+   * The secret of the token that is required to write spans to it.
    *
    * @return the secret required to write to the landscape
    */

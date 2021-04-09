@@ -11,7 +11,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 @ApplicationScoped
 public class UuidTokenGenerator implements TokenGenerator {
 
-
+  private static final int SECRET_LEN = 16;
 
   @Override
   public LandscapeToken generateToken(final String ownerId, final String alias) {
@@ -21,7 +21,7 @@ public class UuidTokenGenerator implements TokenGenerator {
 
     // 16-char secret
     // Not cryptographically secure!
-    String secret = RandomStringUtils.randomAlphanumeric(16);
+    final String secret = RandomStringUtils.randomAlphanumeric(SECRET_LEN);
 
 
 
