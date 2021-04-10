@@ -6,6 +6,7 @@ import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -62,6 +63,8 @@ public class UserTokenResource {
 
   }
 
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
   @ResourceOwnership(uidField = UID_PARAM)
   @Authenticated
   public Collection<LandscapeToken> getToken(@PathParam("uid") final String userId) {
