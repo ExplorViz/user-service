@@ -89,14 +89,16 @@ public class TokenResource {
   @Path("/{uid}")
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public Response grantAccessToToken(@PathParam("tid") final String tokenId,
+  public Response modifyAccessToToken(@PathParam("tid") final String tokenId,
       @PathParam("uid") final String userId, @QueryParam("method") final String method) {
     final Optional<LandscapeToken> token = this.tokenService.getByValue(tokenId);
     if (token.isPresent()) {
       if ("revoke".equals(method)) {
         this.tokenService.revokeAccess(token.get(), userId);
-      } else {
+      } else if ("grant".equals(method)) {
         this.tokenService.grantAccess(token.get(), userId);
+      } else if ("clone".equals(method)) {
+        this.tokenService.cloneToken(tokenId, userId, token.get().getAlias());
       }
       return Response.noContent().build();
     } else {
