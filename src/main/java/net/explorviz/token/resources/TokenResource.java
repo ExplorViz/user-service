@@ -2,6 +2,7 @@ package net.explorviz.token.resources;
 
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -31,7 +32,8 @@ public class TokenResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
 
-  @Inject // NOPMD
+  @Inject
+  // NOPMD
   /* default */ SecurityIdentity securityIdentity; // NOCS
 
   private final TokenService tokenService;
@@ -42,8 +44,8 @@ public class TokenResource {
 
   @Inject
   public TokenResource(final TokenService tokenService,
-                       final TokenAccessService tokenAccessService,
-                       final SecurityIdentity securityIdentity) {
+      final TokenAccessService tokenAccessService,
+      final SecurityIdentity securityIdentity) {
     this.securityIdentity = securityIdentity;
     this.tokenAccessService = tokenAccessService;
     this.tokenService = tokenService;
@@ -87,6 +89,7 @@ public class TokenResource {
 
   @Path("/{uid}")
   @POST
+  @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
   public Response modifyAccessToToken(@PathParam("tid") final String tokenId,
       @PathParam("uid") final String userId, @QueryParam("method") final String method) {

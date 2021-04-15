@@ -44,17 +44,17 @@ public class UserTokenResource {
     }
 
     public String getAlias() {
-      return alias;
+      return this.alias;
     }
   }
- 
+
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
   @ResourceOwnership(uidField = UID_PARAM)
   @Consumes(MediaType.APPLICATION_JSON)
   public LandscapeToken generateToken(@PathParam("uid") final String userId,
-                                      final TokenAlias alias) {
+      final TokenAlias alias) {
     if (alias == null || alias.alias.isBlank()) {
       return this.tokenService.createNewToken(userId);
     } else {
@@ -62,13 +62,15 @@ public class UserTokenResource {
     }
 
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @ResourceOwnership(uidField = UID_PARAM)
   @Authenticated
   public Collection<LandscapeToken> getToken(@PathParam(UID_PARAM) final String userId) {
-    return this.tokenService.getOwningTokens(userId);
+    final Collection<LandscapeToken> tokens = this.tokenService.getOwningTokens(userId);
+    tokens.addAll(this.tokenService.getSharedTokens(userId));
+    return tokens;
   }
 
 }
