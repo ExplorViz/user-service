@@ -2,6 +2,8 @@ package net.explorviz.token.model;
 
 import com.google.common.base.Objects;
 import io.quarkus.mongodb.panache.MongoEntity;
+import java.util.ArrayList;
+import java.util.List;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
@@ -39,17 +41,32 @@ public class LandscapeToken {
    */
   private String alias;
 
+  /**
+   * Users that may access this token.
+   */
+  private List<String> sharedUsersIds;
+
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
                         @BsonProperty("secret") final String secret,
                         @BsonProperty("owner") final String ownerId,
                         @BsonProperty("created") final long created,
-                        @BsonProperty("alias") final String alias) {
+                        @BsonProperty("alias") final String alias,
+                        @BsonProperty("sharedUsers") final List<String> sharedUsers) {
     this.value = value;
     this.ownerId = ownerId;
     this.created = created;
     this.alias = alias;
     this.secret = secret;
+    this.sharedUsersIds = sharedUsers;
+  }
+
+  public LandscapeToken(final String value,
+                        final String secret,
+                        final String ownerId,
+                        final long created,
+                        final String alias) {
+    this(value, secret, ownerId, created, alias, new ArrayList<>());
   }
 
   public LandscapeToken() { /* Jackson */ }
@@ -94,6 +111,7 @@ public class LandscapeToken {
     return alias;
   }
 
+
   /**
    * The secret of the token that is required to write spans to it.
    *
@@ -102,6 +120,12 @@ public class LandscapeToken {
   @BsonProperty("secret")
   public String getSecret() {
     return secret;
+  }
+
+  @BsonProperty("sharedUsers")
+  public List<String> getSharedUsersIds() {
+    return sharedUsersIds;
+
   }
 
   @Override
@@ -117,7 +141,8 @@ public class LandscapeToken {
         && Objects.equal(this.ownerId, token.ownerId)
         && Objects.equal(this.created, token.created)
         && Objects.equal(this.alias, token.alias)
-        && Objects.equal(this.secret, token.secret);
+        && Objects.equal(this.secret, token.secret)
+        && Objects.equal(this.sharedUsersIds, token.sharedUsersIds);
   }
 
   @Override

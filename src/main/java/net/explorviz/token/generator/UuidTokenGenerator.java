@@ -1,5 +1,6 @@
 package net.explorviz.token.generator;
 
+import java.util.Collections;
 import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import net.explorviz.token.model.LandscapeToken;
@@ -25,6 +26,6 @@ public class UuidTokenGenerator implements TokenGenerator {
 
 
 
-    return new LandscapeToken(value, secret, ownerId, created, alias);
+    return new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
   }
 }

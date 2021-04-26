@@ -4,6 +4,7 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
 import io.smallrye.reactive.messaging.connectors.InMemorySink;
+import java.util.Collections;
 import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
@@ -29,11 +30,13 @@ class EventServiceImplTest {
   void dispatchEvent() {
     final String tokenValue = "testtoken";
     final String uid = "testuid";
-    LandscapeToken token = new LandscapeToken(tokenValue, "secret", uid, 0, "");
+    LandscapeToken token =
+        new LandscapeToken(tokenValue, "secret", uid, 0, "", Collections.emptyList());
 
     final TokenEvent testEvent = TokenEvent.newBuilder()
         .setToken(token.toAvro())
         .setType(EventType.CREATED)
+        .setClonedToken("")
         .build();
 
     final InMemorySink<TokenEvent> events = this.connector.sink("token-events");

@@ -14,7 +14,7 @@ public interface TokenService {
    * Find a landscape token by its value.
    *
    * @param tokenValue the token value
-   * @return an optional containing the token if it exists
+   * @return an optional containing the token if it exiACCESS_REVOKEDsts
    */
   Optional<LandscapeToken> getByValue(String tokenValue);
 
@@ -25,6 +25,14 @@ public interface TokenService {
    * @return collection of all tokens owned by given user
    */
   Collection<LandscapeToken> getOwningTokens(String ownerId);
+
+  /**
+   * Retrieve all tokens shared with a given user.
+   *
+   * @param userId the id of user
+   * @return collection of all tokens shared with a given user
+   */
+  Collection<LandscapeToken> getSharedTokens(String userId);
 
   /**
    * Delete a token.
@@ -67,4 +75,12 @@ public interface TokenService {
    */
   void revokeAccess(LandscapeToken token, String userId);
 
+  /**
+   * Clone a given token.
+   *
+   * @param token the token of the landscape to be cloned
+   * @param userId the id of the user that will own the cloned token
+   * @param alias the alias of the cloned token
+   */
+  LandscapeToken cloneToken(String token, String ownerId, String alias);
 }

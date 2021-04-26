@@ -22,6 +22,12 @@ public class InMemRepo {
         .collect(Collectors.toList());
   }
 
+  public Collection<LandscapeToken> findSharedForUser(final String uid) {
+    return this.tokens.stream()
+        .filter(t -> t.getSharedUsersIds().contains(uid))
+        .collect(Collectors.toList());
+  }
+
   public PanacheQuery<LandscapeToken> findByValue(final String value) {
     final PanacheQuery mockPq = Mockito.mock(PanacheQuery.class);
     Mockito.when(mockPq.stream())
