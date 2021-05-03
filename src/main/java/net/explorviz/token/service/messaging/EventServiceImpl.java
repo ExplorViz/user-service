@@ -24,7 +24,9 @@ public class EventServiceImpl implements EventService {
   @Override
   public void dispatch(final TokenEvent event) {
     this.eventEmitter.send(event);
-    LOGGER.info("Sent new event {}", event);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Sent new event {}", event);
+    }
   }
 
 }

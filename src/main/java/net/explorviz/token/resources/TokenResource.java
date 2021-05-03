@@ -32,7 +32,8 @@ public class TokenResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
 
-  @Inject // NOPMD
+  @Inject
+  // NOPMD
   /* default */ SecurityIdentity securityIdentity; // NOCS
 
   private final TokenService tokenService;
@@ -56,7 +57,9 @@ public class TokenResource {
   @Produces(MediaType.APPLICATION_JSON)
   public LandscapeToken getTokenByValue(@PathParam("tid") final String tokenVal) {
 
-    LOGGER.info("Trying to find token with value {}", tokenVal);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Trying to find token with value {}", tokenVal);
+    }
     final LandscapeToken token =
         this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
@@ -79,8 +82,10 @@ public class TokenResource {
       this.tokenService.deleteByValue(token);
       return Response.noContent().build();
     } else {
-      LOGGER.info("Denied deletion-access for user {} to token with owner {}", uid,
-          token.getOwnerId());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Denied deletion-access for user {} to token with owner {}", uid,
+            token.getOwnerId());
+      }
       throw new ForbiddenException();
     }
 

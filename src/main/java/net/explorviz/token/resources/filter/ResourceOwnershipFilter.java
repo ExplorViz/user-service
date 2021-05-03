@@ -27,13 +27,16 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  // NOPMD
   /* default */ Instance<Boolean> authEnabled; // NOCS
 
-  @Context // NOPMD
+  @Context
+  // NOPMD
   /* default */ ResourceInfo resourceInfo; // NOCS
 
-  @Context // NOPMD
+  @Context
+  // NOPMD
   /* default */ UriInfo uriInfo; // NOCS
 
 
@@ -50,7 +53,9 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
     // Somehow Quarkus executes this filter before RoleAllowed are checked.
     // In this case, return 401 if no user principals are given in the request
     if (p == null) {
-      LOGGER.info("Restricted route accessed anonymously, aborting request");
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Restricted route accessed anonymously, aborting request");
+      }
       requestContext.abortWith(
           Response.status(Response.Status.UNAUTHORIZED.getStatusCode())
               .build());
@@ -63,7 +68,9 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
     final String uid = this.uriInfo.getPathParameters().get(uidParam).get(0);
 
     if (p.getName() == null || !p.getName().equals(uid)) {
-      LOGGER.info("Denied access for user {} (owner: {})", p.getName(), uid);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Denied access for user {} (owner: {})", p.getName(), uid);
+      }
       throw new ForbiddenException();
     }
 
