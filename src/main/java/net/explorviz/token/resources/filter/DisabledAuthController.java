@@ -27,10 +27,10 @@ public class DisabledAuthController extends AuthorizationController {
   @Override
   public boolean isAuthorizationEnabled() {
 
-    if (LOGGER.isWarnEnabled() && !this.authEnabled.get().booleanValue()) {
+    if (LOGGER.isWarnEnabled() && !this.authEnabled.get()) {
       LOGGER.warn("Authentication is disabled, skipping token check");
     }
 
-    return this.authEnabled.get().booleanValue();
+    return this.authEnabled.get();
   }
 }
