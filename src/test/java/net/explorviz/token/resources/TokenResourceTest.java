@@ -1,5 +1,6 @@
 package net.explorviz.token.resources;
 
+import static io.restassured.RestAssured.authentication;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -8,9 +9,13 @@ import io.quarkus.security.runtime.SecurityIdentityProxy;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.security.Principal;
+import javax.inject.Inject;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
+import net.explorviz.token.service.TokenAccessService;
+import net.explorviz.token.service.TokenAccessServiceImpl;
+import net.explorviz.token.service.TokenPermission;
 import net.explorviz.token.service.messaging.EventService;
 import net.explorviz.token.service.messaging.EventServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +30,7 @@ class TokenResourceTest {
   InMemRepo inMemRepo;
   SecurityIdentity identity;
 
+  TokenAccessServiceImpl tokenAccessService;
 
   @BeforeEach
   void setUp() {
@@ -39,6 +45,9 @@ class TokenResourceTest {
 
     EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
+
+    tokenAccessService = Mockito.mock(TokenAccessServiceImpl.class);
+    QuarkusMock.installMockForType(tokenAccessService, TokenAccessService.class);
 
 
     this.inMemRepo = new InMemRepo();
@@ -66,7 +75,7 @@ class TokenResourceTest {
     Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
         .thenAnswer(invocation -> inMemRepo.findByValue(value));
 
-
+    Mockito.when(tokenAccessService.canRead(Mockito.any(), Mockito.anyString())).thenReturn(true);
 
     this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
     given()
@@ -91,9 +100,13 @@ class TokenResourceTest {
     Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
         .thenAnswer(invocation -> inMemRepo.findByValue(value));
 
-
-
     repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
+
+    // Auth is disabled in tests, all requests get full permissions.
+    // Mock to return empty an empty permission array
+    Mockito.when(tokenAccessService.getPermissions(Mockito.any(), Mockito.anyString()))
+        .thenReturn(new TokenPermission[] {});
+
     given()
         .when().get("token/" + value)
         .then()
@@ -131,6 +144,8 @@ class TokenResourceTest {
 
     this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), ""));
 
+    Mockito.when(tokenAccessService.canDelete(Mockito.any(), Mockito.anyString())).thenReturn(true);
+
     given()
         .when().delete("token/" + value)
         .then()
@@ -159,6 +174,9 @@ class TokenResourceTest {
         invocation -> inMemRepo.deleteByValue(value));
 
     repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
+
+    // Can read but not delete
+    Mockito.when(tokenAccessService.canRead(Mockito.any(), Mockito.anyString())).thenReturn(true);
 
     given()
         .when().delete("token/" + value)
