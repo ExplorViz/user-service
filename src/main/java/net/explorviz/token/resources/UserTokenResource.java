@@ -55,7 +55,7 @@ public class UserTokenResource {
   @ResourceOwnership(uidField = UID_PARAM)
   @Consumes(MediaType.APPLICATION_JSON)
   public LandscapeToken generateToken(@PathParam("uid") final String userId,
-                                      final TokenAlias alias) {
+      final TokenAlias alias) {
     if (alias == null || alias.alias.isBlank()) {
       return this.tokenService.createNewToken(userId);
     } else {
@@ -72,21 +72,22 @@ public class UserTokenResource {
     final Collection<LandscapeToken> tokens = this.tokenService.getOwningTokens(userId);
     final Collection<LandscapeToken> shared = this.tokenService.getSharedTokens(userId);
 
-    tokens.addAll(cleanSharedTokens(shared));
+    tokens.addAll(this.cleanSharedTokens(shared));
     return tokens;
   }
 
   /**
-   * Cleans a collection of shared tokens by hiding some attributes:
-   * The secret and the list of other users the token was shared to.
+   * Cleans a collection of shared tokens by hiding some attributes: The secret and the list of
+   * other users the token was shared to.
    *
    * @param tokens tokens to clean
    */
-  private Collection<LandscapeToken> cleanSharedTokens(Collection<LandscapeToken> tokens) {
-    Collection<LandscapeToken> cleaned = new ArrayList<>();
-    for (LandscapeToken t : tokens) {
+  private Collection<LandscapeToken> cleanSharedTokens(final Collection<LandscapeToken> tokens) {
+    final Collection<LandscapeToken> cleaned = new ArrayList<>();
+    for (final LandscapeToken t : tokens) {
       cleaned
-          .add(new LandscapeToken(t.getValue(), "", t.getOwnerId(), t.getCreated(), t.getAlias()));
+          .add(new LandscapeToken(t.getValue(), "", // NOPMD
+              t.getOwnerId(), t.getCreated(), t.getAlias()));
     }
     return cleaned;
   }
