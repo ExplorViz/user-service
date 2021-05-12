@@ -1,15 +1,12 @@
 package net.explorviz.token.resources;
 
-import static io.restassured.RestAssured.authentication;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
-
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.security.runtime.SecurityIdentityProxy;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.security.Principal;
-import javax.inject.Inject;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
@@ -30,24 +27,26 @@ class TokenResourceTest {
   InMemRepo inMemRepo;
   SecurityIdentity identity;
 
-  TokenAccessServiceImpl tokenAccessService;
+  private static final String SECRET = "secret";
+
+  private TokenAccessServiceImpl tokenAccessService;
 
   @BeforeEach
   void setUp() {
 
 
-    repo = Mockito.mock(LandscapeTokenRepository.class);
-    QuarkusMock.installMockForType(repo, LandscapeTokenRepository.class);
+    this.repo = Mockito.mock(LandscapeTokenRepository.class);
+    QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
 
-    identity = Mockito.mock(SecurityIdentityProxy.class);
-    QuarkusMock.installMockForType(identity, SecurityIdentity.class);
+    this.identity = Mockito.mock(SecurityIdentityProxy.class);
+    QuarkusMock.installMockForType(this.identity, SecurityIdentity.class);
 
 
-    EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
+    final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
 
-    tokenAccessService = Mockito.mock(TokenAccessServiceImpl.class);
-    QuarkusMock.installMockForType(tokenAccessService, TokenAccessService.class);
+    this.tokenAccessService = Mockito.mock(TokenAccessServiceImpl.class);
+    QuarkusMock.installMockForType(this.tokenAccessService, TokenAccessService.class);
 
 
     this.inMemRepo = new InMemRepo();
@@ -68,16 +67,18 @@ class TokenResourceTest {
     final String value = "token";
 
     // Mock username
-    Principal principal = Mockito.mock(Principal.class);
-    Mockito.when(identity.getPrincipal()).thenReturn(principal);
+    final Principal principal = Mockito.mock(Principal.class);
+    Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(uid);
 
-    Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
-        .thenAnswer(invocation -> inMemRepo.findByValue(value));
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
-    Mockito.when(tokenAccessService.canRead(Mockito.any(), Mockito.anyString())).thenReturn(true);
+    Mockito
+        .when(this.tokenAccessService.canRead(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+        .thenReturn(true);
 
-    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
     given()
         .when().get("token/" + value)
         .then()
@@ -93,19 +94,27 @@ class TokenResourceTest {
     final String value = "token";
 
     // Mock username
-    Principal principal = Mockito.mock(Principal.class);
-    Mockito.when(identity.getPrincipal()).thenReturn(principal);
+    final Principal principal = Mockito.mock(Principal.class);
+    Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn("other");
 
-    Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
-        .thenAnswer(invocation -> inMemRepo.findByValue(value));
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
-    repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value,
+        SECRET,
+        uid,
+        System.currentTimeMillis(),
+        "alias"));
 
     // Auth is disabled in tests, all requests get full permissions.
     // Mock to return empty an empty permission array
-    Mockito.when(tokenAccessService.getPermissions(Mockito.any(), Mockito.anyString()))
+    Mockito
+        .when(this.tokenAccessService.getPermissions(ArgumentMatchers.any(),
+            ArgumentMatchers.anyString()))
         .thenReturn(new TokenPermission[] {});
+
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
 
     given()
         .when().get("token/" + value)
@@ -132,19 +141,24 @@ class TokenResourceTest {
     final String value = "token";
 
     // Mock username
-    Principal principal = Mockito.mock(Principal.class);
-    Mockito.when(identity.getPrincipal()).thenReturn(principal);
+    final Principal principal = Mockito.mock(Principal.class);
+    Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(uid);
 
 
-    Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
-        .thenAnswer(invocation -> inMemRepo.findByValue(value));
-    Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
-        invocation -> inMemRepo.deleteByValue(value));
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
+    Mockito
+        .when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(
+            invocation -> this.inMemRepo.deleteByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), ""));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), ""));
 
-    Mockito.when(tokenAccessService.canDelete(Mockito.any(), Mockito.anyString())).thenReturn(true);
+    Mockito
+        .when(
+            this.tokenAccessService.canDelete(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+        .thenReturn(true);
 
     given()
         .when().delete("token/" + value)
@@ -163,20 +177,24 @@ class TokenResourceTest {
     final String value = "token";
 
     // Mock username
-    Principal principal = Mockito.mock(Principal.class);
-    Mockito.when(identity.getPrincipal()).thenReturn(principal);
+    final Principal principal = Mockito.mock(Principal.class);
+    Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn("other");
 
 
-    Mockito.when(repo.find(Mockito.anyString(), Mockito.<String>anyVararg()))
-        .thenAnswer(invocation -> inMemRepo.findByValue(value));
-    Mockito.when(repo.delete(Mockito.anyString(), Mockito.<String>anyVararg())).thenAnswer(
-        invocation -> inMemRepo.deleteByValue(value));
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
+    Mockito
+        .when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+        .thenAnswer(
+            invocation -> this.inMemRepo.deleteByValue(value));
 
-    repo.persist(new LandscapeToken(value, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
 
     // Can read but not delete
-    Mockito.when(tokenAccessService.canRead(Mockito.any(), Mockito.anyString())).thenReturn(true);
+    Mockito
+        .when(this.tokenAccessService.canRead(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+        .thenReturn(true);
 
     given()
         .when().delete("token/" + value)

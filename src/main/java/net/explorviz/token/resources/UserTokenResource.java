@@ -2,6 +2,7 @@ package net.explorviz.token.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.quarkus.security.Authenticated;
+import java.util.ArrayList;
 import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -69,8 +70,26 @@ public class UserTokenResource {
   @Authenticated
   public Collection<LandscapeToken> getToken(@PathParam(UID_PARAM) final String userId) {
     final Collection<LandscapeToken> tokens = this.tokenService.getOwningTokens(userId);
-    tokens.addAll(this.tokenService.getSharedTokens(userId));
+    final Collection<LandscapeToken> shared = this.tokenService.getSharedTokens(userId);
+
+    tokens.addAll(this.cleanSharedTokens(shared));
     return tokens;
+  }
+
+  /**
+   * Cleans a collection of shared tokens by hiding some attributes: The secret and the list of
+   * other users the token was shared to.
+   *
+   * @param tokens tokens to clean
+   */
+  private Collection<LandscapeToken> cleanSharedTokens(final Collection<LandscapeToken> tokens) {
+    final Collection<LandscapeToken> cleaned = new ArrayList<>();
+    for (final LandscapeToken t : tokens) {
+      cleaned
+          .add(new LandscapeToken(t.getValue(), "", // NOPMD
+              t.getOwnerId(), t.getCreated(), t.getAlias()));
+    }
+    return cleaned;
   }
 
 }

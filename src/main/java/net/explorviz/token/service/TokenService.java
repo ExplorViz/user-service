@@ -14,7 +14,7 @@ public interface TokenService {
    * Find a landscape token by its value.
    *
    * @param tokenValue the token value
-   * @return an optional containing the token if it exists
+   * @return an optional containing the token if it exiACCESS_REVOKEDsts
    */
   Optional<LandscapeToken> getByValue(String tokenValue);
 

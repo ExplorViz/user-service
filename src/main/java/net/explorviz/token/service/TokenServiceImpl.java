@@ -26,8 +26,8 @@ public class TokenServiceImpl implements TokenService {
 
   @Inject
   public TokenServiceImpl(final TokenGenerator generator,
-      final LandscapeTokenRepository repository,
-      final EventService eventService) {
+                          final LandscapeTokenRepository repository,
+                          final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
     this.eventService = eventService;
@@ -38,17 +38,16 @@ public class TokenServiceImpl implements TokenService {
     final LandscapeToken token = this.generator.generateToken(ownerId, alias);
     this.repository.persist(token);
     this.eventService
-        .dispatch(new TokenEvent(EventType.CREATED, token.getValue(), token.getOwnerId(), ""));
+        .dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
     return token;
   }
 
   @Override
-  public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId, 
-      final String alias) {
+  public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId,
+                                   final String alias) {
     final var token = createNewToken(newOwnerId, alias);
     this.eventService
-        .dispatch(new TokenEvent(EventType.CLONED, token.getValue(), 
-        token.getOwnerId(), oldTokenId));
+        .dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
     return token;
   }
 
@@ -71,8 +70,8 @@ public class TokenServiceImpl implements TokenService {
   public void deleteByValue(final LandscapeToken token) {
     final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
     if (docsAffected == DELETE_FLAG) {
-      this.eventService
-          .dispatch(new TokenEvent(EventType.DELETED, token.getValue(), token.getOwnerId(), ""));
+      this.eventService.dispatch(new TokenEvent(EventType.DELETED, token.toAvro(), ""));
+
     }
   }
 
