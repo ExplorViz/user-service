@@ -3,7 +3,7 @@ plugins {
   id 'idea'
   id 'io.quarkus'
   id 'com.adarshr.test-logger' version '2.1.0'
-  id "com.commercehub.gradle.plugin.avro" version "0.21.0"
+  id 'com.github.davidmc24.gradle.plugin.avro' version '1.2.0'
   id 'eclipse'
 }
 
@@ -100,6 +100,8 @@ java {
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
 }
+
+sourceSets.main.java.srcDirs = ['build/generated-main-avro-java', 'src/main/java']
 
 test {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
