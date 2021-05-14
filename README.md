@@ -1,4 +1,9 @@
-# user-service project
+[![pipeline status](https://git.se.informatik.uni-kiel.de/ExplorViz/code/user-service/badges/master/pipeline.svg)](https://git.se.informatik.uni-kiel.de/ExplorViz/code/user-service/-/commits/master) 
+
+[![coverage report](https://git.se.informatik.uni-kiel.de/ExplorViz/code/user-service/badges/master/coverage.svg)](https://git.se.informatik.uni-kiel.de/ExplorViz/code/user-service/-/commits/master)
+
+
+# user-service
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
