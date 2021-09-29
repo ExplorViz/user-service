@@ -59,6 +59,8 @@ dependencies {
 
   implementation 'io.quarkus:quarkus-resteasy-jackson'
 
+  implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
+
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
