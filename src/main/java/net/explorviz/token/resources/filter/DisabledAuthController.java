@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Controller to disable authentication if config property {@code quarkus.oidc.enabled} is set to
+ * Controller to disable authentication if config property {@code authentication.enabled} is set to
  * {@code false}.
  */
 @Alternative
