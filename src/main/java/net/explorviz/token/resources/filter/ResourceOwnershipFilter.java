@@ -40,8 +40,10 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
   @Override
   public void filter(final ContainerRequestContext requestContext) {
 
-    if (LOGGER.isWarnEnabled() && !this.authEnabled.get().booleanValue()) {
-      LOGGER.warn("Authorization is disabled, skipping ownership check");
+    if (!this.authEnabled.get().booleanValue()) {
+      if (LOGGER.isWarnEnabled()) {
+        LOGGER.warn("Authorization is disabled, skipping ownership check");
+      }
       return;
     }
 
