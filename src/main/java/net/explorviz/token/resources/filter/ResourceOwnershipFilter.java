@@ -27,7 +27,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
+  @ConfigProperty(name = "authentication.enabled", defaultValue = "true") // NOPMD
   /* default */ Instance<Boolean> authEnabled; // NOCS
 
   @Context // NOPMD
