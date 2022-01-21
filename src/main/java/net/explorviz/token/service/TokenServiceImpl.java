@@ -1,9 +1,11 @@
 package net.explorviz.token.service;
 
+import io.quarkus.runtime.StartupEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
@@ -30,30 +32,36 @@ public class TokenServiceImpl implements TokenService {
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
   /* default */ Instance<Boolean> authEnabled; // NOCS
 
+  @ConfigProperty(name = "initial.token.creation.enabled")
+  /* default */ boolean initialTokenCreationEnabled; // NOCS
+
+  @ConfigProperty(name = "initial.token.user")
+  /* default */ String initialTokenUser; // NOCS
+
+  @ConfigProperty(name = "initial.token.value")
+  /* default */ String initialTokenValue; // NOCS
+
+  @ConfigProperty(name = "initial.token.secret")
+  /* default */ String initialTokenSecret; // NOCS
+
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
 
   @Inject
-  public TokenServiceImpl(
-      @ConfigProperty(name = "initial.token.creation.enabled",
-          defaultValue = "false") final boolean initialTokenCreationEnabled,
-      @ConfigProperty(name = "initial.token.user",
-          defaultValue = "9000") final String initialTokenUser,
-      @ConfigProperty(name = "initial.token.value",
-          defaultValue = "9dcb88d3-69c7-4dc9-90dc-5d1899ea8a9d") final String initialTokenValue,
-      @ConfigProperty(name = "initial.token.secret",
-          defaultValue = "gC7YFkn2UEv0atTh") final String initialTokenSecret, // NOCS
-      final TokenGenerator generator, final LandscapeTokenRepository repository,
+  public TokenServiceImpl(final TokenGenerator generator, final LandscapeTokenRepository repository,
       final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
     this.eventService = eventService;
+  }
 
-    if (initialTokenCreationEnabled) {
-      this.createNewConstantToken(initialTokenUser, initialTokenValue, initialTokenSecret);
+  /* default */ void onStart(@Observes final StartupEvent ev) {
+    if (this.initialTokenCreationEnabled) {
+      this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
+          this.initialTokenSecret);
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Created default landscape token..");
+        LOGGER.debug("Created default landscape token.");
       }
     }
   }
