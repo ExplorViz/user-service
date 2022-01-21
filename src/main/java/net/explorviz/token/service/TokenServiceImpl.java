@@ -13,6 +13,8 @@ import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the use cases for managing and accessing tokens.
@@ -20,59 +22,66 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class TokenServiceImpl implements TokenService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
+
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "value = ?1";
+
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  /* default */ Instance<Boolean> authEnabled; // NOCS
 
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
-  /* default */ Instance<Boolean> authEnabled; // NOCS
-
   @Inject
-  public TokenServiceImpl(@ConfigProperty(name = "initial.token.creation.enabled", defaultValue = "false") boolean initialTokenCreationEnabled,
-                          @ConfigProperty(name = "initial.token.user", defaultValue = "9000") String initialTokenUser,
-                          @ConfigProperty(name = "initial.token.value", defaultValue = "9dcb88d3-69c7-4dc9-90dc-5d1899ea8a9d") String initialTokenValue,
-                          @ConfigProperty(name = "initial.token.secret", defaultValue = "gC7YFkn2UEv0atTh") String initialTokenSecret,
-                          final TokenGenerator generator,
-                          final LandscapeTokenRepository repository,
-                          final EventService eventService) {
+  public TokenServiceImpl(
+      @ConfigProperty(name = "initial.token.creation.enabled",
+          defaultValue = "false") final boolean initialTokenCreationEnabled,
+      @ConfigProperty(name = "initial.token.user",
+          defaultValue = "9000") final String initialTokenUser,
+      @ConfigProperty(name = "initial.token.value",
+          defaultValue = "9dcb88d3-69c7-4dc9-90dc-5d1899ea8a9d") final String initialTokenValue,
+      @ConfigProperty(name = "initial.token.secret",
+          defaultValue = "gC7YFkn2UEv0atTh") final String initialTokenSecret, // NOCS
+      final TokenGenerator generator, final LandscapeTokenRepository repository,
+      final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
     this.eventService = eventService;
 
     if (initialTokenCreationEnabled) {
-      System.out.println("Creating default landscape token..");
       this.createNewConstantToken(initialTokenUser, initialTokenValue, initialTokenSecret);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Created default landscape token..");
+      }
     }
   }
 
-  private void createNewConstantToken(final String ownerId, final String value, final String secret) {
-    final String alias = "";
+  private void createNewConstantToken(final String ownerId, final String value,
+      final String secret) {
+    final String alias = ""; // NOPMD
     final long created = System.currentTimeMillis();
 
-    final LandscapeToken token = new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
+    final LandscapeToken token =
+        new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
     this.repository.persist(token);
-    this.eventService
-        .dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
+    this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
   }
 
   @Override
   public LandscapeToken createNewToken(final String ownerId, final String alias) {
     final LandscapeToken token = this.generator.generateToken(ownerId, alias);
     this.repository.persist(token);
-    this.eventService
-        .dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
+    this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
     return token;
   }
 
   @Override
   public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId,
-                                   final String alias) {
-    final var token = createNewToken(newOwnerId, alias);
-    this.eventService
-        .dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
+      final String alias) {
+    final var token = this.createNewToken(newOwnerId, alias);
+    this.eventService.dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
     return token;
   }
 

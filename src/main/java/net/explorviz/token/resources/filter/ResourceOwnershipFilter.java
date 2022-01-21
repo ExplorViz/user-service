@@ -27,13 +27,16 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  // NOPMD
   /* default */ Instance<Boolean> authEnabled; // NOCS
 
-  @Context // NOPMD
+  @Context
+  // NOPMD
   /* default */ ResourceInfo resourceInfo; // NOCS
 
-  @Context // NOPMD
+  @Context
+  // NOPMD
   /* default */ UriInfo uriInfo; // NOCS
 
 
@@ -54,9 +57,8 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Restricted route accessed anonymously, aborting request");
       }
-      requestContext.abortWith(
-          Response.status(Response.Status.UNAUTHORIZED.getStatusCode())
-              .build());
+      requestContext
+          .abortWith(Response.status(Response.Status.UNAUTHORIZED.getStatusCode()).build());
       return;
     }
 
