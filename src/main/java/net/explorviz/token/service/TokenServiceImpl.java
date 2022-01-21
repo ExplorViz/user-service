@@ -1,8 +1,10 @@
 package net.explorviz.token.service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
@@ -10,6 +12,7 @@ import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * Implements the use cases for managing and accessing tokens.
@@ -24,13 +27,35 @@ public class TokenServiceImpl implements TokenService {
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
 
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
+  /* default */ Instance<Boolean> authEnabled; // NOCS
+
   @Inject
-  public TokenServiceImpl(final TokenGenerator generator,
+  public TokenServiceImpl(@ConfigProperty(name = "initial.token.creation.enabled", defaultValue = "false") boolean initialTokenCreationEnabled,
+                          @ConfigProperty(name = "initial.token.user", defaultValue = "9000") String initialTokenUser,
+                          @ConfigProperty(name = "initial.token.value", defaultValue = "9dcb88d3-69c7-4dc9-90dc-5d1899ea8a9d") String initialTokenValue,
+                          @ConfigProperty(name = "initial.token.secret", defaultValue = "gC7YFkn2UEv0atTh") String initialTokenSecret,
+                          final TokenGenerator generator,
                           final LandscapeTokenRepository repository,
                           final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
     this.eventService = eventService;
+
+    if (initialTokenCreationEnabled) {
+      System.out.println("Creating default landscape token..");
+      this.createNewConstantToken(initialTokenUser, initialTokenValue, initialTokenSecret);
+    }
+  }
+
+  private void createNewConstantToken(final String ownerId, final String value, final String secret) {
+    final String alias = "";
+    final long created = System.currentTimeMillis();
+
+    final LandscapeToken token = new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
+    this.repository.persist(token);
+    this.eventService
+        .dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
   }
 
   @Override

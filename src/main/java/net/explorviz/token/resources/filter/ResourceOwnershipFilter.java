@@ -27,7 +27,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "authentication.enabled", defaultValue = "true") // NOPMD
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true") // NOPMD
   /* default */ Instance<Boolean> authEnabled; // NOCS
 
   @Context // NOPMD
@@ -39,8 +39,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   @Override
   public void filter(final ContainerRequestContext requestContext) {
-
-    if (!this.authEnabled.get().booleanValue()) {
+    if (!this.authEnabled.get()) {
       if (LOGGER.isWarnEnabled()) {
         LOGGER.warn("Authorization is disabled, skipping ownership check");
       }
