@@ -32,7 +32,8 @@ public class TokenResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
 
-  @Inject // NOPMD
+  @Inject
+  // NOPMD
   /* default */ SecurityIdentity securityIdentity; // NOCS
 
   private final TokenService tokenService;
@@ -42,8 +43,7 @@ public class TokenResource {
 
 
   @Inject
-  public TokenResource(final TokenService tokenService,
-      final TokenAccessService tokenAccessService,
+  public TokenResource(final TokenService tokenService, final TokenAccessService tokenAccessService,
       final SecurityIdentity securityIdentity) {
     this.securityIdentity = securityIdentity;
     this.tokenAccessService = tokenAccessService;

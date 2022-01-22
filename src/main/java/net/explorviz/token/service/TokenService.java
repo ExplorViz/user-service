@@ -47,7 +47,7 @@ public interface TokenService {
    * @param ownerId the user to create the token for
    * @return a new token
    */
-  default LandscapeToken createNewToken(String ownerId) {
+  default LandscapeToken createNewToken(final String ownerId) {
     return this.createNewToken(ownerId, "");
   }
 

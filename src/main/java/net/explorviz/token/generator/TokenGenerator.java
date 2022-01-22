@@ -13,13 +13,12 @@ public interface TokenGenerator {
    * @param ownerId the id of the user the token is generated for
    * @return a new landscape token.
    */
-  default LandscapeToken generateToken(String ownerId) {
+  default LandscapeToken generateToken(final String ownerId) {
     return this.generateToken(ownerId, "");
   }
 
   /**
-   * Generates a new landscape token associated with a given user.
-   * Assigns an alias to this token.
+   * Generates a new landscape token associated with a given user. Assigns an alias to this token.
    *
    * @param ownerId the id of the user the token is generated for
    * @param alias the alias for the token

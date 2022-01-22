@@ -48,11 +48,9 @@ public class LandscapeToken {
 
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
-                        @BsonProperty("secret") final String secret,
-                        @BsonProperty("owner") final String ownerId,
-                        @BsonProperty("created") final long created,
-                        @BsonProperty("alias") final String alias,
-                        @BsonProperty("sharedUsers") final List<String> sharedUsers) {
+      @BsonProperty("secret") final String secret, @BsonProperty("owner") final String ownerId,
+      @BsonProperty("created") final long created, @BsonProperty("alias") final String alias,
+      @BsonProperty("sharedUsers") final List<String> sharedUsers) {
     this.value = value;
     this.ownerId = ownerId;
     this.created = created;
@@ -61,11 +59,8 @@ public class LandscapeToken {
     this.sharedUsersIds = sharedUsers;
   }
 
-  public LandscapeToken(final String value,
-                        final String secret,
-                        final String ownerId,
-                        final long created,
-                        final String alias) {
+  public LandscapeToken(final String value, final String secret, final String ownerId,
+      final long created, final String alias) {
     this(value, secret, ownerId, created, alias, new ArrayList<>());
   }
 
@@ -98,7 +93,7 @@ public class LandscapeToken {
    */
   @BsonProperty("created")
   public long getCreated() {
-    return created;
+    return this.created;
   }
 
   /**
@@ -108,7 +103,7 @@ public class LandscapeToken {
    */
   @BsonProperty("alias")
   public String getAlias() {
-    return alias;
+    return this.alias;
   }
 
 
@@ -119,12 +114,12 @@ public class LandscapeToken {
    */
   @BsonProperty("secret")
   public String getSecret() {
-    return secret;
+    return this.secret;
   }
 
   @BsonProperty("sharedUsers")
   public List<String> getSharedUsersIds() {
-    return sharedUsersIds;
+    return this.sharedUsersIds;
 
   }
 
@@ -137,10 +132,8 @@ public class LandscapeToken {
       return false;
     }
     final LandscapeToken token = (LandscapeToken) o;
-    return Objects.equal(this.value, token.value)
-        && Objects.equal(this.ownerId, token.ownerId)
-        && Objects.equal(this.created, token.created)
-        && Objects.equal(this.alias, token.alias)
+    return Objects.equal(this.value, token.value) && Objects.equal(this.ownerId, token.ownerId)
+        && Objects.equal(this.created, token.created) && Objects.equal(this.alias, token.alias)
         && Objects.equal(this.secret, token.secret)
         && Objects.equal(this.sharedUsersIds, token.sharedUsersIds);
   }
@@ -156,13 +149,9 @@ public class LandscapeToken {
    * @return avro representation of this token
    */
   public net.explorviz.avro.LandscapeToken toAvro() {
-    return net.explorviz.avro.LandscapeToken.newBuilder()
-        .setValue(this.value)
-        .setSecret(this.secret)
-        .setOwnerId(this.ownerId)
-        .setAlias(this.alias)
-        .setCreated(this.getCreated())
-        .build();
+    return net.explorviz.avro.LandscapeToken.newBuilder().setValue(this.value)
+        .setSecret(this.secret).setOwnerId(this.ownerId).setAlias(this.alias)
+        .setCreated(this.getCreated()).build();
   }
 
 }

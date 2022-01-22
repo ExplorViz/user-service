@@ -1,8 +1,12 @@
 package net.explorviz.token.service;
 
+import io.quarkus.runtime.StartupEvent;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
@@ -10,6 +14,9 @@ import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.messaging.EventService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the use cases for managing and accessing tokens.
@@ -17,37 +24,72 @@ import net.explorviz.token.service.messaging.EventService;
 @ApplicationScoped
 public class TokenServiceImpl implements TokenService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
+
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "value = ?1";
+
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  /* default */ Instance<Boolean> authEnabled; // NOCS
+
+  @ConfigProperty(name = "initial.token.creation.enabled")
+  /* default */ boolean initialTokenCreationEnabled; // NOCS
+
+  @ConfigProperty(name = "initial.token.user")
+  /* default */ String initialTokenUser; // NOCS
+
+  @ConfigProperty(name = "initial.token.value")
+  /* default */ String initialTokenValue; // NOCS
+
+  @ConfigProperty(name = "initial.token.secret")
+  /* default */ String initialTokenSecret; // NOCS
 
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
 
   @Inject
-  public TokenServiceImpl(final TokenGenerator generator,
-                          final LandscapeTokenRepository repository,
-                          final EventService eventService) {
+  public TokenServiceImpl(final TokenGenerator generator, final LandscapeTokenRepository repository,
+      final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
     this.eventService = eventService;
+  }
+
+  /* default */ void onStart(@Observes final StartupEvent ev) {
+    if (this.initialTokenCreationEnabled) {
+      this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
+          this.initialTokenSecret);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Created default landscape token.");
+      }
+    }
+  }
+
+  private void createNewConstantToken(final String ownerId, final String value,
+      final String secret) {
+    final String alias = ""; // NOPMD
+    final long created = System.currentTimeMillis();
+
+    final LandscapeToken token =
+        new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
+    this.repository.persist(token);
+    this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
   }
 
   @Override
   public LandscapeToken createNewToken(final String ownerId, final String alias) {
     final LandscapeToken token = this.generator.generateToken(ownerId, alias);
     this.repository.persist(token);
-    this.eventService
-        .dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
+    this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
     return token;
   }
 
   @Override
   public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId,
-                                   final String alias) {
-    final var token = createNewToken(newOwnerId, alias);
-    this.eventService
-        .dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
+      final String alias) {
+    final var token = this.createNewToken(newOwnerId, alias);
+    this.eventService.dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
     return token;
   }
 

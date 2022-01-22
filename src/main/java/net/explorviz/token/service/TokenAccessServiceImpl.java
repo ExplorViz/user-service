@@ -13,14 +13,15 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class TokenAccessServiceImpl implements TokenAccessService {
 
-  @ConfigProperty(name = "authentication.enabled", defaultValue = "true") // NOPMD
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  // NOPMD
   /* default */ Instance<Boolean> authEnabled; // NOCS
 
   @Override
   public TokenPermission[] getPermissions(final LandscapeToken token, final String userId) {
 
-    if (!authEnabled.get()) {
-      return new TokenPermission[]{TokenPermission.DELETE, TokenPermission.READ};
+    if (!this.authEnabled.get()) {
+      return new TokenPermission[] {TokenPermission.DELETE, TokenPermission.READ};
     }
 
     if (token.getOwnerId().equals(userId)) {
