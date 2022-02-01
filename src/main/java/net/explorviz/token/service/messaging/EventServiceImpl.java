@@ -1,7 +1,9 @@
 package net.explorviz.token.service.messaging;
 
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -20,10 +22,15 @@ public class EventServiceImpl implements EventService {
   @Inject
   /* default */ Emitter<TokenEvent> eventEmitter; // NOCS
 
-
   @Override
   public void dispatch(final TokenEvent event) {
-    this.eventEmitter.send(event);
+    if (event.getType().equals(EventType.DELETED)) {
+      // tombstone record
+      this.eventEmitter.send(KafkaRecord.of(event.getToken().getValue(), null));
+    } else {
+      this.eventEmitter.send(KafkaRecord.of(event.getToken().getValue(), event));
+    }
+
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Sent new event {}", event);
     }

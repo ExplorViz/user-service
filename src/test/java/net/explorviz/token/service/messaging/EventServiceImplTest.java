@@ -2,8 +2,8 @@ package net.explorviz.token.service.messaging;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
-import io.smallrye.reactive.messaging.connectors.InMemorySink;
+import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
+import io.smallrye.reactive.messaging.providers.connectors.InMemorySink;
 import java.util.Collections;
 import javax.enterprise.inject.Any;
 import javax.inject.Inject;
@@ -30,14 +30,11 @@ class EventServiceImplTest {
   void dispatchEvent() {
     final String tokenValue = "testtoken";
     final String uid = "testuid";
-    LandscapeToken token =
+    final LandscapeToken token =
         new LandscapeToken(tokenValue, "secret", uid, 0, "", Collections.emptyList());
 
-    final TokenEvent testEvent = TokenEvent.newBuilder()
-        .setToken(token.toAvro())
-        .setType(EventType.CREATED)
-        .setClonedToken("")
-        .build();
+    final TokenEvent testEvent = TokenEvent.newBuilder().setToken(token.toAvro())
+        .setType(EventType.CREATED).setClonedToken("").build();
 
     final InMemorySink<TokenEvent> events = this.connector.sink("token-events");
     this.service.dispatch(testEvent);

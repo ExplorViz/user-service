@@ -1,7 +1,7 @@
 package net.explorviz.token.model;
 
 import com.google.common.base.Objects;
-import io.quarkus.mongodb.panache.MongoEntity;
+import io.quarkus.mongodb.panache.common.MongoEntity;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.codecs.pojo.annotations.BsonCreator;
