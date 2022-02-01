@@ -55,8 +55,8 @@ class TokenResourceTest {
       return null;
     }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
 
-    Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString())).thenAnswer(
-        invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
+    Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
+        .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
   }
 
 
@@ -71,7 +71,7 @@ class TokenResourceTest {
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(uid);
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
     Mockito
@@ -79,11 +79,7 @@ class TokenResourceTest {
         .thenReturn(true);
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
-    given()
-        .when().get("token/" + value)
-        .then()
-        .statusCode(200)
-        .body("ownerId", is(uid))
+    given().when().get("token/" + value).then().statusCode(200).body("ownerId", is(uid))
         .body("value", is(value));
   }
 
@@ -98,40 +94,28 @@ class TokenResourceTest {
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn("other");
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-
-    this.repo.persist(new LandscapeToken(value,
-        SECRET,
-        uid,
-        System.currentTimeMillis(),
-        "alias"));
-
-    // Auth is disabled in tests, all requests get full permissions.
-    // Mock to return empty an empty permission array
-    Mockito
-        .when(this.tokenAccessService.getPermissions(ArgumentMatchers.any(),
-            ArgumentMatchers.anyString()))
-        .thenReturn(new TokenPermission[] {});
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
 
-    given()
-        .when().get("token/" + value)
-        .then()
-        .statusCode(403);
+    // Auth is disabled in tests, all requests get full permissions.
+    // Mock to return empty an empty permission array
+    Mockito.when(this.tokenAccessService.getPermissions(ArgumentMatchers.any(),
+        ArgumentMatchers.anyString())).thenReturn(new TokenPermission[] {});
+
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+
+    given().when().get("token/" + value).then().statusCode(403);
   }
 
   @Test
   void getTokenByUnknownValue() {
     final String value = "unknown";
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
-    given()
-        .when().get("token/" + value)
-        .then()
-        .statusCode(404);
+    given().when().get("token/" + value).then().statusCode(404);
   }
 
   @Test
@@ -146,12 +130,10 @@ class TokenResourceTest {
     Mockito.when(principal.getName()).thenReturn(uid);
 
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-    Mockito
-        .when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
-        .thenAnswer(
-            invocation -> this.inMemRepo.deleteByValue(value));
+    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+        .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), ""));
 
@@ -160,14 +142,8 @@ class TokenResourceTest {
             this.tokenAccessService.canDelete(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
         .thenReturn(true);
 
-    given()
-        .when().delete("token/" + value)
-        .then()
-        .statusCode(204);
-    given()
-        .when().get("token/" + value)
-        .then()
-        .statusCode(404);
+    given().when().delete("token/" + value).then().statusCode(204);
+    given().when().get("token/" + value).then().statusCode(404);
   }
 
   @Test
@@ -182,12 +158,10 @@ class TokenResourceTest {
     Mockito.when(principal.getName()).thenReturn("other");
 
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-    Mockito
-        .when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
-        .thenAnswer(
-            invocation -> this.inMemRepo.deleteByValue(value));
+    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+        .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
 
@@ -196,30 +170,19 @@ class TokenResourceTest {
         .when(this.tokenAccessService.canRead(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
         .thenReturn(true);
 
-    given()
-        .when().delete("token/" + value)
-        .then()
-        .statusCode(403);
+    given().when().delete("token/" + value).then().statusCode(403);
     Mockito.when(principal.getName()).thenReturn(uid);
-    given()
-        .when().get("token/" + value)
-        .then()
-        .statusCode(200);
+    given().when().get("token/" + value).then().statusCode(200);
   }
 
   @Test
   void deleteUnknownToken() {
 
     final String value = "unknown";
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-    Mockito
-        .when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>anyVararg()))
-        .thenAnswer(
-            invocation -> this.inMemRepo.deleteByValue(value));
-    given()
-        .when().delete("token/" + value)
-        .then()
-        .statusCode(404);
+    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+        .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
+    given().when().delete("token/" + value).then().statusCode(404);
   }
 }

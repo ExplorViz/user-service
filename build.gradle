@@ -65,8 +65,8 @@ dependencies {
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
 
-  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '5.5.0'
-  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '5.5.0'
+  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
+  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.0.1'
   implementation 'io.quarkus:quarkus-avro'
 
   implementation 'io.quarkus:quarkus-oidc'
