@@ -70,7 +70,6 @@ dependencies {
   
   // Kafka  
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
-  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.0.1'
   implementation 'io.quarkus:quarkus-avro'
   
   testImplementation 'io.quarkus:quarkus-junit5'
