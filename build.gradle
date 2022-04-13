@@ -60,7 +60,6 @@ dependencies {
   // Base
   implementation 'io.quarkus:quarkus-resteasy-jackson'
   implementation 'io.quarkus:quarkus-resteasy'
-  implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
 
@@ -71,6 +70,7 @@ dependencies {
   // Kafka  
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
   implementation 'io.quarkus:quarkus-avro'
+  implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
   
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.rest-assured:rest-assured'
