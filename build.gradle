@@ -1,9 +1,7 @@
 plugins {
   id 'java'
-  id 'idea'
   id 'io.quarkus'
-  id 'com.adarshr.test-logger' version '2.1.0'
-  id 'com.github.davidmc24.gradle.plugin.avro' version '1.2.0'
+  id 'com.adarshr.test-logger' version '3.2.0'
   id 'eclipse'
 }
 
@@ -51,28 +49,29 @@ configurations {
   integrationTestRuntimeOnly.setCanBeResolved(true)
 }
 
+sourceSets.main.java.srcDirs = ['build/classes/java/quarkus-generated-sources/avdl', 'src/main/java']
 
 dependencies {
   implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
 
   implementation 'io.quarkus:quarkus-container-image-jib'
-
-  implementation 'io.quarkus:quarkus-resteasy-jackson'
-
   implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
 
+  // Base
+  implementation 'io.quarkus:quarkus-resteasy-jackson'
+  implementation 'io.quarkus:quarkus-resteasy'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
 
+  // Auth
+  implementation 'io.quarkus:quarkus-oidc'
+  implementation 'io.quarkus:quarkus-mongodb-panache'
+  
+  // Kafka  
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
   implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.0.1'
   implementation 'io.quarkus:quarkus-avro'
-
-  implementation 'io.quarkus:quarkus-oidc'
-
-  implementation 'io.quarkus:quarkus-resteasy'
-  implementation 'io.quarkus:quarkus-mongodb-panache'
   
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.rest-assured:rest-assured'
@@ -83,7 +82,6 @@ dependencies {
   integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
   integrationTestImplementation "org.testcontainers:testcontainers:1.15.2"
   integrationTestImplementation "org.testcontainers:kafka:1.15.2"
-
 }
 
 group 'net.explorviz'
@@ -103,18 +101,10 @@ java {
   targetCompatibility = JavaVersion.VERSION_11
 }
 
-sourceSets.main.java.srcDirs = ['build/generated-main-avro-java', 'src/main/java']
-
 test {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
 
 integrationTest {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
-}
-
-idea {
-  module {
-    downloadJavadoc = true
-  }
 }
