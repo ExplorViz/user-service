@@ -109,6 +109,8 @@ push-dockerhub:
 push-dockerhub-noauth:
   stage: deploy
   only:
+    - master
+  except:
     - schedules
   before_script:
     - export OIDC_ENABLED=false
