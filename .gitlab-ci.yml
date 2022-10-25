@@ -105,3 +105,14 @@ push-dockerhub:
     - exec-docker
   script: 
     - ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
+
+push-dockerhub-noauth:
+  stage: deploy
+  only:
+    - schedules
+  before_script:
+    - export OIDC_ENABLED=false
+  tags:
+    - exec-docker
+  script: 
+    - ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.name=user-service-jvm -Dquarkus.container-image.tag=noauth -Dquarkus.container-image.additional-tags=noauth-$CI_COMMIT_SHORT_SHA -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
