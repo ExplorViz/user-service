@@ -62,13 +62,17 @@ dependencies {
   implementation 'io.quarkus:quarkus-resteasy'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
+  
+  // Utility
+  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 
   // Auth
   implementation 'io.quarkus:quarkus-oidc'
   implementation 'io.quarkus:quarkus-mongodb-panache'
   
-  // Kafka  
-  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
+  // Kafka
+  implementation 'io.quarkus:quarkus-confluent-registry-avro'
+  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.2.1'
   implementation 'io.quarkus:quarkus-avro'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
   
@@ -79,8 +83,8 @@ dependencies {
   // Integration Testing
   integrationTestImplementation 'io.quarkus:quarkus-junit5'  
   integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
-  integrationTestImplementation "org.testcontainers:testcontainers:1.15.2"
-  integrationTestImplementation "org.testcontainers:kafka:1.15.2"
+  integrationTestImplementation "org.testcontainers:testcontainers:1.17.5"
+  integrationTestImplementation "org.testcontainers:kafka:1.17.5"
 }
 
 group 'net.explorviz'
