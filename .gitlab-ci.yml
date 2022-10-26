@@ -111,8 +111,6 @@ push-dockerhub-dev:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
-  except:
-    - schedules
   tags:
     - exec-docker
   script: 
