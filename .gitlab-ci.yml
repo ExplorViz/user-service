@@ -109,10 +109,8 @@ push-dockerhub:
 push-dockerhub-dev:
   stage: deploy
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
   tags:
     - exec-docker
   script:
-    - export QUARKUS_OIDC_ENABLED=false 
-    - ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.tag=dev -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA-dev -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
+    - QUARKUS_OIDC_ENABLED=false ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.tag=dev -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA-dev -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
