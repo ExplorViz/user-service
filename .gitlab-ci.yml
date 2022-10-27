@@ -108,8 +108,8 @@ push-dockerhub:
 
 push-dockerhub-dev:
   stage: deploy
-  rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
+  #rules:
+  #  - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
   tags:
     - exec-docker
   script:
