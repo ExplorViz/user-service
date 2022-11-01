@@ -26,7 +26,7 @@ stages:
 build:
   stage: build
   tags:
-    - exec-docker
+    - alex-lokal
   script: ./gradlew --build-cache assemble
   cache:
     policy: push
@@ -39,19 +39,19 @@ build:
 pmd:
   stage: code-analysis
   tags:
-    - exec-docker
+    - alex-lokal
   script: ./gradlew pmdMain
 
 checkstyle:
   stage: code-analysis
   tags:
-    - exec-docker
+    - alex-lokal
   script: ./gradlew checkstyleMain
 
 test:
   stage: test
   tags:
-    - exec-docker
+    - alex-lokal
   script: 
     - ./gradlew jacocoTestReport
     # Print test coverage to console (for coverage badge)
@@ -67,7 +67,7 @@ test:
 coverage:
   stage: visualize
   tags:
-    - exec-docker
+    - alex-lokal
   image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
   script:
     # convert report from jacoco to cobertura
@@ -91,7 +91,7 @@ push-dockerhub-native:
   before_script:
     - gu install native-image
   tags:
-    - exec-docker
+    - alex-lokal
   script: 
     - ./gradlew clean assemble -Dquarkus.package.type=native -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.name=user-service-native -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA -Dquarkus.native.additional-build-args="--initialize-at-run-time=org.apache.kafka.common.security.authenticator.SaslClientAuthenticator\\,org.apache.kafka.common.security.oauthbearer.internals.expiring.ExpiringCredentialRefreshingLogin\\,org.apache.commons.lang3.RandomStringUtils" -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
 
@@ -102,7 +102,7 @@ push-dockerhub:
   except:
     - schedules
   tags:
-    - exec-docker
+    - alex-lokal
   script: 
     - ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
 
@@ -111,6 +111,7 @@ push-dockerhub-dev:
   only:
     - master
   tags:
-    - exec-docker
+    - alex-lokal
   script:
     - QUARKUS_OIDC_ENABLED=false ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.tag=dev -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA-dev -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
+    - sleep 5m
