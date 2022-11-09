@@ -44,6 +44,9 @@ public class TokenServiceImpl implements TokenService {
   @ConfigProperty(name = "initial.token.secret")
   /* default */ String initialTokenSecret; // NOCS
 
+  @ConfigProperty(name = "initial.token.alias")
+  /* default */ String initialTokenAlias; // NOCS
+
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
@@ -59,7 +62,7 @@ public class TokenServiceImpl implements TokenService {
   /* default */ void onStart(@Observes final StartupEvent ev) {
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
-          this.initialTokenSecret);
+          this.initialTokenSecret, this.initialTokenAlias);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Created default landscape token.");
       }
@@ -67,12 +70,12 @@ public class TokenServiceImpl implements TokenService {
   }
 
   private void createNewConstantToken(final String ownerId, final String value,
-      final String secret) {
-    final String alias = ""; // NOPMD
+      final String secret, final String initialTokenAlias) {
     final long created = System.currentTimeMillis();
 
     final LandscapeToken token =
-        new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
+        new LandscapeToken(value, secret, ownerId, created, initialTokenAlias,
+            Collections.emptyList());
     this.repository.persist(token);
     this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
   }
