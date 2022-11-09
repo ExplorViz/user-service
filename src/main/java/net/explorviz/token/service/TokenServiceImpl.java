@@ -74,7 +74,8 @@ public class TokenServiceImpl implements TokenService {
     final long created = System.currentTimeMillis();
 
     final LandscapeToken token =
-        new LandscapeToken(value, secret, ownerId, created, initialTokenAlias, Collections.emptyList());
+        new LandscapeToken(value, secret, ownerId, created, initialTokenAlias,
+            Collections.emptyList());
     this.repository.persist(token);
     this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
   }
