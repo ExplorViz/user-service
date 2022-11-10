@@ -9,6 +9,11 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
+## Prerequisites
+
+- Java 11 or higher
+- Make sure to run the [ExplorViz software stack](https://git.se.informatik.uni-kiel.de/ExplorViz/code/deployment) before starting the service.
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
