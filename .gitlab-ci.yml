@@ -19,6 +19,7 @@ stages:
   - build
   - code-analysis
   - test
+  - integrationTest
   - coverage
   - visualize
   - deploy
@@ -82,6 +83,13 @@ coverage:
       coverage_report:
         coverage_format: cobertura
         path: build/cobertura.xml
+
+integrationTest:
+  stage: integrationTest
+  tags:
+    - podman
+  script:
+    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" ./gradlew clean integrationTest
 
 push-dockerhub-native:
   image: ghcr.io/graalvm/graalvm-ce:java11-21.3.0

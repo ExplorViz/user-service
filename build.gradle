@@ -111,4 +111,6 @@ test {
 
 integrationTest {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+  def uid = ["id", "-u"].execute().text.trim()
+  environment "DOCKER_HOST", "unix:///run/user/$uid/podman/podman.sock"
 }
