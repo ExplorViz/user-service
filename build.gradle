@@ -86,8 +86,8 @@ dependencies {
   // Integration Testing
   integrationTestImplementation 'io.quarkus:quarkus-junit5'  
   integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
-  integrationTestImplementation "org.testcontainers:testcontainers:1.17.5"
-  integrationTestImplementation "org.testcontainers:kafka:1.17.5"
+  integrationTestImplementation "org.testcontainers:testcontainers"
+  integrationTestImplementation "org.testcontainers:kafka"
 }
 
 group 'net.explorviz'
