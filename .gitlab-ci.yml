@@ -16,13 +16,13 @@ cache:
     - .gradle
 
 stages:
-  - build
-  - code-analysis
-  - test
+  #- build
+  #- code-analysis
+  #- test
   - integrationTest
-  - coverage
-  - visualize
-  - deploy
+  #- coverage
+  #- visualize
+  #- deploy
 
 build:
   stage: build
