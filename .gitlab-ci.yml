@@ -99,7 +99,10 @@ integrationTest:
   tags:
     - podman
   script:
-    - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="unix:///run/user/$UID/podman/podman.sock" DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" ./gradlew clean integrationTest
+    - export TESTCONTAINERS_RYUK_DISABLED=true
+    - export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="unix:///run/user/$UID/podman/podman.sock"
+    - export DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock"
+    - TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="unix:///run/user/$UID/podman/podman.sock" DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" ./gradlew clean integrationTest
 
 push-dockerhub-native:
   image: ghcr.io/graalvm/graalvm-ce:java11-21.3.0

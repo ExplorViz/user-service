@@ -116,6 +116,7 @@ integrationTest {
   OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
   //if (os.isLinux()) {
     def uid = ["id", "-u"].execute().text.trim()
+    environment "TESTCONTAINERS_RYUK_DISABLED", true
     environment "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "unix:///run/user/$uid/podman/podman.sock"
     environment "DOCKER_HOST", "unix:///run/user/$uid/podman/podman.sock"
   //}
