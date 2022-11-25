@@ -114,9 +114,9 @@ test {
 integrationTest {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
   OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
-  if (os.isLinux()) {
+  //if (os.isLinux()) {
     def uid = ["id", "-u"].execute().text.trim()
     environment "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "unix:///run/user/$uid/podman/podman.sock"
     environment "DOCKER_HOST", "unix:///run/user/$uid/podman/podman.sock"
-  }
+  //}
 }
