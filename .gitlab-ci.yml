@@ -89,7 +89,7 @@ integrationTest:
   tags:
     - podman
   script:
-    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" ./gradlew clean integrationTest
+    - ./gradlew clean integrationTest
 
 push-dockerhub-native:
   image: ghcr.io/graalvm/graalvm-ce:java11-21.3.0
