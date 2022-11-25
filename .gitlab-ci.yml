@@ -16,15 +16,17 @@ cache:
     - .gradle
 
 stages:
-  #- build
-  #- code-analysis
-  #- test
+  - build
+  - code-analysis
+  - test
   - integrationTest
-  #- coverage
-  #- visualize
-  #- deploy
+  - coverage
+  - visualize
+  - deploy
 
 build:
+  rules:
+    - when: never
   stage: build
   tags:
     - exec-docker
@@ -39,18 +41,24 @@ build:
 
 pmd:
   stage: code-analysis
+  rules:
+    - when: never
   tags:
     - exec-docker
   script: ./gradlew pmdMain
 
 checkstyle:
   stage: code-analysis
+  rules:
+    - when: never
   tags:
     - exec-docker
   script: ./gradlew checkstyleMain
 
 test:
   stage: test
+  rules:
+    - when: never
   tags:
     - exec-docker
   script: 
@@ -67,6 +75,8 @@ test:
   
 coverage:
   stage: visualize
+  rules:
+    - when: never
   tags:
     - exec-docker
   image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
