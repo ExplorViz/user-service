@@ -41,6 +41,9 @@ task integrationTest(type: Test) {
   shouldRunAfter test
 }
 
+jacocoTestReport.dependsOn test
+jacocoTestReport.dependsOn integrationTest
+
 check.dependsOn integrationTest
 
 configurations {
@@ -112,15 +115,5 @@ test {
 }
 
 integrationTest.doFirst {
-  def uid = ["id", "-u"].execute().text.trim()
-  environment "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "unix:///run/user/$uid/podman/podman.sock"
-  environment "DOCKER_HOST", "unix:///run/user/$uid/podman/podman.sock"
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
-  OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
-  //if (os.isLinux()) {
-    //def uid = ["id", "-u"].execute().text.trim()
-    //environment "TESTCONTAINERS_RYUK_DISABLED", true
-    environment "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "unix:///run/user/$uid/podman/podman.sock"
-    environment "DOCKER_HOST", "unix:///run/user/$uid/podman/podman.sock"
-  //}
 }

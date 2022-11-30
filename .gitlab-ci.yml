@@ -53,8 +53,15 @@ test:
   stage: test
   tags:
     - exec-docker
+  script:
+    - ./gradlew test
+
+integration-test:
+  stage: test
+  tags:
+    - podman
   script: 
-    - ./gradlew jacocoTestReport
+    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_CHECKS_DISABLE=true ./gradlew clean integrationTest
     # Print test coverage to console (for coverage badge)
     - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
   coverage: '/Jacoco Coverage Total: ([0-9]{1,3})%/'
@@ -83,13 +90,6 @@ coverage:
       coverage_report:
         coverage_format: cobertura
         path: build/cobertura.xml
-
-integrationTest:
-  stage: integrationTest
-  tags:
-    - podman
-  script:
-    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_CHECKS_DISABLE=true ./gradlew clean integrationTest
 
 push-dockerhub-native:
   image: ghcr.io/graalvm/graalvm-ce:java11-21.3.0
