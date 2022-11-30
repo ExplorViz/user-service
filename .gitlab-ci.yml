@@ -84,6 +84,8 @@ jacocoTestReport:
   tags:
     - exec-docker
   script:
+    - ls build
+    - ls build/test-results
     - ls build/jacoco
     - ./gradlew jacocoTestReport
     # Print test coverage to console (for coverage badge)
