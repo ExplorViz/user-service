@@ -11,7 +11,6 @@ before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
 cache:
-  policy: pull
   paths:
     - .gradle
 
@@ -28,11 +27,7 @@ build:
   stage: build
   tags:
     - exec-docker
-  script: ./gradlew --build-cache assemble
-  cache:
-    policy: push
-    paths:
-      - .gradle
+  script: ./gradlew assemble
   artifacts:
     paths:
       - build
