@@ -62,7 +62,7 @@ test:
   script:
     - ./gradlew test
   dependencies:
-    - builld
+    - build
   artifacts:
     paths:
       - build
