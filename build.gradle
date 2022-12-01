@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
   id 'java'
   id 'io.quarkus'
@@ -38,6 +40,9 @@ task integrationTest(type: Test) {
   classpath = sourceSets.integrationTest.runtimeClasspath
   shouldRunAfter test
 }
+
+jacocoTestReport.dependsOn test
+jacocoTestReport.dependsOn integrationTest
 
 check.dependsOn integrationTest
 
@@ -84,8 +89,8 @@ dependencies {
   // Integration Testing
   integrationTestImplementation 'io.quarkus:quarkus-junit5'  
   integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
-  integrationTestImplementation "org.testcontainers:testcontainers:1.17.5"
-  integrationTestImplementation "org.testcontainers:kafka:1.17.5"
+  integrationTestImplementation "org.testcontainers:testcontainers"
+  integrationTestImplementation "org.testcontainers:kafka"
 }
 
 group 'net.explorviz'
@@ -109,6 +114,6 @@ test {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
 
-integrationTest {
+integrationTest.doFirst {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
