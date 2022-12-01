@@ -13,7 +13,7 @@ public class MongoDBTestResource implements QuarkusTestResourceLifecycleManager 
     public Map<String, String> start() {
       MONGO_DB.start();
       return Collections.singletonMap("quarkus.mongodb.connection-string", 
-                 "mongodb://" + MONGO_DB.getContainerIpAddress() + ":" + MONGO_DB.getFirstMappedPort());
+                 "mongodb://" + MONGO_DB.getHost() + ":" + MONGO_DB.getFirstMappedPort());
     }
 
     @Override
