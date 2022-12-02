@@ -100,7 +100,7 @@ coverage:
         path: build/cobertura.xml
 
 push-dockerhub-native:
-  image: ghcr.io/graalvm/graalvm-ce:java11-21.3.0
+  image: ghcr.io/graalvm/graalvm-ce:java11-22.3.0
   stage: deploy
   only:
     - schedules
