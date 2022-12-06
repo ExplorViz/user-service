@@ -102,8 +102,6 @@ coverage:
 push-dockerhub-native:
   image: ghcr.io/graalvm/graalvm-ce:ol7-java11-22.3.0
   stage: deploy
-  only:
-    - master
   before_script:
     - gu install native-image
   tags:
