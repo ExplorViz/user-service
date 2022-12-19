@@ -28,8 +28,9 @@ public class InMemRepo {
         .collect(Collectors.toList());
   }
 
+  @SuppressWarnings("unchecked")
   public PanacheQuery<LandscapeToken> findByValue(final String value) {
-    final PanacheQuery mockPq = Mockito.mock(PanacheQuery.class);
+    final PanacheQuery<LandscapeToken> mockPq = Mockito.mock(PanacheQuery.class);
     Mockito.when(mockPq.stream())
         .thenReturn(this.tokens.stream().filter(i -> i.getValue().equals(value)));
     return mockPq;
