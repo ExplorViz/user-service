@@ -2,7 +2,6 @@ plugins {
   id 'java'
   id 'io.quarkus'
   id 'com.adarshr.test-logger' version '3.2.0'
-  id 'eclipse'
 }
 
 apply from: 'code-analysis/code-analysis.gradle'
@@ -20,13 +19,6 @@ sourceSets {
     java.srcDir file('src/integrationTest/java')
     compileClasspath += sourceSets.main.output
     runtimeClasspath += sourceSets.main.output
-  }
-}
-
-eclipse {
-  classpath {
-    plusConfigurations.add configurations.integrationTestRuntimeOnly
-    plusConfigurations.add configurations.integrationTestImplementation
   }
 }
 
