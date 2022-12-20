@@ -7,7 +7,7 @@ import org.testcontainers.containers.GenericContainer;
 
 public class MongoDBTestResource implements QuarkusTestResourceLifecycleManager {
 
-    private static final GenericContainer MONGO_DB = new GenericContainer<>("mongo:4.2").withExposedPorts(27017);
+    private static final GenericContainer<?> MONGO_DB = new GenericContainer<>("mongo:6.0").withExposedPorts(27017);
 
     @Override
     public Map<String, String> start() {

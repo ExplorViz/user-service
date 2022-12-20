@@ -1,13 +1,10 @@
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-
 plugins {
   id 'java'
   id 'io.quarkus'
   id 'com.adarshr.test-logger' version '3.2.0'
-  id 'eclipse'
 }
 
-apply from: 'buildscripts/code-analysis.gradle'
+apply from: 'code-analysis/code-analysis.gradle'
 
 repositories {
   mavenLocal()
@@ -22,13 +19,6 @@ sourceSets {
     java.srcDir file('src/integrationTest/java')
     compileClasspath += sourceSets.main.output
     runtimeClasspath += sourceSets.main.output
-  }
-}
-
-eclipse {
-  classpath {
-    plusConfigurations.add configurations.integrationTestRuntimeOnly
-    plusConfigurations.add configurations.integrationTestImplementation
   }
 }
 
@@ -67,34 +57,34 @@ dependencies {
   implementation 'io.quarkus:quarkus-resteasy'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
-  
+
   // Utility
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 
   // Auth
   implementation 'io.quarkus:quarkus-oidc'
   implementation 'io.quarkus:quarkus-mongodb-panache'
-  
+
   // Kafka
   implementation 'io.quarkus:quarkus-confluent-registry-avro'
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.2.1'
   implementation 'io.quarkus:quarkus-avro'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
-  
+
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation("io.quarkus:quarkus-junit5-mockito")
   testImplementation 'io.rest-assured:rest-assured'
   testImplementation 'org.mockito:mockito-core:4.8.0'
 
   // Integration Testing
-  integrationTestImplementation 'io.quarkus:quarkus-junit5'  
+  integrationTestImplementation 'io.quarkus:quarkus-junit5'
   integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
   integrationTestImplementation "org.testcontainers:testcontainers"
   integrationTestImplementation "org.testcontainers:kafka"
 }
 
 group 'net.explorviz'
-version '1.0.0-SNAPSHOT'
+version '1.0-SNAPSHOT'
 
 compileJava {
   options.encoding = 'UTF-8'
@@ -108,6 +98,12 @@ compileTestJava {
 java {
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(JavaCompile) {
+  // Turn on all javac warnings instead of classfile and processing, which produces many false-positives about
+  // annotations and cast which is triggered by the auto-generated Dao implementations
+  options.compilerArgs << "-Xlint:all" << "-Xlint:-classfile" << "-Xlint:-processing" << "-Xlint:-cast"
 }
 
 test {
