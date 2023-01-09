@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@QuarkusTestResource(MongoDBTestResource.class)
+@QuarkusTestResource(MongoDbTestResource.class)
 @QuarkusTestResource(KafkaTestResource.class)
 class TokenServiceImplIntegrationTest {
 

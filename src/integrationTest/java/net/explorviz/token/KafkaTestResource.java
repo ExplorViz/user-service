@@ -12,6 +12,9 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
+/**
+ * Set up Kafka for integration tests.
+ */
 public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
 
   private static final KafkaContainer KAFKA =
