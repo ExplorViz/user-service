@@ -26,7 +26,7 @@ checkstyle {
   configFile = file("code-analysis/checkstyle.xml")
   maxWarnings = 0
   ignoreFailures = false
-  toolVersion = "8.12"
+  toolVersion = "10.6.0"
 }
 
 task checkstyle {
