@@ -41,8 +41,8 @@ class UserTokenResourceTest {
       return null;
     }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
 
-    Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString())).thenAnswer(
-        invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
+    Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
+        .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
 
   }
@@ -50,13 +50,9 @@ class UserTokenResourceTest {
   @Test
   public void testTokenCreationEndpoint() {
     final String sampleUid = "testuid";
-    given().contentType(MediaType.APPLICATION_JSON)
-        .when().post("user/" + sampleUid + "/token/")
-        .then()
-        .statusCode(200)
-        .body("ownerId", equalTo(sampleUid))
-        .body("value", CoreMatchers.notNullValue())
-        .body("value", CoreMatchers.isA(String.class));
+    given().contentType(MediaType.APPLICATION_JSON).when().post("user/" + sampleUid + "/token/")
+        .then().statusCode(200).body("ownerId", equalTo(sampleUid))
+        .body("value", CoreMatchers.notNullValue()).body("value", CoreMatchers.isA(String.class));
   }
 
 
@@ -64,10 +60,7 @@ class UserTokenResourceTest {
   public void testTokenRetrieveEmpty() {
 
     final String sampleUid = "testuid";
-    given()
-        .when().get("user/" + sampleUid + "/token/")
-        .then()
-        .statusCode(200)
+    given().when().get("user/" + sampleUid + "/token/").then().statusCode(200)
         .body("size()", is(0));
   }
 
@@ -79,14 +72,8 @@ class UserTokenResourceTest {
     final long created = System.currentTimeMillis();
     final String alias = "somealias";
     this.repo.persist(new LandscapeToken(value, SECRET, uid, created, alias));
-    given()
-        .when().get("user/" + uid + "/token")
-        .then()
-        .statusCode(200)
-        .body("size()", is(1))
-        .body("[0].ownerId", is(uid))
-        .body("[0].value", is(value))
-        .body("[0].created", is(created))
+    given().when().get("user/" + uid + "/token").then().statusCode(200).body("size()", is(1))
+        .body("[0].ownerId", is(uid)).body("[0].value", is(value)).body("[0].created", is(created))
         .body("[0].alias", is(alias));
   }
 
@@ -101,11 +88,7 @@ class UserTokenResourceTest {
       this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, uid, created, alias));
       this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, "other", created, alias));
     }
-    given()
-        .when().get("user/" + uid + "/token")
-        .then()
-        .statusCode(200)
-        .body("size()", is(tokens));
+    given().when().get("user/" + uid + "/token").then().statusCode(200).body("size()", is(tokens));
   }
 
 

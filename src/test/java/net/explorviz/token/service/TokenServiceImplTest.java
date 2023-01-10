@@ -149,8 +149,9 @@ class TokenServiceImplTest {
   void retrieveMultipleToken() {
     final String uid = "testuid";
     for (int i = 0; i < 100; i++) {
-      this.repo.persist(new LandscapeToken(String.valueOf(i), "secret", uid,
-          System.currentTimeMillis(), "alias"));
+      this.repo.persist(
+          new LandscapeToken(String.valueOf(i), "secret", uid, System.currentTimeMillis(),
+              "alias"));
     }
     final Collection<LandscapeToken> got = this.tokenService.getOwningTokens(uid);
     assertTrue(got.containsAll(this.repo.findForUser(uid)));

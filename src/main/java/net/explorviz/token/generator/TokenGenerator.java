@@ -25,5 +25,4 @@ public interface TokenGenerator {
    * @return a new landscape token.
    */
   LandscapeToken generateToken(String ownerId, String alias);
-
 }

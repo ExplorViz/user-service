@@ -57,8 +57,8 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Restricted route accessed anonymously, aborting request");
       }
-      requestContext
-          .abortWith(Response.status(Response.Status.UNAUTHORIZED.getStatusCode()).build());
+      requestContext.abortWith(
+          Response.status(Response.Status.UNAUTHORIZED.getStatusCode()).build());
       return;
     }
 

@@ -144,8 +144,8 @@ public class LandscapeToken {
     final LandscapeToken token = (LandscapeToken) o;
     return Objects.equal(this.value, token.value) && Objects.equal(this.ownerId, token.ownerId)
         && Objects.equal(this.created, token.created) && Objects.equal(this.alias, token.alias)
-        && Objects.equal(this.secret, token.secret)
-        && Objects.equal(this.sharedUsersIds, token.sharedUsersIds);
+        && Objects.equal(this.secret, token.secret) && Objects.equal(this.sharedUsersIds,
+        token.sharedUsersIds);
   }
 
   @Override
