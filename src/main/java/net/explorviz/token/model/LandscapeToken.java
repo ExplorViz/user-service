@@ -14,7 +14,6 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 public class LandscapeToken {
 
 
-
   /**
    * The actual token value.
    */
@@ -49,11 +48,11 @@ public class LandscapeToken {
   /**
    * Token for access to a software landscape.
    *
-   * @param value The actual token value.
-   * @param secret Secret string, which together with "value" is used to check authorization.
-   * @param ownerId Id of the user who generates the token.
-   * @param created Timestamp which indicates when the token was created.
-   * @param alias Used-defined alias to easily identify token when multiple tokens are present.
+   * @param value       The actual token value.
+   * @param secret      Secret string, which together with "value" is used to check authorization.
+   * @param ownerId     Id of the user who generates the token.
+   * @param created     Timestamp which indicates when the token was created.
+   * @param alias       Used-defined alias to easily identify a token.
    * @param sharedUsers Users who have access to this token.
    */
   @BsonCreator
