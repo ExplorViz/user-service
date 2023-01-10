@@ -9,6 +9,7 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Inject;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
@@ -71,15 +72,38 @@ class TokenServiceImplTest {
   void valueNotEmpty() {
     final String sampleUid = "user|0123";
     final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid);
-    assertFalse(t1.getValue() == null || t1.getValue().isEmpty() || t1.getValue().isBlank());
+    assertFalse(t1.getValue() == null || t1.getValue().isBlank());
+  }
+
+  @Test
+  void valueIsUUID() {
+    final String sampleUid = "user|0123";
+    final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid);
+    UUID.fromString(t1.getValue()); // Throws exception if not a valid UUID
   }
 
   @Test
   void secretNotEmpty() {
     final String sampleUid = "user|0123";
     final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid);
-    System.out.println("secret: " + t1.getSecret());
-    assertFalse(t1.getSecret() == null || t1.getSecret().isEmpty() || t1.getSecret().isBlank());
+    assertFalse(t1.getSecret() == null || t1.getSecret().isBlank());
+  }
+
+  @Test
+  void validCreated() {
+    final String sampleUid = "user|0123";
+    final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid);
+    assertFalse(t1.getCreated() > System.currentTimeMillis());
+  }
+
+  @Test
+  void correctAlias() {
+    final String sampleUid = "user|0123";
+    final String sampleAlias = "aSampleAlias4567";
+    final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid, sampleAlias);
+    assertEquals(sampleAlias, t1.getAlias());
+    final LandscapeToken t2 = this.tokenService.createNewToken(sampleUid);
+    assertEquals("", t2.getAlias());
   }
 
   @Test
