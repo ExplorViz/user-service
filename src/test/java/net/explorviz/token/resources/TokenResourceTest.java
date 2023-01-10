@@ -2,6 +2,7 @@ package net.explorviz.token.resources;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.security.runtime.SecurityIdentityProxy;
 import io.quarkus.test.junit.QuarkusMock;
@@ -34,20 +35,17 @@ class TokenResourceTest {
   @BeforeEach
   void setUp() {
 
-
     this.repo = Mockito.mock(LandscapeTokenRepository.class);
     QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
 
     this.identity = Mockito.mock(SecurityIdentityProxy.class);
     QuarkusMock.installMockForType(this.identity, SecurityIdentity.class);
 
-
     final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
 
     this.tokenAccessService = Mockito.mock(TokenAccessServiceImpl.class);
     QuarkusMock.installMockForType(this.tokenAccessService, TokenAccessService.class);
-
 
     this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(invocation -> {
@@ -102,7 +100,7 @@ class TokenResourceTest {
     // Auth is disabled in tests, all requests get full permissions.
     // Mock to return empty an empty permission array
     Mockito.when(this.tokenAccessService.getPermissions(ArgumentMatchers.any(),
-        ArgumentMatchers.anyString())).thenReturn(new TokenPermission[] {});
+        ArgumentMatchers.anyString())).thenReturn(new TokenPermission[]{});
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
 
@@ -128,7 +126,6 @@ class TokenResourceTest {
     final Principal principal = Mockito.mock(Principal.class);
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(uid);
-
 
     Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
@@ -156,7 +153,6 @@ class TokenResourceTest {
     final Principal principal = Mockito.mock(Principal.class);
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn("other");
-
 
     Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));

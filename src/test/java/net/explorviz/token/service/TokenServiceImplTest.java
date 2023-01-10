@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.util.Collection;
@@ -36,7 +37,6 @@ class TokenServiceImplTest {
     QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
     final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
-
 
     this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(invocation -> {

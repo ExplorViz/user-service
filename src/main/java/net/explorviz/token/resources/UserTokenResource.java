@@ -37,6 +37,7 @@ public class UserTokenResource {
    * Helper class for retrieving aliases a body data.
    */
   private static class TokenAlias {
+
     private final String alias;
 
     @JsonCreator
@@ -53,7 +54,7 @@ public class UserTokenResource {
    * Endpoint to generate a token.
    *
    * @param userId Id of the user who owns the generated token.
-   * @param alias User-defined and optional alias for token identification.
+   * @param alias  User-defined and optional alias for token identification.
    * @return Generated landscape token.
    */
   @POST

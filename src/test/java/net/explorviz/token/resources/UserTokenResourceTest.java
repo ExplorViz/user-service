@@ -3,6 +3,7 @@ package net.explorviz.token.resources;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.ws.rs.core.MediaType;
@@ -29,12 +30,10 @@ class UserTokenResourceTest {
   @BeforeEach
   void setUp() {
 
-
     this.repo = Mockito.mock(LandscapeTokenRepository.class);
     QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
     final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
-
 
     this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(invocation -> {
@@ -44,7 +43,6 @@ class UserTokenResourceTest {
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString())).thenAnswer(
         invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
-
 
 
   }
@@ -62,10 +60,8 @@ class UserTokenResourceTest {
   }
 
 
-
   @Test
   public void testTokenRetrieveEmpty() {
-
 
     final String sampleUid = "testuid";
     given()
@@ -78,12 +74,11 @@ class UserTokenResourceTest {
   @Test
   public void testTokenRetrieve() {
 
-
     final String uid = "testuid";
     final String value = "token";
     final long created = System.currentTimeMillis();
     final String alias = "somealias";
-    this.repo.persist(new LandscapeToken(value, SECRET, uid,created, alias));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, created, alias));
     given()
         .when().get("user/" + uid + "/token")
         .then()
@@ -112,7 +107,6 @@ class UserTokenResourceTest {
         .statusCode(200)
         .body("size()", is(tokens));
   }
-
 
 
 }

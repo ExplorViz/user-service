@@ -43,9 +43,9 @@ public class TokenResource {
   /**
    * Resource for a software landscape token.
    *
-   * @param tokenService Service to manage software landscape tokens.
+   * @param tokenService       Service to manage software landscape tokens.
    * @param tokenAccessService Service which checks token permissions.
-   * @param securityIdentity Quarkus service for user access rights management.
+   * @param securityIdentity   Quarkus service for user access rights management.
    */
   @Inject
   public TokenResource(final TokenService tokenService, final TokenAccessService tokenAccessService,
@@ -113,8 +113,8 @@ public class TokenResource {
    * Endpoint to modify an access token, i.e. grant, remove, or clone access to it.
    *
    * @param tokenId Id of the access token.
-   * @param userId Id of the user whose access rights are modified.
-   * @param method Ei her "grant", "revoke", or "clone". Determines modification of access rights.
+   * @param userId  Id of the user whose access rights are modified.
+   * @param method  Ei her "grant", "revoke", or "clone". Determines modification of access rights.
    * @return Response indicating whether or not the token could be found.
    */
   @Path("/{uid}")

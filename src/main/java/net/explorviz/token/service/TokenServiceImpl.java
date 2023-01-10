@@ -54,8 +54,8 @@ public class TokenServiceImpl implements TokenService {
   /**
    * Implementation of the token service, responsible for token management.
    *
-   * @param generator Object which can generate new landscape tokens.
-   * @param repository MongoRepository for landscape tokens.
+   * @param generator    Object which can generate new landscape tokens.
+   * @param repository   MongoRepository for landscape tokens.
    * @param eventService Service to emit events.
    */
   @Inject

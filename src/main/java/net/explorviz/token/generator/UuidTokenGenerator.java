@@ -24,8 +24,6 @@ public class UuidTokenGenerator implements TokenGenerator {
     // Not cryptographically secure!
     final String secret = RandomStringUtils.randomAlphanumeric(SECRET_LEN);
 
-
-
     return new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
   }
 }
