@@ -49,6 +49,7 @@
 
   <rule ref="category/java/errorprone.xml">
     <exclude name="DataflowAnomalyAnalysis" />
+    <exclude name="BeanMembersShouldSerialize" />
   </rule>
 
   <rule ref="category/java/multithreading.xml">
