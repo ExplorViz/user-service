@@ -4,7 +4,6 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
-
 import net.explorviz.token.model.LandscapeToken;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -23,7 +22,8 @@ public class UuidTokenGenerator implements TokenGenerator {
     final long created = System.currentTimeMillis();
 
     // 16-char secret
-    final String secret = RandomStringUtils.random(SECRET_LEN, 0, 0, true, true, null, new SecureRandom());
+    final String secret =
+        RandomStringUtils.random(SECRET_LEN, 0, 0, true, true, null, new SecureRandom());
 
     return new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
   }
