@@ -40,17 +40,29 @@ public class TokenResource {
 
   private final TokenAccessService tokenAccessService;
 
-
-
+  /**
+   * Resource for a software landscape token.
+   *
+   * @param tokenService       Service to manage software landscape tokens.
+   * @param tokenAccessService Service which checks token permissions.
+   * @param securityIdentity   Quarkus service for user access rights management.
+   */
   @Inject
   public TokenResource(final TokenService tokenService, final TokenAccessService tokenAccessService,
       final SecurityIdentity securityIdentity) {
-    this.securityIdentity = securityIdentity;
-    this.tokenAccessService = tokenAccessService;
     this.tokenService = tokenService;
+    this.tokenAccessService = tokenAccessService;
+    this.securityIdentity = securityIdentity;
   }
 
 
+  /**
+   * Endpoint to get a previouly created token by its value.
+   *
+   * @param tokenVal Value of the requested landscape token.
+   * @return Landscape token with requested value.
+   * @throws ForbiddenException when no token with requested value is available.
+   */
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
@@ -69,6 +81,13 @@ public class TokenResource {
     }
   }
 
+  /**
+   * Endpoint to delete a token by its Id.
+   *
+   * @param tokenVal Value of the token which shall be deleted.
+   * @return Response with empty content.
+   * @throws ForbiddenException when priviliges of user are insufficient for token deletion.
+   */
   @DELETE
   @Authenticated
   @Produces(MediaType.TEXT_PLAIN)
@@ -90,6 +109,14 @@ public class TokenResource {
 
   }
 
+  /**
+   * Endpoint to modify an access token, i.e. grant, remove, or clone access to it.
+   *
+   * @param tokenId Id of the access token.
+   * @param userId  Id of the user whose access rights are modified.
+   * @param method  Ei her "grant", "revoke", or "clone". Determines modification of access rights.
+   * @return Response indicating whether or not the token could be found.
+   */
   @Path("/{uid}")
   @POST
   @Authenticated

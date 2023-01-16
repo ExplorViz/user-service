@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@QuarkusTestResource(MongoDBTestResource.class)
+@QuarkusTestResource(MongoDbTestResource.class)
 @QuarkusTestResource(KafkaTestResource.class)
 class TokenServiceImplIntegrationTest {
 
@@ -25,7 +25,7 @@ class TokenServiceImplIntegrationTest {
 
   /*
    * This test requires a running mongodb on port 27017. You can start one with:
-   * 
+   *
    * docker run -ti --rm -p 27017:27017 mongo:4.0
    */
   @Test

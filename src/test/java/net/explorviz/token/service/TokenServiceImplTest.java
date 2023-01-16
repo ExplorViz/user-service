@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.util.Collection;
@@ -37,7 +38,6 @@ class TokenServiceImplTest {
     QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
     final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
     QuarkusMock.installMockForType(mockEventService, EventService.class);
-
 
     this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(invocation -> {
@@ -173,8 +173,9 @@ class TokenServiceImplTest {
   void retrieveMultipleToken() {
     final String uid = "testuid";
     for (int i = 0; i < 100; i++) {
-      this.repo.persist(new LandscapeToken(String.valueOf(i), "secret", uid,
-          System.currentTimeMillis(), "alias"));
+      this.repo.persist(
+          new LandscapeToken(String.valueOf(i), "secret", uid, System.currentTimeMillis(),
+              "alias"));
     }
     final Collection<LandscapeToken> got = this.tokenService.getOwningTokens(uid);
     assertTrue(got.containsAll(this.repo.findForUser(uid)));

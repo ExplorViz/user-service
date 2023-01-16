@@ -17,14 +17,12 @@ public class InMemRepo {
   }
 
   public Collection<LandscapeToken> findForUser(final String uid) {
-    return this.tokens.stream()
-        .filter(t -> t.getOwnerId().equals(uid))
+    return this.tokens.stream().filter(t -> t.getOwnerId().equals(uid))
         .collect(Collectors.toList());
   }
 
   public Collection<LandscapeToken> findSharedForUser(final String uid) {
-    return this.tokens.stream()
-        .filter(t -> t.getSharedUsersIds().contains(uid))
+    return this.tokens.stream().filter(t -> t.getSharedUsersIds().contains(uid))
         .collect(Collectors.toList());
   }
 

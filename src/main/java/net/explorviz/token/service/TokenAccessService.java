@@ -13,7 +13,7 @@ public interface TokenAccessService {
   /**
    * Checks whether a user can read a landscape token.
    *
-   * @param token the token
+   * @param token  the token
    * @param userId the id of the user
    * @return {@code true} iff read access is granted to the user
    */
@@ -24,14 +24,13 @@ public interface TokenAccessService {
   /**
    * Checks whether a user can delete a landscape token.
    *
-   * @param token the token
+   * @param token  the token
    * @param userId the id of the user
    * @return {@code true} iff the user is allowed deleted the token
    */
   default boolean canDelete(final LandscapeToken token, final String userId) {
     return Arrays.asList(this.getPermissions(token, userId)).contains(TokenPermission.DELETE);
   }
-
 
 
 }

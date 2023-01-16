@@ -37,6 +37,7 @@ public class UserTokenResource {
    * Helper class for retrieving aliases a body data.
    */
   private static class TokenAlias {
+
     private final String alias;
 
     @JsonCreator
@@ -49,6 +50,13 @@ public class UserTokenResource {
     }
   }
 
+  /**
+   * Endpoint to generate a token.
+   *
+   * @param userId Id of the user who owns the generated token.
+   * @param alias  User-defined and optional alias for token identification.
+   * @return Generated landscape token.
+   */
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
@@ -64,6 +72,12 @@ public class UserTokenResource {
 
   }
 
+  /**
+   * Get all tokens associated with a specified user.
+   *
+   * @param userId Id of user who has access to requested tokens, i.e. owned and shared tokens.
+   * @return Collection of applicable landscape tokens.
+   */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @ResourceOwnership(uidField = UID_PARAM)
@@ -81,14 +95,15 @@ public class UserTokenResource {
    * other users the token was shared to.
    *
    * @param tokens tokens to clean
+   * @return List of cleaned tokens.
    */
   private Collection<LandscapeToken> cleanSharedTokens(final Collection<LandscapeToken> tokens) {
-    final Collection<LandscapeToken> cleaned = new ArrayList<>();
+    final Collection<LandscapeToken> cleanedTokens = new ArrayList<>();
     for (final LandscapeToken t : tokens) {
-      cleaned.add(new LandscapeToken(t.getValue(), "", // NOPMD
+      cleanedTokens.add(new LandscapeToken(t.getValue(), "", // NOPMD
           t.getOwnerId(), t.getCreated(), t.getAlias()));
     }
-    return cleaned;
+    return cleanedTokens;
   }
 
 }

@@ -62,7 +62,7 @@ public interface TokenService {
   /**
    * Grant access to a landscape for a user.
    *
-   * @param token the token of the landscape
+   * @param token  the token of the landscape
    * @param userId the id of the user to grant access
    */
   void grantAccess(LandscapeToken token, String userId);
@@ -70,7 +70,7 @@ public interface TokenService {
   /**
    * Revoke access to a landscape for a given user.
    *
-   * @param token the token of the landscape
+   * @param token  the token of the landscape
    * @param userId the id of the user to revoke access
    */
   void revokeAccess(LandscapeToken token, String userId);
@@ -78,9 +78,9 @@ public interface TokenService {
   /**
    * Clone a given token.
    *
-   * @param token the token of the landscape to be cloned
-   * @param userId the id of the user that will own the cloned token
-   * @param alias the alias of the cloned token
+   * @param token   the token of the landscape to be cloned
+   * @param ownerId the id of the user that will own the cloned token
+   * @param alias   the alias of the cloned token
    */
   LandscapeToken cloneToken(String token, String ownerId, String alias);
 }

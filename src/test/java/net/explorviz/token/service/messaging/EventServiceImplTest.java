@@ -33,8 +33,9 @@ class EventServiceImplTest {
     final LandscapeToken token =
         new LandscapeToken(tokenValue, "secret", uid, 0, "", Collections.emptyList());
 
-    final TokenEvent testEvent = TokenEvent.newBuilder().setToken(token.toAvro())
-        .setType(EventType.CREATED).setClonedToken("").build();
+    final TokenEvent testEvent =
+        TokenEvent.newBuilder().setToken(token.toAvro()).setType(EventType.CREATED)
+            .setClonedToken("").build();
 
     final InMemorySink<TokenEvent> events = this.connector.sink("token-events");
     this.service.dispatch(testEvent);
