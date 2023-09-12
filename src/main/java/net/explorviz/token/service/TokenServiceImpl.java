@@ -70,14 +70,16 @@ public class TokenServiceImpl implements TokenService {
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
           this.initialTokenSecret, this.initialTokenAlias);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Created default landscape token.");
-      }
     }
   }
 
   private void createNewConstantToken(final String ownerId, final String value, final String secret,
       final String initialTokenAlias) {
+    // Avoid creation of duplicate tokens
+    if (this.getByValue(value).isPresent()) {
+      return;
+    }
+
     final long created = System.currentTimeMillis();
 
     final LandscapeToken token =
@@ -85,6 +87,10 @@ public class TokenServiceImpl implements TokenService {
             Collections.emptyList());
     this.repository.persist(token);
     this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
+
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Created default landscape token.");
+    }
   }
 
   @Override
