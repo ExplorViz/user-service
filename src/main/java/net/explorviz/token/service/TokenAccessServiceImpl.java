@@ -1,7 +1,7 @@
 package net.explorviz.token.service;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import net.explorviz.token.model.LandscapeToken;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

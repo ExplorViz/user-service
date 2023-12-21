@@ -1,8 +1,8 @@
 package net.explorviz.token.service.messaging;
 
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
 import org.eclipse.microprofile.reactive.messaging.Channel;
