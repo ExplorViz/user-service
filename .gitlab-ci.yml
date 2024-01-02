@@ -23,7 +23,6 @@ stages:
   - build
   - code-analysis
   - test
-  - integrationTest
   - coverage
   - visualize
   - publish
@@ -62,7 +61,7 @@ test:
       - build/reports/jacoco/test/jacocoTestReport.xml
 
 integration-test:
-  stage: integrationTest
+  stage: test
   tags:
     - podman
   allow_failure: true
