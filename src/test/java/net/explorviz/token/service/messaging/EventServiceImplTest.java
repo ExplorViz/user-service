@@ -2,11 +2,11 @@ package net.explorviz.token.service.messaging;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
-import io.smallrye.reactive.messaging.providers.connectors.InMemorySink;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
+import io.smallrye.reactive.messaging.memory.InMemorySink;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 import java.util.Collections;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
 import net.explorviz.token.model.LandscapeToken;

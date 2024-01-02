@@ -1,7 +1,6 @@
 package net.explorviz.token;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
     final int partitions = 1;
     final short replication = 1;
     final NewTopic topicTokens = new NewTopic("token-events", partitions, replication);
-    final List<NewTopic> topics = Arrays.asList(topicTokens);
+    final List<NewTopic> topics = List.of(topicTokens);
 
     localKafkaAdmin.createTopics(topics);
 

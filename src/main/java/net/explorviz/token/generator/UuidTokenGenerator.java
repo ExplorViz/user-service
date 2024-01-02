@@ -1,9 +1,9 @@
 package net.explorviz.token.generator;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.UUID;
-import javax.enterprise.context.ApplicationScoped;
 import net.explorviz.token.model.LandscapeToken;
 import org.apache.commons.lang3.RandomStringUtils;
 

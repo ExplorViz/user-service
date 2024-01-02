@@ -2,17 +2,17 @@ package net.explorviz.token.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.quarkus.security.Authenticated;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collection;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.resources.filter.ResourceOwnership;
 import net.explorviz.token.service.TokenService;
@@ -31,23 +31,6 @@ public class UserTokenResource {
   @Inject
   public UserTokenResource(final TokenService tokenService) {
     this.tokenService = tokenService;
-  }
-
-  /**
-   * Helper class for retrieving aliases a body data.
-   */
-  private static class TokenAlias {
-
-    private final String alias;
-
-    @JsonCreator
-    public TokenAlias(final String alias) {
-      this.alias = alias;
-    }
-
-    public String getAlias() {
-      return this.alias;
-    }
   }
 
   /**
@@ -104,6 +87,24 @@ public class UserTokenResource {
           t.getOwnerId(), t.getCreated(), t.getAlias()));
     }
     return cleanedTokens;
+  }
+
+
+  /**
+   * Helper class for retrieving aliases a body data.
+   */
+  private static class TokenAlias {
+
+    private final String alias;
+
+    @JsonCreator
+    public TokenAlias(final String alias) {
+      this.alias = alias;
+    }
+
+    public String getAlias() {
+      return this.alias;
+    }
   }
 
 }

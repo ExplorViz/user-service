@@ -1,8 +1,8 @@
 package net.explorviz.token.persistence;
 
 import io.quarkus.mongodb.panache.PanacheMongoRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Collection;
-import javax.enterprise.context.ApplicationScoped;
 import net.explorviz.token.model.LandscapeToken;
 
 /**

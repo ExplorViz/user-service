@@ -24,12 +24,10 @@ import org.mockito.Mockito;
 @QuarkusTest
 class TokenResourceTest {
 
+  private static final String SECRET = "secret";
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
   SecurityIdentity identity;
-
-  private static final String SECRET = "secret";
-
   private TokenAccessServiceImpl tokenAccessService;
 
   @BeforeEach
