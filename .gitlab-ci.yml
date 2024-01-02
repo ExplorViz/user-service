@@ -112,6 +112,8 @@ push-dockerhub-native-main:
 push-dockerhub-native-mr:
   stage: publish
   image: explorviz/ubi-quarkus-mandrel-builder-image
+  variables:
+    QUARKUS_OIDC_ENABLED: "false"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   script:

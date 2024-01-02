@@ -63,10 +63,9 @@ public class TokenServiceImpl implements TokenService {
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
           this.initialTokenSecret, this.initialTokenAlias);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Created default landscape token.");
-      }
+      LOGGER.atDebug().log("Created default landscape token.");
     }
+    LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
 
   private void createNewConstantToken(final String ownerId, final String value, final String secret,
