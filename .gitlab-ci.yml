@@ -108,6 +108,8 @@ push-dockerhub-native-main-amd64:
 
 push-dockerhub-native-main-arm64:
   extends: .build-and-deploy-quarkus-native
+  rules:
+    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
   variables:
     IMAGE_TAG: "arm64"
   tags:
@@ -127,6 +129,8 @@ push-dockerhub-main-amd64:
 
 push-dockerhub-main-arm64:
   extends: .build-and-deploy-quarkus-jvm
+  rules:
+    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
   variables:
     IMAGE_TAG: "arm64"
   tags:
