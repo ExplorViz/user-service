@@ -145,20 +145,12 @@ push-dockerhub-mr:
 
 retag-amd64-as-latest-jvm:
   extends: .retag-dockerhub-image
-  rules:
-    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
-      when: never
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
   variables:
     SOURCE_TAG: "amd64"
     TARGET_TAG: "latest"
 
 retag-amd64-as-latest-native:
   extends: .retag-dockerhub-image
-  rules:
-    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
-      when: never
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
   variables:
     IMAGE_NAME: $DOCKERHUB_IMAGE_NAME_NATIVE
     SOURCE_TAG: "amd64"
