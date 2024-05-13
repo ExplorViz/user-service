@@ -33,7 +33,6 @@ public class UserAPI {
   /**
    * The optional value of the expiration date.
    */
-  @Nullable
   private Long expires;
 
   /**
@@ -48,7 +47,7 @@ public class UserAPI {
       @BsonProperty("name") String name,
       @BsonProperty("token") String token,
       @BsonProperty("createdAt") long createdAt,
-      @Nullable @BsonProperty("expires") Long expires) {
+      @BsonProperty("expires") Long expires) {
     this.uId = uId;
     this.name = name;
     this.token = token;
@@ -86,7 +85,7 @@ public class UserAPI {
    * @return numeric creation date
    */
   @BsonProperty
-  public long getCreatedAt() { return this.createdAt; }
+  public Long getCreatedAt() { return this.createdAt; }
 
   /**
    * The numeric value of the deletion date.
