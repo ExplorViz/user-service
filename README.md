@@ -9,6 +9,12 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
+## Starting the user-service:
+In [application.properties](src%2Fmain%2Fresources%2Fapplication.properties) change line 19 to 
+false (it was set to true, now it is false). Afterwards run: `docker compose up -d`. If the 
+container is ready, start the application with `./gradlew quarkusDev`. The application should be available under
+`localhost:8084`
+
 ## Prerequisites
 
 - Java 11 or higher
