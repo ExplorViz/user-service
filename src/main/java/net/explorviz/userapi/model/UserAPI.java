@@ -5,7 +5,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-@MongoEntity
+@MongoEntity(collection = "userapi", clientName = "db2")
 public class UserAPI {
 
   /**
@@ -55,12 +55,14 @@ public class UserAPI {
     this.expires = expires;
   }
 
+  public UserAPI() {}
+
   /**
    * User id of the token owner.
    *
    * @return Owner of the token
    */
-  @BsonProperty
+  @BsonProperty("uid")
   public String getuId() { return this.uId; }
 
   /**
@@ -68,7 +70,7 @@ public class UserAPI {
    *
    * @return Name of the token
    */
-  @BsonProperty
+  @BsonProperty("name")
   public String getName() { return this.name; }
 
   /**
@@ -76,7 +78,7 @@ public class UserAPI {
    *
    * @return API token
    */
-  @BsonProperty
+  @BsonProperty("token")
   public String getToken() { return this.token; }
 
   /**
@@ -84,7 +86,7 @@ public class UserAPI {
    *
    * @return numeric creation date
    */
-  @BsonProperty
+  @BsonProperty("createdat")
   public Long getCreatedAt() { return this.createdAt; }
 
   /**
@@ -92,7 +94,7 @@ public class UserAPI {
    *
    * @return numeric deletion date
    */
-  @BsonProperty
+  @BsonProperty("expires")
   @Nullable
   public Long getExpires() { return expires; }
 
