@@ -45,11 +45,18 @@ public class UserResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
   public UserAPI createNewUserAPI(@QueryParam("uId") final String uId,
-      @QueryParam("name") final String name, @QueryParam("token") String token,
-      @QueryParam("createdAt") final Long createdAt,
+      @QueryParam("name") final String name, @QueryParam("token") final String token,
+      @QueryParam("createdAt") final String createdAt,
       @QueryParam("expires") @DefaultValue("0") final Long expires) {
 
-    return this.userAPIService.createNewUserAPI(uId, name, token, createdAt, expires);
+    Long created = 0L;
+    try {
+      created = Long.valueOf(createdAt);
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+
+    return this.userAPIService.createNewUserAPI(uId, name, token, created, expires);
   }
 
   /**

@@ -5,7 +5,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-@MongoEntity(collection = "userapi", clientName = "db2")
+@MongoEntity(collection = "userapi")
 public class UserAPI {
 
   /**
@@ -28,7 +28,7 @@ public class UserAPI {
   /**
    * The value of the creation date.
    */
-  private long createdAt;
+  private Long createdAt;
 
   /**
    * The optional value of the expiration date.
@@ -86,7 +86,7 @@ public class UserAPI {
    *
    * @return numeric creation date
    */
-  @BsonProperty("createdat")
+  @BsonProperty("createdAt")
   public Long getCreatedAt() { return this.createdAt; }
 
   /**
@@ -96,7 +96,7 @@ public class UserAPI {
    */
   @BsonProperty("expires")
   @Nullable
-  public Long getExpires() { return expires; }
+  public Long getExpires() { return this.expires; }
 
   /**
    * Serializes the user API to the corresponding avro model.
