@@ -5,7 +5,7 @@ import net.explorviz.avro.UserAPIEvent;
 /**
  * Interface for the emit event service.
  */
-public interface EventService {
+public interface UserAPIEventService {
 
   void dispatch(UserAPIEvent event);
 

@@ -23,7 +23,7 @@ public class UserAPIAccessServiceImpl implements UserAPIAccessService {
       return new UserAPIPermission[] {UserAPIPermission.DELETE, UserAPIPermission.READ};
     }
 
-    if (userAPI.getuId().equals(uId)) {
+    if (userAPI.getUid().equals(uId)) {
       return new UserAPIPermission[] {UserAPIPermission.READ, UserAPIPermission.DELETE};
     }
 
