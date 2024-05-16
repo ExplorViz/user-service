@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
  * Kafka-based emitter service to send information about {@link UserAPIEvent}s to other services.
  */
 @ApplicationScoped
-public class EventServiceImpl implements EventService {
+public class UserAPIEventServiceImpl implements UserAPIEventService {
 
   private static final Logger
-      LOGGER = LoggerFactory.getLogger(net.explorviz.userapi.service.messaging.EventServiceImpl.class);
+      LOGGER = LoggerFactory.getLogger(UserAPIEventServiceImpl.class);
 
   @Channel("userapi-events")
   @Inject
-  Emitter<UserAPIEvent> eventEmitter;
+  /* default */ Emitter<UserAPIEvent> eventEmitter;
 
   @Override
   public void dispatch(final UserAPIEvent event) {

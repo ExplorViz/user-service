@@ -12,7 +12,7 @@ public class UserAPI {
    * The user id given by auth0.
    * Builds 'identifier' with token.
    */
-  private String uId;
+  private String uid;
 
   /**
    * The name of the corresponding API token.
@@ -38,17 +38,17 @@ public class UserAPI {
   /**
    * Token for access to a software landscape.
    *
-   * @param uId       The user id given by auth0.
+   * @param uid       The user id given by auth0.
    * @param name      The name of the corresponding API token.
    * @param token     Structure of API token, creation date and corresponding expiration date.
    */
   @BsonCreator
-  public UserAPI(@BsonProperty("uId") String uId,
+  public UserAPI(@BsonProperty("uid") String uid,
       @BsonProperty("name") String name,
       @BsonProperty("token") String token,
       @BsonProperty("createdAt") long createdAt,
       @BsonProperty("expires") Long expires) {
-    this.uId = uId;
+    this.uid = uid;
     this.name = name;
     this.token = token;
     this.createdAt = createdAt;
@@ -63,7 +63,7 @@ public class UserAPI {
    * @return Owner of the token
    */
   @BsonProperty("uid")
-  public String getuId() { return this.uId; }
+  public String getUid() { return this.uid; }
 
   /**
    * Name of the token.
@@ -105,10 +105,10 @@ public class UserAPI {
    */
   public net.explorviz.avro.UserAPI toAvro() {
     if (this.expires == null){
-      return net.explorviz.avro.UserAPI.newBuilder().setUId(this.uId)
+      return net.explorviz.avro.UserAPI.newBuilder().setUId(this.uid)
           .setName(this.name).setToken(this.token).setCreatedAt(this.createdAt).build();
     } else {
-      return net.explorviz.avro.UserAPI.newBuilder().setUId(this.uId)
+      return net.explorviz.avro.UserAPI.newBuilder().setUId(this.uid)
           .setName(this.name).setToken(this.token).setCreatedAt(this.createdAt)
           .setExpires(this.expires).build();
     }

@@ -3,7 +3,6 @@ package net.explorviz.userapi.resources;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.validation.constraints.Null;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
@@ -21,13 +20,13 @@ import java.util.Collection;
 
 @Path("userapi")
 @RequestScoped
-public class UserResource {
+public class UserAPIResource {
 
   private final UserAPIService userAPIService;
 
 
   @Inject
-  public UserResource(final UserAPIService userAPIService) {
+  public UserAPIResource(final UserAPIService userAPIService) {
     this.userAPIService = userAPIService;
   }
 
@@ -46,17 +45,13 @@ public class UserResource {
   @Path("create")
   public UserAPI createNewUserAPI(@QueryParam("uId") final String uId,
       @QueryParam("name") final String name, @QueryParam("token") final String token,
-      @QueryParam("createdAt") final String createdAt,
+      @QueryParam("createdAt") final Long createdAt,
       @QueryParam("expires") @DefaultValue("0") final Long expires) {
 
-    Long created = 0L;
-    try {
-      created = Long.valueOf(createdAt);
-    } catch (Exception e) {
-      System.out.println(e);
-    }
+    System.out.println(uId);
 
-    return this.userAPIService.createNewUserAPI(uId, name, token, created, expires);
+
+    return this.userAPIService.createNewUserAPI(uId, name, token, createdAt, expires);
   }
 
   /**
@@ -70,7 +65,7 @@ public class UserResource {
   @Authenticated
   @Produces(MediaType.TEXT_PLAIN)
   @Path("delete")
-  public Response deleteUser(@PathParam("uid") final String uId,
+  public Response deleteUser(@PathParam("uId") final String uId,
       @PathParam("token") final String token) {
 
     int status = this.userAPIService.deleteByValue(uId, token);

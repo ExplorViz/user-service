@@ -6,18 +6,15 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import net.explorviz.avro.EventType;
-import net.explorviz.avro.TokenEvent;
 import net.explorviz.avro.UserAPIEvent;
-import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.service.TokenServiceImpl;
-import net.explorviz.userapi.service.messaging.EventService;
+import net.explorviz.userapi.service.messaging.UserAPIEventService;
 import net.explorviz.userapi.model.UserAPI;
 import net.explorviz.userapi.persistence.UserAPIRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Collection;
-import java.util.Collections;
 
 @ApplicationScoped
 public class UserAPIServiceImpl implements UserAPIService {
@@ -28,7 +25,7 @@ public class UserAPIServiceImpl implements UserAPIService {
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "uId = ?1 AND token = ?2";
   private final UserAPIRepository repository;
-  private final EventService eventService;
+  private final UserAPIEventService eventService;
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
   /* default */ Instance<Boolean> authEnabled; // NOCS
   @ConfigProperty(name = "initial.token.creation.enabled")
@@ -43,7 +40,7 @@ public class UserAPIServiceImpl implements UserAPIService {
   /* default */ String initialTokenAlias; // NOCS
 
   @Inject
-  public UserAPIServiceImpl(UserAPIRepository repository, final EventService eventService) {
+  public UserAPIServiceImpl(UserAPIRepository repository, final UserAPIEventService eventService) {
     this.repository = repository;
     this.eventService = eventService;
   }
