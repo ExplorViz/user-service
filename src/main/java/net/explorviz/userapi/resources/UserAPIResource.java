@@ -39,19 +39,22 @@ public class UserAPIResource {
    * @return Generated user.
    */
   @POST
-  @Produces(MediaType.APPLICATION_JSON)
+//  @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
-  @Consumes(MediaType.APPLICATION_JSON)
+//  @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
-  public UserAPI createNewUserAPI(@QueryParam("uId") final String uId,
+  public Response createNewUserAPI(@QueryParam("uId") final String uId,
       @QueryParam("name") final String name, @QueryParam("token") final String token,
       @QueryParam("createdAt") final Long createdAt,
       @QueryParam("expires") @DefaultValue("0") final Long expires) {
 
-    System.out.println(uId);
+    if (userAPIService.tokenExists(uId, token)){
+      return Response.status(422).build();
+    } else {
+      this.userAPIService.createNewUserAPI(uId, name, token, createdAt, expires);
 
-
-    return this.userAPIService.createNewUserAPI(uId, name, token, createdAt, expires);
+      return Response.ok().build();
+    }
   }
 
   /**
@@ -63,15 +66,15 @@ public class UserAPIResource {
    */
   @DELETE
   @Authenticated
-  @Produces(MediaType.TEXT_PLAIN)
+//  @Produces(MediaType.TEXT_PLAIN
   @Path("delete")
-  public Response deleteUser(@PathParam("uId") final String uId,
-      @PathParam("token") final String token) {
+  public Response deleteUser(@QueryParam("uId") final String uId,
+      @QueryParam("token") final String token) {
 
     int status = this.userAPIService.deleteByValue(uId, token);
 
     if (status == 0){
-      return Response.noContent().build();
+      return Response.ok().build();
     }
 
     return Response.status(400).build();

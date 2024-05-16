@@ -23,7 +23,7 @@ public class UserAPIServiceImpl implements UserAPIService {
 
 
   private static final int DELETE_FLAG = 1;
-  private static final String DELETE_FLAG_QUERY = "uId = ?1 AND token = ?2";
+  private static final String DELETE_FLAG_QUERY = "uid = ?1 and token = ?2";
   private final UserAPIRepository repository;
   private final UserAPIEventService eventService;
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
@@ -85,6 +85,13 @@ public class UserAPIServiceImpl implements UserAPIService {
     }
 
     return 0;
+  }
+
+  @Override
+  public boolean tokenExists(final String uId, final String token) {
+    Collection<UserAPI> tokenUId = this.repository.findForUserAndToken(uId, token);
+
+    return !tokenUId.isEmpty();
   }
 
   @Override

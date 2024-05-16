@@ -23,6 +23,7 @@ public class UserAPI {
    * The actual API token.
    * Builds 'uId' with token.
    */
+
   private String token;
 
   /**

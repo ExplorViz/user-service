@@ -20,9 +20,18 @@ public interface UserAPIService {
   /**
    * Delete a user API token.
    *
-   * @param userAPI the user API token to delete.
+   * @param uid the user API token to delete.
    */
   int deleteByValue(String uId, String token);
+
+  /**
+   * Checks if a given token exists for given uid.
+   *
+   * @param uId
+   * @param token
+   * @return
+   */
+  boolean tokenExists(String uId, String token);
 
   /**
    * Create a new user API token.
@@ -37,5 +46,4 @@ public interface UserAPIService {
    */
   UserAPI createNewUserAPI(final String uId, final String name, final String token,
       Long createdAt, Long expires);
-
 }

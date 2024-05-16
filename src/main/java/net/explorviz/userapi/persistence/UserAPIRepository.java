@@ -14,6 +14,6 @@ public class UserAPIRepository
   }
 
     public Collection<UserAPI> findForUserAndToken(final String uId, final String token){
-      return this.list("uId = ?1 AND token = ?2", uId, token);
+      return this.list("uid = ?1 and token = ?2", uId, token);
     }
 }
