@@ -6,8 +6,7 @@ import net.explorviz.userapi.model.UserAPI;
 import java.util.Collection;
 
 @ApplicationScoped
-public class UserAPIRepository
-    implements PanacheMongoRepositoryBase<UserAPI, String> {
+public class UserAPIRepository implements PanacheMongoRepositoryBase<UserAPI, String> {
 
     public Collection<UserAPI> findForUser(final String uId) {
       return this.list("uId", uId);

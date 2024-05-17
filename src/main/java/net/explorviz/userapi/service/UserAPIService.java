@@ -1,7 +1,6 @@
 package net.explorviz.userapi.service;
 
 import net.explorviz.userapi.model.UserAPI;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import java.util.Collection;
 
 /**

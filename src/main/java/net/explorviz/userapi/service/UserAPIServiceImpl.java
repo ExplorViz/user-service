@@ -19,7 +19,7 @@ import java.util.Collection;
 @ApplicationScoped
 public class UserAPIServiceImpl implements UserAPIService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserAPIService.class);
 
 
   private static final int DELETE_FLAG = 1;

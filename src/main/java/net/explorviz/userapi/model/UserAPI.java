@@ -33,6 +33,7 @@ public class UserAPI {
 
   /**
    * The optional value of the expiration date.
+   * Default value = 0
    */
   private Long expires;
 

@@ -3,7 +3,6 @@ package net.explorviz.userapi.resources;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -36,7 +35,7 @@ public class UserAPIResource {
    * @param uId Id of the user.
    * @param name  Name of the API token.
    * @param token Actual API token with creation and expiration date.
-   * @return Generated user.
+   * @return
    */
   @POST
 //  @Produces(MediaType.APPLICATION_JSON)

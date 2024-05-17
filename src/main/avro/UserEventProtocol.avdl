@@ -35,4 +35,12 @@ protocol TraceEventProtocol {
     EventType type;
     UserAPI userAPI;
   }
+
+  record Snapshot {
+
+  }
+
+  record SnapshotEvent {
+
+  }
 }
