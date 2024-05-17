@@ -41,23 +41,8 @@ public interface SnapshotService {
   /**
    * Creates a new snapshots.
    *
-   * @param owner
-   * @param createdAt
-   * @param name
-   * @param landscapeToken
-   * @param structureData
-   * @param configuration
-   * @param camera
-   * @param annotations
-   * @param isShared
-   * @param deleteAt
-   * @param julius
+   * @param snapshot
    * @return the created snapshot object
    */
-  Snapshot createNewSnapshot(final String owner, final Long createdAt, final String name,
-      final Document landscapeToken, final Document structureData, final Document configuration,
-      final Document camera, final Document annotations, final boolean isShared,
-      final Long deleteAt, final Document julius);
-
-  Snapshot test(Snapshot sn);
+  Snapshot createNewSnapshot(Snapshot snapshot);
 }

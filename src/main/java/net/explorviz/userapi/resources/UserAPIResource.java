@@ -30,12 +30,14 @@ public class UserAPIResource {
   }
 
   /**
-   * Endpoint to generate a user.
+   * Endpoint to create a user.
    *
    * @param uId Id of the user.
    * @param name  Name of the API token.
-   * @param token Actual API token with creation and expiration date.
-   * @return
+   * @param token The API token.
+   * @param createdAt The creation date.
+   * @param expires The expiration date (default = 0).
+   * @return Response to the requester.
    */
   @POST
 //  @Produces(MediaType.APPLICATION_JSON)
@@ -61,7 +63,7 @@ public class UserAPIResource {
    *
    * @param uId Id of the user.
    * @param token  The API token.
-   * @return Response with empty content.
+   * @return Response to the requester.
    */
   @DELETE
   @Authenticated
@@ -79,11 +81,29 @@ public class UserAPIResource {
     return Response.status(400).build();
   }
 
+  /**
+   * Endpoint to get all user API tokens of one user.
+   *
+   * @param uId Id of the user.
+   * @return Collection of UserAPI objects.
+   */
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
   public Collection<UserAPI> getUserByValue(@PathParam("uId") final String uId){
-    return this.userAPIService.getOwningTokens(uId);
+
+    Collection<UserAPI> userAPIs = this.userAPIService.getOwningTokens(uId);
+    final long currentTime = System.currentTimeMillis();
+
+    for (UserAPI uAPI : userAPIs) {
+      if (uAPI.getExpires() != 0 && uAPI.getExpires() < currentTime) {
+        this.userAPIService.deleteByValue(uAPI.getUid(), uAPI.getToken());
+      }
+    }
+
+    userAPIs = this.userAPIService.getOwningTokens(uId);
+
+    return userAPIs;
   }
 
 }

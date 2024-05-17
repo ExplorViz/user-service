@@ -13,7 +13,7 @@ public interface UserAPIAccessService {
   /**
    * Checks whether a user can read a user resource.
    *
-   * @param userAPI  the user with the API token
+   * @param userAPI  the user API object
    * @param uId the id of the user
    * @return {@code true} iff read access is granted to the user
    */
@@ -24,9 +24,9 @@ public interface UserAPIAccessService {
   /**
    * Checks whether a user can delete a user api.
    *
-   * @param userAPI  the user with the API token
+   * @param userAPI  the user API object
    * @param uId the id of the user
-   * @return {@code true} iff the user is allowed deleteing the user api
+   * @return {@code true} iff the user is allowed deleting the user api
    */
   default boolean canDelete(final UserAPI userAPI, final String uId) {
     return Arrays.asList(this.getPermissions(userAPI, uId)).contains(UserAPIPermission.DELETE);

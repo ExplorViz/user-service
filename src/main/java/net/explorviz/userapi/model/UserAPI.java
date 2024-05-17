@@ -38,11 +38,11 @@ public class UserAPI {
   private Long expires;
 
   /**
-   * Token for access to a software landscape.
+   * UserAPI entrie for one API token.
    *
    * @param uid       The user id given by auth0.
    * @param name      The name of the corresponding API token.
-   * @param token     Structure of API token, creation date and corresponding expiration date.
+   * @param token     The API token.
    */
   @BsonCreator
   public UserAPI(@BsonProperty("uid") String uid,

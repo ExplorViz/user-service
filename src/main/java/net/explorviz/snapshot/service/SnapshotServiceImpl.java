@@ -102,19 +102,7 @@ public class SnapshotServiceImpl implements SnapshotService {
     return !snapshots.isEmpty();
   }
 
-  @Override
-  public Snapshot createNewSnapshot(final String owner, final Long createdAt, final String name,
-      final Document landscapeToken, final Document structureData, final Document configuration,
-      final Document camera, final Document annotations, final boolean isShared,
-      final Long deleteAt, final Document julius) {
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken, structureData,
-        configuration, camera, annotations, isShared, deleteAt, julius);
-    this.repository.persist(snapshot);
-    // this.eventService.dispatch(new SnapshotEvent(EventType.CREATED, snapshot.toAvro()));
-    return snapshot;
-  }
-
-  public Snapshot test(final Snapshot snapshot){
+  public Snapshot createNewSnapshot(final Snapshot snapshot){
     this.repository.persist(snapshot);
     return snapshot;
   }
