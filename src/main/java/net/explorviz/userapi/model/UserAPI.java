@@ -100,19 +100,4 @@ public class UserAPI {
   @Nullable
   public Long getExpires() { return this.expires; }
 
-  /**
-   * Serializes the user API to the corresponding avro model.
-   *
-   * @return avro representation of this user API
-   */
-  public net.explorviz.avro.UserAPI toAvro() {
-    if (this.expires == null){
-      return net.explorviz.avro.UserAPI.newBuilder().setUId(this.uid)
-          .setName(this.name).setToken(this.token).setCreatedAt(this.createdAt).build();
-    } else {
-      return net.explorviz.avro.UserAPI.newBuilder().setUId(this.uid)
-          .setName(this.name).setToken(this.token).setCreatedAt(this.createdAt)
-          .setExpires(this.expires).build();
-    }
-  }
 }

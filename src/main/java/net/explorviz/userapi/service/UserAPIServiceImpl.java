@@ -5,10 +5,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import net.explorviz.avro.EventType;
-import net.explorviz.avro.UserAPIEvent;
-import net.explorviz.token.service.TokenServiceImpl;
-import net.explorviz.userapi.service.messaging.UserAPIEventService;
 import net.explorviz.userapi.model.UserAPI;
 import net.explorviz.userapi.persistence.UserAPIRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -25,7 +21,6 @@ public class UserAPIServiceImpl implements UserAPIService {
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "uid = ?1 and token = ?2";
   private final UserAPIRepository repository;
-  private final UserAPIEventService eventService;
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
   /* default */ Instance<Boolean> authEnabled; // NOCS
   @ConfigProperty(name = "initial.token.creation.enabled")
@@ -40,9 +35,8 @@ public class UserAPIServiceImpl implements UserAPIService {
   /* default */ String initialTokenAlias; // NOCS
 
   @Inject
-  public UserAPIServiceImpl(UserAPIRepository repository, final UserAPIEventService eventService) {
+  public UserAPIServiceImpl(UserAPIRepository repository) {
     this.repository = repository;
-    this.eventService = eventService;
   }
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
@@ -61,7 +55,6 @@ public class UserAPIServiceImpl implements UserAPIService {
     final UserAPI userAPI =
         new UserAPI(uId, name, token, createdAt, expires);
     this.repository.persist(userAPI);
-    this.eventService.dispatch(new UserAPIEvent(EventType.CREATED, userAPI.toAvro()));
   }
 
   @Override
@@ -77,12 +70,7 @@ public class UserAPIServiceImpl implements UserAPIService {
       return -1;
     }
 
-    UserAPI userAPI = userAPIToDelete.iterator().next();
-
-    final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, uId, token);
-    if (docsAffected == DELETE_FLAG) {
-      this.eventService.dispatch(new UserAPIEvent(EventType.DELETED, userAPI.toAvro()));
-    }
+    this.repository.delete(DELETE_FLAG_QUERY, uId, token);
 
     return 0;
   }
@@ -99,7 +87,7 @@ public class UserAPIServiceImpl implements UserAPIService {
       final Long createdAt, final Long expires) {
     final UserAPI userAPI = new UserAPI(uId, name, token, createdAt, expires);
     this.repository.persist(userAPI);
-    this.eventService.dispatch(new UserAPIEvent(EventType.CREATED, userAPI.toAvro()));
+
     return userAPI;
   }
 

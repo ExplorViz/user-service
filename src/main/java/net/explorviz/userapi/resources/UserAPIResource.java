@@ -90,7 +90,7 @@ public class UserAPIResource {
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<UserAPI> getUserByValue(@PathParam("uId") final String uId){
+  public Collection<UserAPI> getUserByValue(@QueryParam("uId") final String uId){
 
     Collection<UserAPI> userAPIs = this.userAPIService.getOwningTokens(uId);
     final long currentTime = System.currentTimeMillis();

@@ -146,11 +146,6 @@ public class Snapshot {
     return julius;
   }
 
-  // TODO: If kafka is required
-//  public net.explorviz.avro.UserAPI toAvro() {
-//
-//  }
-
   @Override
   public String toString() {
     return getOwner() + " " + getCreatedAt() + " " + getName() + " " + getLandscapeToken() + " "

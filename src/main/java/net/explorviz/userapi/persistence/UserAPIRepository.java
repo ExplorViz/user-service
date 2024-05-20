@@ -9,7 +9,7 @@ import java.util.Collection;
 public class UserAPIRepository implements PanacheMongoRepositoryBase<UserAPI, String> {
 
     public Collection<UserAPI> findForUser(final String uId) {
-      return this.list("uId", uId);
+      return this.list("uid", uId);
   }
 
     public Collection<UserAPI> findForUserAndToken(final String uId, final String token){

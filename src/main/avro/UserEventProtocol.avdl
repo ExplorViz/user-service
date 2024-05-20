@@ -16,23 +16,4 @@ protocol TraceEventProtocol {
 		long created;
 		string alias;
 	}
-	
-	record TokenEvent {
-		EventType type;
-		LandscapeToken token;
-		string clonedToken;
-	}
-
-  record UserAPI {
-    string uId;
-    string name;
-    string token;
-    long createdAt;
-    long expires=0;
-  }
-
-  record UserAPIEvent{
-    EventType type;
-    UserAPI userAPI;
-  }
 }
