@@ -8,6 +8,7 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -96,6 +97,22 @@ public class SnapshotResource {
     snapshots = this.snapshotService.getOwningSnapshots(owner);
 
     return snapshots;
+  }
+
+  /**
+   * Endpoint to get all snapshots owned by a user.
+   *
+   * @param owner owner of snapshots.
+   * @return Collection of snapshots.
+   */
+  @GET
+  @Authenticated
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/{owner}/{createdAt}")
+  public Snapshot getSnapshot(@PathParam("owner") final String owner, @PathParam("createdAt") final Long createdAt) {
+
+   return this.snapshotService.getSnapshot(owner, createdAt);
+
   }
 
 }

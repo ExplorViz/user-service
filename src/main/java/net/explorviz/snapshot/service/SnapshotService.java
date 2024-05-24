@@ -45,4 +45,13 @@ public interface SnapshotService {
    * @return the created snapshot object
    */
   Snapshot createNewSnapshot(Snapshot snapshot);
+
+  /**
+   * Retrieve snapshot of an owner.
+   *
+   * @param owner
+   * @param createdAt
+   * @return
+   */
+  Snapshot getSnapshot(String owner, Long createdAt);
 }

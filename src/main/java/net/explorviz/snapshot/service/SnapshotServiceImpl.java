@@ -93,4 +93,14 @@ public class SnapshotServiceImpl implements SnapshotService {
     this.repository.persist(snapshot);
     return snapshot;
   }
+
+  @Override
+  public Snapshot getSnapshot(final String owner, final Long createdAt) {
+    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAt(owner, createdAt);
+
+    if (snapshot.size() != 1) {
+      return null;
+    }
+    return snapshot.iterator().next();
+  }
 }
