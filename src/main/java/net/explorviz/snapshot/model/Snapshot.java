@@ -38,9 +38,9 @@ public class Snapshot {
   private Document structureData;
 
   /**
-   * The configuration data describing the highlights.
+   * The configuration data describing the room.
    */
-  private Document configuration;
+  private Document serializedRoom;
 
   /**
    * The camera data describing position of the camera.
@@ -81,7 +81,7 @@ public class Snapshot {
     this.name = name;
     this.landscapeToken = landscapeToken;
     this.structureData = structureData;
-    this.configuration = configuration;
+    this.serializedRoom = configuration;
     this.camera = camera;
     this.annotations = annotations;
     this.isShared = isShared;
@@ -117,8 +117,8 @@ public class Snapshot {
   }
 
   @BsonProperty("configuration")
-  public Document getConfiguration() {
-    return configuration;
+  public Document getSerializedRoom() {
+    return serializedRoom;
   }
 
   @BsonProperty("camera")
@@ -149,7 +149,7 @@ public class Snapshot {
   @Override
   public String toString() {
     return getOwner() + " " + getCreatedAt() + " " + getName() + " " + getLandscapeToken() + " "
-        + getLandscapeToken() + " " + getStructureData() + " " + getConfiguration() + " "
+        + getLandscapeToken() + " " + getStructureData() + " " + getSerializedRoom() + " "
         + getAnnotations() + " " + getIsShared() + " " + getDeleteAt() + " " + getJulius();
   }
 }

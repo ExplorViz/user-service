@@ -41,8 +41,6 @@ public class SnapshotResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
   public Response createNewSnapshot(Snapshot snapshot){
-
-    System.out.println(snapshot.toString());
     if (snapshotService.snapshotExists(snapshot.getOwner(), snapshot.getCreatedAt())) {
       return Response.status(422).build();
     } else {
