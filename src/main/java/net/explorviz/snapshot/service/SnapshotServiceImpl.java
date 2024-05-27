@@ -19,7 +19,7 @@ public class SnapshotServiceImpl implements SnapshotService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotService.class);
 
   private static final int DELETE_FLAG = 1;
-  private static final String DELETE_FLAG_QUERY = "owner = ?1 and createdAt = ?2";
+  private static final String DELETE_FLAG_QUERY = "owner = ?1 and createdAt = ?2 and isShared = ?3";
   private final SnapshotRepository repository;
   //TODO private final SnapshotEventService eventService;
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
@@ -77,7 +77,7 @@ public class SnapshotServiceImpl implements SnapshotService {
       return -1;
     }
 
-    this.repository.delete(DELETE_FLAG_QUERY, owner, createdAt);
+    this.repository.delete(DELETE_FLAG_QUERY, owner, createdAt, isShared);
 
     return 0;
   }
