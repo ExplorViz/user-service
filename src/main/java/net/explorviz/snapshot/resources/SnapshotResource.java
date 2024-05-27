@@ -1,6 +1,7 @@
 package net.explorviz.snapshot.resources;
 
 import io.quarkus.security.Authenticated;
+import io.quarkus.security.User;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -41,7 +42,8 @@ public class SnapshotResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
   public Response createNewSnapshot(Snapshot snapshot){
-    if (snapshotService.snapshotExists(snapshot.getOwner(), snapshot.getCreatedAt())) {
+    if (snapshotService.snapshotExists(snapshot.getOwner(), snapshot.getCreatedAt(),
+        snapshot.getIsShared())) {
       return Response.status(422).build();
     } else {
       this.snapshotService.createNewSnapshot(snapshot);
@@ -61,9 +63,9 @@ public class SnapshotResource {
   @Authenticated
   @Path("delete")
   public Response deleteSnapshot(@QueryParam("owner") final String owner,
-      @QueryParam("createdAt") final Long createdAt) {
+      @QueryParam("createdAt") final Long createdAt, @QueryParam("isShared") final boolean isShared) {
 
-    int status = this.snapshotService.deleteByValue(owner, createdAt);
+    int status = this.snapshotService.deleteByValue(owner, createdAt, isShared);
 
     if (status == 0){
       return Response.ok().build();
@@ -88,7 +90,7 @@ public class SnapshotResource {
 
     for (Snapshot sn : snapshots) {
       if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
-        this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt());
+        this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt(), sn.getIsShared());
       }
     }
 

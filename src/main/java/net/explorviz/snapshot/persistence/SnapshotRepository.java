@@ -12,7 +12,9 @@ public class SnapshotRepository implements PanacheMongoRepositoryBase<Snapshot, 
     return this.list("owner", owner);
   }
 
-  public Collection<Snapshot> findForUserAndCreatedAt(final String owner, final Long createdAt) {
-    return this.list("owner = ?1 and createdAt = ?2", owner, createdAt);
+  public Collection<Snapshot> findForUserAndCreatedAtAndIsShared(final String owner,
+      final Long createdAt, final boolean isShared) {
+    return this.list("owner = ?1 and createdAt = ?2 and isShared = ?3",
+        owner, createdAt, isShared);
   }
 }

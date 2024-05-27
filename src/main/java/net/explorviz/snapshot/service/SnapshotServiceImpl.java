@@ -70,8 +70,8 @@ public class SnapshotServiceImpl implements SnapshotService {
   }
 
   @Override
-  public int deleteByValue(final String owner, final Long createdAt) {
-    Collection<Snapshot> snapshotToDelete = this.repository.findForUserAndCreatedAt(owner, createdAt);
+  public int deleteByValue(final String owner, final Long createdAt, final boolean isShared) {
+    Collection<Snapshot> snapshotToDelete = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
 
     if (snapshotToDelete.size() != 1) {
       return -1;
@@ -83,8 +83,8 @@ public class SnapshotServiceImpl implements SnapshotService {
   }
 
   @Override
-  public boolean snapshotExists(final String owner, final Long createdAt) {
-    Collection<Snapshot> snapshots = this.repository.findForUserAndCreatedAt(owner, createdAt);
+  public boolean snapshotExists(final String owner, final Long createdAt, final boolean isShared) {
+    Collection<Snapshot> snapshots = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
 
     return !snapshots.isEmpty();
   }
@@ -96,7 +96,7 @@ public class SnapshotServiceImpl implements SnapshotService {
 
   @Override
   public Snapshot getSnapshot(final String owner, final Long createdAt) {
-    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAt(owner, createdAt);
+    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, false);
 
     if (snapshot.size() != 1) {
       return null;

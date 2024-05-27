@@ -25,18 +25,20 @@ public interface SnapshotService {
    *
    * @param owner the given owner
    * @param createdAt creation date of the snapshot
+   * @param isShared whether snapshot is shared or not
    * @return number of deleted snapshots
    */
-  int deleteByValue(String owner, Long createdAt);
+  int deleteByValue(String owner, Long createdAt, boolean isShared);
 
   /**
    * Checks if a landscape with given owner and creation date exists.
    *
    * @param owner
    * @param createdAt
+   * @param isShared whether snapshot is shared or not
    * @return
    */
-  boolean snapshotExists(String owner, Long createdAt);
+  boolean snapshotExists(String owner, Long createdAt, boolean isShared);
 
   /**
    * Creates a new snapshots.
