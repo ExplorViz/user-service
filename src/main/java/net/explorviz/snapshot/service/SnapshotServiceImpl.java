@@ -95,8 +95,8 @@ public class SnapshotServiceImpl implements SnapshotService {
   }
 
   @Override
-  public Snapshot getSnapshot(final String owner, final Long createdAt) {
-    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, false);
+  public Snapshot getSnapshot(final String owner, final Long createdAt, final boolean isShared) {
+    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
 
     if (snapshot.size() != 1) {
       return null;

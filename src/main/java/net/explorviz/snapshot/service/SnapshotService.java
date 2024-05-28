@@ -55,5 +55,5 @@ public interface SnapshotService {
    * @param createdAt
    * @return
    */
-  Snapshot getSnapshot(String owner, Long createdAt);
+  Snapshot getSnapshot(String owner, Long createdAt, boolean isShared);
 }

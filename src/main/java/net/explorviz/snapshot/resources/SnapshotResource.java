@@ -108,10 +108,10 @@ public class SnapshotResource {
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  @Path("/{owner}/{createdAt}")
-  public Snapshot getSnapshot(@PathParam("owner") final String owner, @PathParam("createdAt") final Long createdAt) {
+  @Path("/{owner}/{createdAt}/{isShared}")
+  public Snapshot getSnapshot(@PathParam("owner") final String owner, @PathParam("createdAt") final Long createdAt, @PathParam("isShared") final boolean isShared) {
 
-   return this.snapshotService.getSnapshot(owner, createdAt);
+   return this.snapshotService.getSnapshot(owner, createdAt, isShared);
 
   }
 
