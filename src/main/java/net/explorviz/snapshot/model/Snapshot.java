@@ -72,7 +72,7 @@ public class Snapshot {
   @BsonCreator
   public Snapshot(@BsonProperty("owner") String owner, @BsonProperty("createdAt") Long createdAt,
       @BsonProperty("name") String name, @BsonProperty("landscapeToken") Document landscapeToken,
-      @BsonProperty("structureData") Document structureData, @BsonProperty("configuration") Document configuration,
+      @BsonProperty("structureData") Document structureData, @BsonProperty("serializedRoom") Document serializedRoom,
       @BsonProperty("camera") Document camera, @BsonProperty("annotations") Document annotations,
       @BsonProperty("isShared") boolean isShared, @BsonProperty("deleteAt") Long deleteAt,
       @BsonProperty("julius") Document julius) {
@@ -81,7 +81,7 @@ public class Snapshot {
     this.name = name;
     this.landscapeToken = landscapeToken;
     this.structureData = structureData;
-    this.serializedRoom = configuration;
+    this.serializedRoom = serializedRoom;
     this.camera = camera;
     this.annotations = annotations;
     this.isShared = isShared;
@@ -116,7 +116,7 @@ public class Snapshot {
     return structureData;
   }
 
-  @BsonProperty("configuration")
+  @BsonProperty("serializedRoom")
   public Document getSerializedRoom() {
     return serializedRoom;
   }
