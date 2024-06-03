@@ -19,6 +19,7 @@ import net.explorviz.snapshot.service.SnapshotService;
 import org.bson.Document;
 import org.jose4j.json.internal.json_simple.JSONArray;
 import org.jose4j.json.internal.json_simple.JSONObject;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Path("snapshot")
@@ -42,10 +43,14 @@ public class SnapshotResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
   public Response createNewSnapshot(Snapshot snapshot){
+    System.out.println(snapshot);
+
     if (snapshotService.snapshotExists(snapshot.getOwner(), snapshot.getCreatedAt(),
         snapshot.getIsShared())) {
+      System.out.println("WARUUUUUUM????");
       return Response.status(422).build();
     } else {
+      System.out.println("Called");
       this.snapshotService.createNewSnapshot(snapshot);
 
       return Response.ok().build();
@@ -83,20 +88,28 @@ public class SnapshotResource {
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<Snapshot> getSnapshotByValue(@QueryParam("owner") final String owner) {
+  public Collection<Document> getSnapshotByValue(@QueryParam("owner") final String owner) {
 
     Collection<Snapshot> snapshots = this.snapshotService.getOwningSnapshots(owner);
     final long currentTime = System.currentTimeMillis();
 
+    ArrayList<Document> tinySnapshots = new ArrayList<>();
+
     for (Snapshot sn : snapshots) {
       if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
         this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt(), sn.getIsShared());
+      } else {
+        JSONObject jsonSnapshot = new JSONObject();
+        jsonSnapshot.put("owner", sn.getOwner());
+        jsonSnapshot.put("createdAt", sn.getCreatedAt());
+        jsonSnapshot.put("name", sn.getName());
+        jsonSnapshot.put("landscapeToken", sn.getLandscapeToken());
+
+        tinySnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
       }
     }
 
-    snapshots = this.snapshotService.getOwningSnapshots(owner);
-
-    return snapshots;
+    return tinySnapshots;
   }
 
   /**
