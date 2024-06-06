@@ -7,11 +7,18 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
+import org.bson.BsonArray;
+import org.bson.BsonString;
 import org.bson.Document;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jose4j.json.internal.json_simple.JSONArray;
+import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @ApplicationScoped
 public class SnapshotServiceImpl implements SnapshotService {
@@ -56,17 +63,23 @@ public class SnapshotServiceImpl implements SnapshotService {
     final Document camera = new Document();
     final Document annotations = new Document();
     final boolean isShared = false;
+    final List<String> subscribedUsers = new ArrayList<>();
     final long deleteAt = 0L;
     final Document julius = new Document();
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, configuration, camera, annotations, isShared, deleteAt, julius);
-    this.repository.persist(snapshot);
+//    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
+//        structureData, configuration, camera, annotations, isShared, subscribedUsers, deleteAt, julius);
+//    this.repository.persist(snapshot);
   }
 
   @Override
   public Collection<Snapshot> getOwningSnapshots(final String owner) {
     return this.repository.findForUser(owner);
+  }
+
+  @Override
+  public Collection<Snapshot> getAllSnapshots() {
+    return this.repository.getAll();
   }
 
   @Override
@@ -102,5 +115,135 @@ public class SnapshotServiceImpl implements SnapshotService {
       return null;
     }
     return snapshot.iterator().next();
+  }
+
+  @Override
+  public void addNewSubscriber(final String owner, final Long createdAt, final String subscriber) {
+    if (!owner.equals(subscriber)) {
+      Collection<Snapshot> sn = this.repository.findForUserAndCreatedAtAndIsShared(owner,
+          createdAt, true);
+
+      if (sn.size() != 1) {
+        return;
+      }
+
+      Snapshot snapshot = sn.iterator().next();
+
+      if (snapshot != null) {
+
+        Document subscribedUsers = snapshot.getSubscribedUsers();
+
+        ArrayList<String> subscriberList;
+        try {
+          subscriberList = (ArrayList<String>) subscribedUsers.get("subscriberList");
+        } catch (Exception e) {
+          System.out.println("Something went wrong with the subscriberList");
+          return;
+        }
+
+        if (!subscriberList.contains(subscriber)) {
+          subscriberList.add(subscriber);
+
+          Document newSubs = new Document();
+          newSubs.append("subscriberList", subscriberList);
+
+          Snapshot newSnapshot =
+              new Snapshot(snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getName(),
+                  snapshot.getLandscapeToken(), snapshot.getStructureData(),
+                  snapshot.getSerializedRoom(), snapshot.getTimestamps(), snapshot.getCamera(),
+                  snapshot.getAnnotations(), snapshot.getIsShared(), newSubs, snapshot.getDeleteAt(),
+                  snapshot.getJulius());
+
+          // - AutomaticPojoCodec has problems with reading Arrays from MongoDB
+          // - MongoDB has problems with updating lists -> lists will become Strings
+          // - MongoDB has problems with updating Documents -> Finds '}' while expecting ':' (?)
+          // => Solution: Deletion of old snapshot and creation of new with updated subscriber list
+          //    (not very beautiful because of more heavy database operation, but for now the only
+          //     working solution)
+          this.repository.delete(DELETE_FLAG_QUERY, snapshot.getOwner(), snapshot.getCreatedAt(),
+              snapshot.getIsShared());
+          this.repository.persist(newSnapshot);
+        }
+      }
+    }
+  }
+
+  @Override
+  public void removeSubscriber(final String owner, final Long createdAt, final String subscriber) {
+    if (!owner.equals(subscriber)) {
+      Collection<Snapshot> sn = this.repository.findForUserAndCreatedAtAndIsShared(owner,
+          createdAt, true);
+
+      if (sn.size() != 1) {
+        return;
+      }
+
+      Snapshot snapshot = sn.iterator().next();
+
+      if (snapshot != null) {
+
+        Document subscribedUsers = snapshot.getSubscribedUsers();
+
+        ArrayList<String> subscriberList;
+        try {
+          subscriberList = (ArrayList<String>) subscribedUsers.get("subscriberList");
+        } catch (Exception e) {
+          System.out.println("Something went wrong with the subscriberList");
+          return;
+        }
+
+        if (subscriberList.contains(subscriber)) {
+          subscriberList.remove(subscriber);
+
+          Document newSubs = new Document();
+          newSubs.append("subscriberList", subscriberList);
+
+          Snapshot newSnapshot =
+              new Snapshot(snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getName(),
+                  snapshot.getLandscapeToken(), snapshot.getStructureData(),
+                  snapshot.getSerializedRoom(), snapshot.getTimestamps(), snapshot.getCamera(),
+                  snapshot.getAnnotations(), snapshot.getIsShared(), newSubs, snapshot.getDeleteAt(),
+                  snapshot.getJulius());
+
+          // - AutomaticPojoCodec has problems with reading Arrays from MongoDB
+          // - MongoDB has problems with updating lists -> lists will become Strings
+          // - MongoDB has problems with updating Documents -> Finds '}' while expecting ':' (?)
+          // => Solution: Deletion of old snapshot and creation of new with updated subscriber list
+          //    (not very beautiful because of more heavy database operation, but for now the only
+          //     working solution)
+          this.repository.delete(DELETE_FLAG_QUERY, snapshot.getOwner(), snapshot.getCreatedAt(),
+              snapshot.getIsShared());
+          this.repository.persist(newSnapshot);
+        }
+      }
+    }
+  }
+
+  @Override
+  public int shareSnapshot(final String owner, final Long createdAt) {
+    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner,
+        createdAt, true);
+
+    if (snapshot.size() == 1) {
+      return 1;
+    }
+
+    snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner,
+        createdAt, false);
+
+    if (snapshot.size() != 1) {
+      return -1;
+    }
+
+    Snapshot sn = snapshot.iterator().next();
+
+    Snapshot sharedSnapshot = new Snapshot(sn.getOwner(), sn.getCreatedAt(),
+        sn.getName(), sn.getLandscapeToken(), sn.getStructureData(),
+        sn.getSerializedRoom(), sn.getTimestamps(), sn.getCamera(),
+        sn.getAnnotations(), true, sn.getSubscribedUsers(),
+        sn.getDeleteAt(), sn.getJulius());
+
+    this.repository.persist(sharedSnapshot);
+    return 0;
   }
 }

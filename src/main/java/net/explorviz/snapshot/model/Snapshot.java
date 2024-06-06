@@ -1,10 +1,10 @@
 package net.explorviz.snapshot.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.Document;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+
 
 @MongoEntity(collection = "snapshot")
 public class Snapshot {
@@ -29,7 +29,6 @@ public class Snapshot {
   /**
    * The landscape token of the corresponding landscape.
    */
-  @JsonFormat
   private Document landscapeToken;
 
   /**
@@ -41,6 +40,11 @@ public class Snapshot {
    * The configuration data describing the room.
    */
   private Document serializedRoom;
+
+  /**
+   * The timestamps of a room.
+   */
+  private Document timestamps;
 
   /**
    * The camera data describing position of the camera.
@@ -58,6 +62,11 @@ public class Snapshot {
   private boolean isShared;
 
   /**
+   * Collection of users that subscribed the snapshot.
+   */
+  private Document subscribedUsers;
+
+  /**
    * The optional value of the expiration date used for sharing.
    * Default value = 0
    */
@@ -73,18 +82,21 @@ public class Snapshot {
   public Snapshot(@BsonProperty("owner") String owner, @BsonProperty("createdAt") Long createdAt,
       @BsonProperty("name") String name, @BsonProperty("landscapeToken") Document landscapeToken,
       @BsonProperty("structureData") Document structureData, @BsonProperty("serializedRoom") Document serializedRoom,
+      @BsonProperty("timestamps") Document timestamps,
       @BsonProperty("camera") Document camera, @BsonProperty("annotations") Document annotations,
-      @BsonProperty("isShared") boolean isShared, @BsonProperty("deleteAt") Long deleteAt,
-      @BsonProperty("julius") Document julius) {
+      @BsonProperty("isShared") boolean isShared, @BsonProperty("subscribedUsers") Document subscribedUsers,
+      @BsonProperty("deleteAt") Long deleteAt, @BsonProperty("julius") Document julius) {
     this.owner = owner;
     this.createdAt = createdAt;
     this.name = name;
     this.landscapeToken = landscapeToken;
     this.structureData = structureData;
     this.serializedRoom = serializedRoom;
+    this.timestamps = timestamps;
     this.camera = camera;
     this.annotations = annotations;
     this.isShared = isShared;
+    this.subscribedUsers = subscribedUsers;
     this.deleteAt = deleteAt;
     this.julius = julius;
   }
@@ -121,6 +133,9 @@ public class Snapshot {
     return serializedRoom;
   }
 
+  @BsonProperty("timestamps")
+  public Document getTimestamps() {return timestamps;}
+
   @BsonProperty("camera")
   public Document getCamera() {
     return camera;
@@ -136,6 +151,11 @@ public class Snapshot {
     return isShared;
   }
 
+  @BsonProperty("subscribedUsers")
+  public Document getSubscribedUsers() {
+    return subscribedUsers;
+  }
+
   @BsonProperty("deleteAt")
   public Long getDeleteAt() {
     return deleteAt;
@@ -149,7 +169,7 @@ public class Snapshot {
   @Override
   public String toString() {
     return getOwner() + " " + getCreatedAt() + " " + getName() + " " + getLandscapeToken() + " "
-        + getLandscapeToken() + " " + getStructureData() + " " + getSerializedRoom() + " "
-        + getAnnotations() + " " + getIsShared() + " " + getDeleteAt() + " " + getJulius();
+        + getLandscapeToken() + " " + getStructureData() + " " + getSerializedRoom() + " " + getTimestamps() + " "
+        + getAnnotations() + " " + getIsShared() + " " + getSubscribedUsers() + " " + getDeleteAt() + " " + getJulius();
   }
 }

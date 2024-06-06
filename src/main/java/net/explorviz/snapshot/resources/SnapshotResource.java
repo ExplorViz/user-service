@@ -8,6 +8,7 @@ import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -43,14 +44,10 @@ public class SnapshotResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
   public Response createNewSnapshot(Snapshot snapshot){
-    System.out.println(snapshot);
-
     if (snapshotService.snapshotExists(snapshot.getOwner(), snapshot.getCreatedAt(),
         snapshot.getIsShared())) {
-      System.out.println("WARUUUUUUM????");
       return Response.status(422).build();
     } else {
-      System.out.println("Called");
       this.snapshotService.createNewSnapshot(snapshot);
 
       return Response.ok().build();
@@ -88,27 +85,55 @@ public class SnapshotResource {
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<Document> getSnapshotByValue(@QueryParam("owner") final String owner) {
+  public Document getSnapshotByValue(@QueryParam("owner") final String owner) {
+    Document tinySnapshots = new Document();
+    ArrayList<Document> personalSnapshots = new ArrayList<>();
+    ArrayList<Document> sharedSnapshots = new ArrayList<>();
+    ArrayList<Document> subscribedSnapshots = new ArrayList<>();
 
-    Collection<Snapshot> snapshots = this.snapshotService.getOwningSnapshots(owner);
+    Collection<Snapshot> snapshots = this.snapshotService.getAllSnapshots();
     final long currentTime = System.currentTimeMillis();
 
-    ArrayList<Document> tinySnapshots = new ArrayList<>();
+    ArrayList<String> subscriberList;
 
     for (Snapshot sn : snapshots) {
+
+      subscriberList = (ArrayList<String>) sn.getSubscribedUsers().get("subscriberList");
+
       if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
+
         this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt(), sn.getIsShared());
-      } else {
+
+      } else if (sn.getOwner().equals(owner)) { // collect all personal and shared snapshots
+
         JSONObject jsonSnapshot = new JSONObject();
         jsonSnapshot.put("owner", sn.getOwner());
         jsonSnapshot.put("createdAt", sn.getCreatedAt());
         jsonSnapshot.put("name", sn.getName());
         jsonSnapshot.put("landscapeToken", sn.getLandscapeToken());
 
-        tinySnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
+        if (sn.getIsShared()) {
+          sharedSnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
+        } else {
+          personalSnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
+        }
+
+      } else if (subscriberList.contains(owner)) {
+
+        JSONObject jsonSnapshot = new JSONObject();
+        jsonSnapshot.put("owner", sn.getOwner());
+        jsonSnapshot.put("createdAt", sn.getCreatedAt());
+        jsonSnapshot.put("name", sn.getName());
+        jsonSnapshot.put("landscapeToken", sn.getLandscapeToken());
+
+        subscribedSnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
       }
     }
 
+
+    tinySnapshots.append("personalSnapshots", personalSnapshots);
+    tinySnapshots.append("sharedSnapshots", sharedSnapshots);
+    tinySnapshots.append("subscribedSnapshots", subscribedSnapshots);
     return tinySnapshots;
   }
 
@@ -122,10 +147,51 @@ public class SnapshotResource {
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/{owner}/{createdAt}/{isShared}")
-  public Snapshot getSnapshot(@PathParam("owner") final String owner, @PathParam("createdAt") final Long createdAt, @PathParam("isShared") final boolean isShared) {
+  public Snapshot getSnapshot(@PathParam("owner") final String owner,
+      @PathParam("createdAt") final Long createdAt, @PathParam("isShared") final boolean isShared) {
 
    return this.snapshotService.getSnapshot(owner, createdAt, isShared);
 
   }
 
+  @PUT
+  @Authenticated
+  @Path("/subscribe")
+  public Response subscribeSnapshot(@QueryParam("owner") final String owner,
+      @QueryParam("createdAt") final Long createdAt,
+      @QueryParam("subscriber") final String subscriber) {
+    this.snapshotService.addNewSubscriber(owner, createdAt, subscriber);
+
+    return Response.ok().build();
+  }
+
+  @PUT
+  @Authenticated
+  @Path("/unsubscribe")
+  public Response unsubscribeSnapshot(@QueryParam("owner") final String owner,
+      @QueryParam("createdAt") final Long createdAt,
+      @QueryParam("subscriber") final String subscriber) {
+    this.snapshotService.removeSubscriber(owner, createdAt, subscriber);
+
+    return Response.ok().build();
+  }
+
+  @PUT
+  @Authenticated
+  @Path("/share")
+  public Response shareSnapshot(@QueryParam("owner") final String owner,
+      @QueryParam("createdAt") final Long createdAt) {
+
+    int res = this.snapshotService.shareSnapshot(owner, createdAt);
+
+    if (res == 0) {
+      return Response.ok().build();
+    } else if (res == 1) {
+      // if snapshot already shared return status 222
+      return Response.status(222).build();
+    } else {
+      // if given data doesn't correspond to an existing snapshot return status 400
+      return Response.status(400).build();
+    }
+  }
 }
