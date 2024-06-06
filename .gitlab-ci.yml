@@ -54,7 +54,7 @@ test:
   tags:
     - exec-docker
   script:
-    - ./gradlew test
+    - ./gradlew jacocoTest
     # Print test coverage to console (for coverage badge)
     - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
   coverage: '/Jacoco Coverage Total: ([0-9]{1,3})%/'
