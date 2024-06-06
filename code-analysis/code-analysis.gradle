@@ -28,19 +28,3 @@ checkstyle {
   ignoreFailures = false
   toolVersion = "10.6.0"
 }
-
-task checkstyle {
-  group 'Quality Assurance'
-  description 'Run Checkstyle'
-  
-  dependsOn 'checkstyleMain'
-  dependsOn 'checkstyleTest'
-}
-
-task pmd {
-  group 'Quality Assurance'
-  description 'Run PMD'
-
-  dependsOn 'pmdMain'
-  dependsOn 'pmdTest'
-}
