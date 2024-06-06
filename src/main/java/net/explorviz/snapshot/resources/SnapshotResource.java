@@ -94,11 +94,13 @@ public class SnapshotResource {
     Collection<Snapshot> snapshots = this.snapshotService.getAllSnapshots();
     final long currentTime = System.currentTimeMillis();
 
-    ArrayList<String> subscriberList;
-
     for (Snapshot sn : snapshots) {
 
-      subscriberList = (ArrayList<String>) sn.getSubscribedUsers().get("subscriberList");
+      ArrayList<String> subscriberList = new ArrayList<>();
+
+      if (!sn.getSubscribedUsers().isEmpty()) {
+        subscriberList = (ArrayList<String>) sn.getSubscribedUsers().get("subscriberList");
+      }
 
       if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
 
@@ -180,9 +182,9 @@ public class SnapshotResource {
   @Authenticated
   @Path("/share")
   public Response shareSnapshot(@QueryParam("owner") final String owner,
-      @QueryParam("createdAt") final Long createdAt) {
+      @QueryParam("createdAt") final Long createdAt, @QueryParam("deleteAt") final Long deleteAt) {
 
-    int res = this.snapshotService.shareSnapshot(owner, createdAt);
+    int res = this.snapshotService.shareSnapshot(owner, createdAt, deleteAt);
 
     if (res == 0) {
       return Response.ok().build();

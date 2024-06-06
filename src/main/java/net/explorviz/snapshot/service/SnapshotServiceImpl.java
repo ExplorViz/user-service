@@ -220,7 +220,7 @@ public class SnapshotServiceImpl implements SnapshotService {
   }
 
   @Override
-  public int shareSnapshot(final String owner, final Long createdAt) {
+  public int shareSnapshot(final String owner, final Long createdAt, final Long deleteAt) {
     Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner,
         createdAt, true);
 
@@ -241,7 +241,7 @@ public class SnapshotServiceImpl implements SnapshotService {
         sn.getName(), sn.getLandscapeToken(), sn.getStructureData(),
         sn.getSerializedRoom(), sn.getTimestamps(), sn.getCamera(),
         sn.getAnnotations(), true, sn.getSubscribedUsers(),
-        sn.getDeleteAt(), sn.getJulius());
+        deleteAt, sn.getJulius());
 
     this.repository.persist(sharedSnapshot);
     return 0;

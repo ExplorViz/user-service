@@ -90,5 +90,5 @@ public interface SnapshotService {
    * @param createdAt creation date of the snapshot
    * @return
    */
-  int shareSnapshot(String owner, Long createdAt);
+  int shareSnapshot(String owner, Long createdAt, Long deleteAt);
 }
