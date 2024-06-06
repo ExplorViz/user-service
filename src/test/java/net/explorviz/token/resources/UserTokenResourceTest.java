@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
@@ -21,11 +21,9 @@ import org.mockito.Mockito;
 @QuarkusTest
 class UserTokenResourceTest {
 
+  private static final String SECRET = "secret";
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
-
-  private static final String SECRET = "secret";
-
 
   @BeforeEach
   void setUp() {

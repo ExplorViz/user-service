@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import javax.inject.Inject;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;

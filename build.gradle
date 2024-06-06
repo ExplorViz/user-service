@@ -68,6 +68,8 @@ dependencies {
   implementation 'io.quarkus:quarkus-avro'
   implementation group: 'io.quarkus', name: 'quarkus-smallrye-reactive-messaging-kafka'
 
+  testImplementation("io.smallrye.reactive:smallrye-reactive-messaging-in-memory")
+
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation("io.quarkus:quarkus-junit5-mockito")
   testImplementation 'io.rest-assured:rest-assured'
@@ -93,8 +95,8 @@ compileTestJava {
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_11
-  targetCompatibility = JavaVersion.VERSION_11
+  sourceCompatibility = JavaVersion.VERSION_21
+  targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType(JavaCompile) {

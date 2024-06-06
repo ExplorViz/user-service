@@ -1,18 +1,27 @@
-image: openjdk:11-jdk
+include:
+  - project: "ExplorViz/code/deployment"
+    file: ".gitlab-ci-explorviz-common.yml"
 
-# Disable the Gradle daemon for Continuous Integration servers as correctness
-# is usually a priority over speed in CI environments. Using a fresh
-# runtime for each build is more reliable since the runtime is completely
-# isolated from any previous builds.
+default:
+  tags:
+    - exec-docker
+  image: ghcr.io/graalvm/graalvm-community:21
+  cache: # Cache modules in between jobs
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - .gradle
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-before_script:
-  - export GRADLE_USER_HOME=`pwd`/.gradle
-
-cache:
-  paths:
-    - .gradle
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - if: "$CI_COMMIT_BRANCH"
 
 stages:
   - build
@@ -20,44 +29,52 @@ stages:
   - test
   - coverage
   - visualize
-  - deploy
+  - deploy:images
+  - deploy:retagging
 
 build:
   stage: build
-  tags:
-    - exec-docker
-  script: ./gradlew assemble
+  script: ./gradlew --build-cache assemble
+  cache:
+    policy: push
+    paths:
+      - .gradle
   artifacts:
     paths:
       - build
 
 pmd:
   stage: code-analysis
-  tags:
-    - exec-docker
   script: ./gradlew pmdMain
-  artifacts:
-    paths:
-      - build
 
 checkstyle:
   stage: code-analysis
-  tags:
-    - exec-docker
   script: ./gradlew checkstyleMain
-  artifacts:
-    paths:
-      - build
 
 test:
   stage: test
-  tags:
-    - exec-docker
   script:
-    - ./gradlew jacocoTest
+    - ./gradlew jacocoTestReport
     # Print test coverage to console (for coverage badge)
     - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
-  coverage: '/Jacoco Coverage Total: ([0-9]{1,3})%/'
+  coverage: "/Jacoco Coverage Total: ([0-9]{1,3})%/"
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml
+    paths:
+      - build/reports/jacoco/test/jacocoTestReport.xml
+
+integration-test:
+  stage: test
+  tags:
+    - podman
+  allow_failure: true
+  script:
+    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_CHECKS_DISABLE=true ./gradlew integrationTest jacocoTestReport
+    # Print test coverage to console (for coverage badge)
+    - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
+  coverage: "/Jacoco Coverage Total: ([0-9]{1,3})%/"
   dependencies:
     - build
   artifacts:
@@ -69,14 +86,12 @@ test:
 
 coverage:
   stage: visualize
-  tags:
-    - exec-docker
   image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
   script:
     # convert report from jacoco to cobertura
-    - 'python /opt/cover2cover.py build/reports/jacoco/test/jacocoTestReport.xml src/main/java > build/cobertura.xml'
+    - "python /opt/cover2cover.py build/reports/jacoco/test/jacocoTestReport.xml src/main/java > build/cobertura.xml"
     # read the <source></source> tag and prepend the path to every filename attribute
-    - 'python /opt/source2filename.py build/cobertura.xml'
+    - "python /opt/source2filename.py build/cobertura.xml"
   needs: ["test"]
   dependencies:
     - test
@@ -86,35 +101,65 @@ coverage:
         coverage_format: cobertura
         path: build/cobertura.xml
 
-push-dockerhub-native:
-  image: ghcr.io/graalvm/graalvm-ce:ol7-java11-22.3.0
-  stage: deploy
-  only:
-    - master
-  before_script:
-    - gu install native-image
-  tags:
-    - exec-docker
-  script: 
-    - ./gradlew clean assemble -Dquarkus.package.type=native -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.name=user-service-native -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA -Dquarkus.native.additional-build-args="--initialize-at-run-time=org.apache.kafka.common.security.authenticator.SaslClientAuthenticator\\,org.apache.kafka.common.security.oauthbearer.internals.expiring.ExpiringCredentialRefreshingLogin\\,org.apache.commons.lang3.RandomStringUtils" -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
+push-dockerhub-native-main-amd64:
+  extends: .build-and-deploy-quarkus-native
+  variables:
+    IMAGE_TAG: "amd64"
 
-push-dockerhub:
-  stage: deploy
-  only:
-    - master
-  except:
-    - schedules
+push-dockerhub-native-main-arm64:
+  extends: .build-and-deploy-quarkus-native
+  rules:
+    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
+  variables:
+    IMAGE_TAG: "arm64"
   tags:
-    - exec-docker
-  script: 
-    - ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
+    - arm64
 
-push-dockerhub-dev:
-  stage: deploy
-  only:
-    - master
+push-dockerhub-native-mr:
+  extends: .build-and-deploy-quarkus-native
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    IMAGE_TAG: mr-${CI_MERGE_REQUEST_IID}-native
+
+push-dockerhub-main-amd64:
+  extends: .build-and-deploy-quarkus-jvm
+  variables:
+    IMAGE_TAG: "amd64"
+
+push-dockerhub-main-arm64:
+  extends: .build-and-deploy-quarkus-jvm
+  rules:
+    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
+  variables:
+    IMAGE_TAG: "arm64"
   tags:
-    - exec-docker
-  script:
-    - QUARKUS_OIDC_ENABLED=false ./gradlew clean assemble -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.tag=dev -Dquarkus.container-image.additional-tags=$CI_COMMIT_SHORT_SHA-dev -Dquarkus.container-image.username=$EXPLORVIZ_DOCKERHUB_USERNAME -Dquarkus.container-image.password=$EXPLORVIZ_DOCKERHUB_PASSWORD
-    - sleep 5m
+    - arm64
+
+push-dockerhub-mr:
+  extends: .build-and-deploy-quarkus-jvm
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    IMAGE_TAG: mr-${CI_MERGE_REQUEST_IID}-jvm
+
+retag-amd64-as-latest-jvm:
+  extends: .retag-dockerhub-image
+  variables:
+    SOURCE_TAG: "amd64"
+    TARGET_TAG: "latest"
+
+retag-amd64-as-latest-native:
+  extends: .retag-dockerhub-image
+  variables:
+    IMAGE_NAME: $DOCKERHUB_IMAGE_NAME_NATIVE
+    SOURCE_TAG: "amd64"
+    TARGET_TAG: "latest"
+
+publish-multi-arch-manifest-jvm:
+  extends: .retag-as-multi-arch-dockerhub-image
+
+publish-multi-arch-manifest-native:
+  extends: .retag-as-multi-arch-dockerhub-image
+  variables:
+    IMAGE_NAME: $DOCKERHUB_IMAGE_NAME_NATIVE

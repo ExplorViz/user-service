@@ -1,13 +1,13 @@
 package net.explorviz.token.service;
 
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
 import net.explorviz.token.generator.TokenGenerator;
@@ -28,28 +28,21 @@ public class TokenServiceImpl implements TokenService {
 
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "value = ?1";
-
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
-  /* default */ Instance<Boolean> authEnabled; // NOCS
-
-  @ConfigProperty(name = "initial.token.creation.enabled")
-  /* default */ boolean initialTokenCreationEnabled; // NOCS
-
-  @ConfigProperty(name = "initial.token.user")
-  /* default */ String initialTokenUser; // NOCS
-
-  @ConfigProperty(name = "initial.token.value")
-  /* default */ String initialTokenValue; // NOCS
-
-  @ConfigProperty(name = "initial.token.secret")
-  /* default */ String initialTokenSecret; // NOCS
-
-  @ConfigProperty(name = "initial.token.alias")
-  /* default */ String initialTokenAlias; // NOCS
-
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  /* default */ Instance<Boolean> authEnabled; // NOCS
+  @ConfigProperty(name = "initial.token.creation.enabled")
+  /* default */ boolean initialTokenCreationEnabled; // NOCS
+  @ConfigProperty(name = "initial.token.user")
+  /* default */ String initialTokenUser; // NOCS
+  @ConfigProperty(name = "initial.token.value")
+  /* default */ String initialTokenValue; // NOCS
+  @ConfigProperty(name = "initial.token.secret")
+  /* default */ String initialTokenSecret; // NOCS
+  @ConfigProperty(name = "initial.token.alias")
+  /* default */ String initialTokenAlias; // NOCS
 
   /**
    * Implementation of the token service, responsible for token management.
@@ -70,7 +63,9 @@ public class TokenServiceImpl implements TokenService {
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
           this.initialTokenSecret, this.initialTokenAlias);
+      LOGGER.atDebug().log("Created default landscape token.");
     }
+    LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
 
   private void createNewConstantToken(final String ownerId, final String value, final String secret,
