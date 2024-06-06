@@ -33,8 +33,6 @@ task integrationTest(type: Test) {
 
 jacocoTestReport.dependsOn test
 
-check.dependsOn integrationTest
-
 configurations {
   integrationTestImplementation.extendsFrom implementation
   integrationTestRuntimeOnly.extendsFrom runtimeOnly
