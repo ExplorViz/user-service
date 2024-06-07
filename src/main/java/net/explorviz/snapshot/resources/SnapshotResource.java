@@ -148,9 +148,14 @@ public class SnapshotResource {
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  @Path("/{owner}/{createdAt}/{isShared}")
-  public Snapshot getSnapshot(@PathParam("owner") final String owner,
-      @PathParam("createdAt") final Long createdAt, @PathParam("isShared") final boolean isShared) {
+  @Path("/get")
+  public Snapshot getSnapshot(@QueryParam("owner") final String owner,
+      @QueryParam("createdAt") final Long createdAt, @QueryParam("isShared") final boolean isShared,
+      @QueryParam("subscriber") final String subscriber) {
+
+    if (isShared && !subscriber.equals(owner)) {
+      this.snapshotService.addNewSubscriber(owner, createdAt, subscriber);
+    }
 
    return this.snapshotService.getSnapshot(owner, createdAt, isShared);
 
