@@ -55,6 +55,7 @@ test:
   stage: test
   script:
     - ./gradlew test
+    - ./gradlew jacocoTestReport
     # Print test coverage to console (for coverage badge)
     - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
   coverage: "/Jacoco Coverage Total: ([0-9]{1,3})%/"
@@ -71,7 +72,8 @@ integration-test:
     - podman
   allow_failure: true
   script:
-    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_CHECKS_DISABLE=true ./gradlew jacocoTestReport
+    - DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_CHECKS_DISABLE=true ./gradlew integrationTest
+    - ./gradlew jacocoTestReport
     # Print test coverage to console (for coverage badge)
     - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
   coverage: "/Jacoco Coverage Total: ([0-9]{1,3})%/"

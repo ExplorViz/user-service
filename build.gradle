@@ -31,9 +31,6 @@ task integrationTest(type: Test) {
   shouldRunAfter test
 }
 
-jacocoTestReport.dependsOn test
-jacocoTestReport.dependsOn integrationTest
-
 configurations {
   integrationTestImplementation.extendsFrom implementation
   integrationTestRuntimeOnly.extendsFrom runtimeOnly
