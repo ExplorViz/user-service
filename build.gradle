@@ -32,6 +32,7 @@ task integrationTest(type: Test) {
 }
 
 jacocoTestReport.dependsOn test
+jacocoTestReport.dependsOn integrationTest
 
 configurations {
   integrationTestImplementation.extendsFrom implementation
