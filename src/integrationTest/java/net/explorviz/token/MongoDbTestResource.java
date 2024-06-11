@@ -11,7 +11,7 @@ import org.testcontainers.containers.GenericContainer;
 public class MongoDbTestResource implements QuarkusTestResourceLifecycleManager {
 
   private static final GenericContainer<?> MONGO_DB =
-      new GenericContainer<>("mongo:6.0").withExposedPorts(27017);
+      new GenericContainer<>("docker.io/library/mongo:6.0").withExposedPorts(27017);
 
   @Override
   public Map<String, String> start() {
