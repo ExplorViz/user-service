@@ -27,6 +27,11 @@ public class UserAPI {
   private String token;
 
   /**
+   * The host url.
+   */
+  private String hostUrl;
+
+  /**
    * The value of the creation date.
    */
   private Long createdAt;
@@ -48,11 +53,13 @@ public class UserAPI {
   public UserAPI(@BsonProperty("uid") String uid,
       @BsonProperty("name") String name,
       @BsonProperty("token") String token,
+      @BsonProperty("hostUrl") String hostUrl,
       @BsonProperty("createdAt") long createdAt,
       @BsonProperty("expires") Long expires) {
     this.uid = uid;
     this.name = name;
     this.token = token;
+    this.hostUrl = hostUrl;
     this.createdAt = createdAt;
     this.expires = expires;
   }
@@ -82,6 +89,13 @@ public class UserAPI {
    */
   @BsonProperty("token")
   public String getToken() { return this.token; }
+
+  /**
+   * The host url.
+   * @return host url
+   */
+  @BsonProperty("hostUrl")
+  public String getHostUrl() { return this.hostUrl; }
 
   /**
    * The numeric value of the creation date.

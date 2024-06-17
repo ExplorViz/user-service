@@ -44,5 +44,5 @@ public interface UserAPIService {
    * @return a new user
    */
   UserAPI createNewUserAPI(final String uId, final String name, final String token,
-      Long createdAt, Long expires);
+      final String hostUrl, Long createdAt, Long expires);
 }

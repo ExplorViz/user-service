@@ -46,13 +46,13 @@ public class UserAPIResource {
   @Path("create")
   public Response createNewUserAPI(@QueryParam("uId") final String uId,
       @QueryParam("name") final String name, @QueryParam("token") final String token,
-      @QueryParam("createdAt") final Long createdAt,
+      @QueryParam("hostUrl") final String hostUrl, @QueryParam("createdAt") final Long createdAt,
       @QueryParam("expires") @DefaultValue("0") final Long expires) {
 
     if (userAPIService.tokenExists(uId, token)){
       return Response.status(422).build();
     } else {
-      this.userAPIService.createNewUserAPI(uId, name, token, createdAt, expires);
+      this.userAPIService.createNewUserAPI(uId, name, token, hostUrl, createdAt, expires);
 
       return Response.ok().build();
     }

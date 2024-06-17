@@ -42,18 +42,18 @@ public class UserAPIServiceImpl implements UserAPIService {
   /* default */ void onStart(@Observes final StartupEvent ev) {
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantUserAPI(this.initialTokenUser, this.initialTokenAlias,
-          this.initialTokenValue, 0L);
+          this.initialTokenValue, "testUrl", 0L);
       LOGGER.atDebug().log("Created default user API token.");
     }
     LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
 
   private void createNewConstantUserAPI(final String uId, final String name, final String token,
-      final Long expires) {
+      final String hostUrl, final Long expires) {
     final long createdAt = System.currentTimeMillis();
 
     final UserAPI userAPI =
-        new UserAPI(uId, name, token, createdAt, expires);
+        new UserAPI(uId, name, token, hostUrl, createdAt, expires);
     this.repository.persist(userAPI);
   }
 
@@ -84,8 +84,8 @@ public class UserAPIServiceImpl implements UserAPIService {
 
   @Override
   public UserAPI createNewUserAPI(final String uId, final String name, final String token,
-      final Long createdAt, final Long expires) {
-    final UserAPI userAPI = new UserAPI(uId, name, token, createdAt, expires);
+     final String hostUrl, final Long createdAt, final Long expires) {
+    final UserAPI userAPI = new UserAPI(uId, name, token, hostUrl, createdAt, expires);
     this.repository.persist(userAPI);
 
     return userAPI;
