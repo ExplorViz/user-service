@@ -16,4 +16,10 @@ protocol TraceEventProtocol {
 		long created;
 		string alias;
 	}
+
+  record TokenEvent {
+    EventType type;
+    LandscapeToken token;
+    string clonedToken;
+  }
 }

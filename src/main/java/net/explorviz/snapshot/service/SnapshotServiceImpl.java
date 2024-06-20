@@ -7,18 +7,12 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
-import org.bson.BsonArray;
-import org.bson.BsonString;
 import org.bson.Document;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jose4j.json.internal.json_simple.JSONArray;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 @ApplicationScoped
 public class SnapshotServiceImpl implements SnapshotService {
@@ -59,17 +53,16 @@ public class SnapshotServiceImpl implements SnapshotService {
     final long createdAt = System.currentTimeMillis();
     final Document landscapeToken = new Document();
     final Document structureData = new Document();
-    final Document configuration = new Document();
+    final Document serializedRoom = new Document();
+    final Document timestamps = new Document();
     final Document camera = new Document();
-    final Document annotations = new Document();
     final boolean isShared = false;
-    final List<String> subscribedUsers = new ArrayList<>();
+    final Document subscribedUsers = new Document();
     final long deleteAt = 0L;
-    final Document julius = new Document();
 
-//    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-//        structureData, configuration, camera, annotations, isShared, subscribedUsers, deleteAt, julius);
-//    this.repository.persist(snapshot);
+    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
+        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    this.repository.persist(snapshot);
   }
 
   @Override
@@ -151,8 +144,7 @@ public class SnapshotServiceImpl implements SnapshotService {
               new Snapshot(snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getName(),
                   snapshot.getLandscapeToken(), snapshot.getStructureData(),
                   snapshot.getSerializedRoom(), snapshot.getTimestamps(), snapshot.getCamera(),
-                  snapshot.getAnnotations(), snapshot.getIsShared(), newSubs, snapshot.getDeleteAt(),
-                  snapshot.getJulius());
+                  snapshot.getIsShared(), newSubs, snapshot.getDeleteAt());
 
           // - AutomaticPojoCodec has problems with reading Arrays from MongoDB
           // - MongoDB has problems with updating lists -> lists will become Strings
@@ -202,8 +194,7 @@ public class SnapshotServiceImpl implements SnapshotService {
               new Snapshot(snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getName(),
                   snapshot.getLandscapeToken(), snapshot.getStructureData(),
                   snapshot.getSerializedRoom(), snapshot.getTimestamps(), snapshot.getCamera(),
-                  snapshot.getAnnotations(), snapshot.getIsShared(), newSubs, snapshot.getDeleteAt(),
-                  snapshot.getJulius());
+                  snapshot.getIsShared(), newSubs, snapshot.getDeleteAt());
 
           // - AutomaticPojoCodec has problems with reading Arrays from MongoDB
           // - MongoDB has problems with updating lists -> lists will become Strings
@@ -240,8 +231,7 @@ public class SnapshotServiceImpl implements SnapshotService {
     Snapshot sharedSnapshot = new Snapshot(sn.getOwner(), sn.getCreatedAt(),
         sn.getName(), sn.getLandscapeToken(), sn.getStructureData(),
         sn.getSerializedRoom(), sn.getTimestamps(), sn.getCamera(),
-        sn.getAnnotations(), true, sn.getSubscribedUsers(),
-        deleteAt, sn.getJulius());
+        true, sn.getSubscribedUsers(), deleteAt);
 
     this.repository.persist(sharedSnapshot);
     return 0;
