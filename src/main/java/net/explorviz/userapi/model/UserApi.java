@@ -6,7 +6,7 @@ import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @MongoEntity(collection = "userapi")
-public class UserAPI {
+public class UserApi {
 
   /**
    * The user id given by auth0.
@@ -50,7 +50,7 @@ public class UserAPI {
    * @param token     The API token.
    */
   @BsonCreator
-  public UserAPI(@BsonProperty("uid") String uid,
+  public UserApi(@BsonProperty("uid") String uid,
       @BsonProperty("name") String name,
       @BsonProperty("token") String token,
       @BsonProperty("hostUrl") String hostUrl,
@@ -64,7 +64,7 @@ public class UserAPI {
     this.expires = expires;
   }
 
-  public UserAPI() {}
+  public UserApi() {}
 
   /**
    * User id of the token owner.
@@ -72,7 +72,9 @@ public class UserAPI {
    * @return Owner of the token
    */
   @BsonProperty("uid")
-  public String getUid() { return this.uid; }
+  public String getUid() {
+    return this.uid;
+  }
 
   /**
    * Name of the token.
@@ -80,7 +82,9 @@ public class UserAPI {
    * @return Name of the token
    */
   @BsonProperty("name")
-  public String getName() { return this.name; }
+  public String getName() {
+    return this.name;
+  }
 
   /**
    * The API token value.
@@ -88,14 +92,19 @@ public class UserAPI {
    * @return API token
    */
   @BsonProperty("token")
-  public String getToken() { return this.token; }
+  public String getToken() {
+    return this.token;
+  }
 
   /**
    * The host url.
+   *
    * @return host url
    */
   @BsonProperty("hostUrl")
-  public String getHostUrl() { return this.hostUrl; }
+  public String getHostUrl() {
+    return this.hostUrl;
+  }
 
   /**
    * The numeric value of the creation date.
@@ -103,7 +112,9 @@ public class UserAPI {
    * @return numeric creation date
    */
   @BsonProperty("createdAt")
-  public Long getCreatedAt() { return this.createdAt; }
+  public Long getCreatedAt() {
+    return this.createdAt;
+  }
 
   /**
    * The numeric value of the deletion date.
@@ -112,6 +123,8 @@ public class UserAPI {
    */
   @BsonProperty("expires")
   @Nullable
-  public Long getExpires() { return this.expires; }
+  public Long getExpires() {
+    return this.expires;
+  }
 
 }

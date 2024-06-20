@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(FakeKafkaResource.class)
-class UserAPIEventServiceImplTest {
+class UserApiEventServiceImplTest {
 
 
   @Inject

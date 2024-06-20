@@ -122,7 +122,9 @@ public class Snapshot {
   }
 
   @BsonProperty("timestamps")
-  public Document getTimestamps() {return timestamps;}
+  public Document getTimestamps() {
+    return timestamps;
+  }
 
   @BsonProperty("camera")
   public Document getCamera() {

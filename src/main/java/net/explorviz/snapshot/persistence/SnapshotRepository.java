@@ -2,9 +2,8 @@ package net.explorviz.snapshot.persistence;
 
 import io.quarkus.mongodb.panache.PanacheMongoRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import net.explorviz.snapshot.model.Snapshot;
-import java.util.ArrayList;
 import java.util.Collection;
+import net.explorviz.snapshot.model.Snapshot;
 
 @ApplicationScoped
 public class SnapshotRepository implements PanacheMongoRepositoryBase<Snapshot, String> {

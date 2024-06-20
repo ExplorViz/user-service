@@ -1,11 +1,7 @@
 package net.explorviz.snapshot.service;
 
-import net.explorviz.snapshot.model.Snapshot;
-import net.explorviz.snapshot.resources.SnapshotResource;
-import org.bson.Document;
-import org.jose4j.json.internal.json_simple.JSONArray;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import java.util.Collection;
+import net.explorviz.snapshot.model.Snapshot;
 
 /**
  * Interface to manage {@link Snapshot}s.
@@ -23,7 +19,7 @@ public interface SnapshotService {
   /**
    * Retrieve all snapshots of the database.
    *
-   * @return
+   * @return a collection of all snapshots in the database
    */
   Collection<Snapshot> getAllSnapshots();
 
@@ -43,14 +39,14 @@ public interface SnapshotService {
    * @param owner the given owner
    * @param createdAt creation date of the snapshot
    * @param isShared whether snapshot is shared or not
-   * @return
+   * @return whether a snapshot exists or not
    */
   boolean snapshotExists(String owner, Long createdAt, boolean isShared);
 
   /**
    * Creates a new snapshots.
    *
-   * @param snapshot
+   * @param snapshot The given snapshot
    * @return the created snapshot object
    */
   Snapshot createNewSnapshot(Snapshot snapshot);
@@ -61,7 +57,7 @@ public interface SnapshotService {
    * @param owner the given owner
    * @param createdAt creation date of the snapshot
    * @param isShared whether snapshot is shared or not
-   * @return
+   * @return the snapshot corresponding to the given data
    */
   Snapshot getSnapshot(String owner, Long createdAt, boolean isShared);
 
@@ -88,7 +84,7 @@ public interface SnapshotService {
    *
    * @param owner the given owner
    * @param createdAt creation date of the snapshot
-   * @return
+   * @return returns 0 if shared, -1 if something was wrong with given data and 1 if already shared
    */
   int shareSnapshot(String owner, Long createdAt, Long deleteAt);
 }

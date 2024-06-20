@@ -5,22 +5,22 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import net.explorviz.userapi.model.UserAPI;
-import net.explorviz.userapi.persistence.UserAPIRepository;
+import java.util.Collection;
+import net.explorviz.userapi.model.UserApi;
+import net.explorviz.userapi.persistence.UserApiRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Collection;
 
 @ApplicationScoped
-public class UserAPIServiceImpl implements UserAPIService {
+public class UserApiServiceImpl implements UserApiService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserAPIService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserApiService.class);
 
 
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "uid = ?1 and token = ?2";
-  private final UserAPIRepository repository;
+  private final UserApiRepository repository;
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
   /* default */ Instance<Boolean> authEnabled; // NOCS
   @ConfigProperty(name = "initial.token.creation.enabled")
@@ -35,60 +35,60 @@ public class UserAPIServiceImpl implements UserAPIService {
   /* default */ String initialTokenAlias; // NOCS
 
   @Inject
-  public UserAPIServiceImpl(UserAPIRepository repository) {
+  public UserApiServiceImpl(UserApiRepository repository) {
     this.repository = repository;
   }
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
     if (this.initialTokenCreationEnabled) {
-      this.createNewConstantUserAPI(this.initialTokenUser, this.initialTokenAlias,
+      this.createNewConstantUserApi(this.initialTokenUser, this.initialTokenAlias,
           this.initialTokenValue, "testUrl", 0L);
       LOGGER.atDebug().log("Created default user API token.");
     }
     LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
 
-  private void createNewConstantUserAPI(final String uId, final String name, final String token,
+  private void createNewConstantUserApi(final String uid, final String name, final String token,
       final String hostUrl, final Long expires) {
     final long createdAt = System.currentTimeMillis();
 
-    final UserAPI userAPI =
-        new UserAPI(uId, name, token, hostUrl, createdAt, expires);
-    this.repository.persist(userAPI);
+    final UserApi userApi =
+        new UserApi(uid, name, token, hostUrl, createdAt, expires);
+    this.repository.persist(userApi);
   }
 
   @Override
-  public Collection<UserAPI> getOwningTokens(final String uId) {
-    return this.repository.findForUser(uId);
+  public Collection<UserApi> getOwningTokens(final String uid) {
+    return this.repository.findForUser(uid);
   }
 
   @Override
-  public int deleteByValue(final String uId, final String token) {
-    Collection<UserAPI> userAPIToDelete = this.repository.findForUserAndToken(uId, token);
+  public int deleteByValue(final String uid, final String token) {
+    Collection<UserApi> userApiToDelete = this.repository.findForUserAndToken(uid, token);
 
-    if (userAPIToDelete.size() != 1){
+    if (userApiToDelete.size() != 1) {
       return -1;
     }
 
-    this.repository.delete(DELETE_FLAG_QUERY, uId, token);
+    this.repository.delete(DELETE_FLAG_QUERY, uid, token);
 
     return 0;
   }
 
   @Override
-  public boolean tokenExists(final String uId, final String token) {
-    Collection<UserAPI> tokenUId = this.repository.findForUserAndToken(uId, token);
+  public boolean tokenExists(final String uid, final String token) {
+    Collection<UserApi> tokenUid = this.repository.findForUserAndToken(uid, token);
 
-    return !tokenUId.isEmpty();
+    return !tokenUid.isEmpty();
   }
 
   @Override
-  public UserAPI createNewUserAPI(final String uId, final String name, final String token,
-     final String hostUrl, final Long createdAt, final Long expires) {
-    final UserAPI userAPI = new UserAPI(uId, name, token, hostUrl, createdAt, expires);
-    this.repository.persist(userAPI);
+  public UserApi createNewUserApi(final String uid, final String name, final String token,
+      final String hostUrl, final Long createdAt, final Long expires) {
+    final UserApi userApi = new UserApi(uid, name, token, hostUrl, createdAt, expires);
+    this.repository.persist(userApi);
 
-    return userAPI;
+    return userApi;
   }
 
 }

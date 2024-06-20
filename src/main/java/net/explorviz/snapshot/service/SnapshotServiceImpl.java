@@ -5,14 +5,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
 import org.bson.Document;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Collection;
 
 @ApplicationScoped
 public class SnapshotServiceImpl implements SnapshotService {
@@ -77,7 +77,8 @@ public class SnapshotServiceImpl implements SnapshotService {
 
   @Override
   public int deleteByValue(final String owner, final Long createdAt, final boolean isShared) {
-    Collection<Snapshot> snapshotToDelete = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
+    Collection<Snapshot> snapshotToDelete =
+        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
 
     if (snapshotToDelete.size() != 1) {
       return -1;
@@ -90,19 +91,21 @@ public class SnapshotServiceImpl implements SnapshotService {
 
   @Override
   public boolean snapshotExists(final String owner, final Long createdAt, final boolean isShared) {
-    Collection<Snapshot> snapshots = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
+    Collection<Snapshot> snapshots =
+        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
 
     return !snapshots.isEmpty();
   }
 
-  public Snapshot createNewSnapshot(final Snapshot snapshot){
+  public Snapshot createNewSnapshot(final Snapshot snapshot) {
     this.repository.persist(snapshot);
     return snapshot;
   }
 
   @Override
   public Snapshot getSnapshot(final String owner, final Long createdAt, final boolean isShared) {
-    Collection<Snapshot> snapshot = this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
+    Collection<Snapshot> snapshot =
+        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
 
     if (snapshot.size() != 1) {
       return null;

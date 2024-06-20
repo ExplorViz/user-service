@@ -8,31 +8,30 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.explorviz.userapi.model.UserAPI;
-import net.explorviz.userapi.service.UserAPIService;
 import java.util.Collection;
+import net.explorviz.userapi.model.UserApi;
+import net.explorviz.userapi.service.UserApiService;
 
 @Path("userapi")
 @RequestScoped
-public class UserAPIResource {
+public class UserApiResource {
 
-  private final UserAPIService userAPIService;
+  private final UserApiService userApiService;
 
 
   @Inject
-  public UserAPIResource(final UserAPIService userAPIService) {
-    this.userAPIService = userAPIService;
+  public UserApiResource(final UserApiService userApiService) {
+    this.userApiService = userApiService;
   }
 
   /**
    * Endpoint to create a user.
    *
-   * @param uId Id of the user.
+   * @param uid Id of the user.
    * @param name  Name of the API token.
    * @param token The API token.
    * @param createdAt The creation date.
@@ -40,19 +39,17 @@ public class UserAPIResource {
    * @return Response to the requester.
    */
   @POST
-//  @Produces(MediaType.APPLICATION_JSON)
   @Authenticated
-//  @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
-  public Response createNewUserAPI(@QueryParam("uId") final String uId,
+  public Response createNewUserApi(@QueryParam("uId") final String uid,
       @QueryParam("name") final String name, @QueryParam("token") final String token,
       @QueryParam("hostUrl") final String hostUrl, @QueryParam("createdAt") final Long createdAt,
       @QueryParam("expires") @DefaultValue("0") final Long expires) {
 
-    if (userAPIService.tokenExists(uId, token)){
+    if (userApiService.tokenExists(uid, token)) {
       return Response.status(422).build();
     } else {
-      this.userAPIService.createNewUserAPI(uId, name, token, hostUrl, createdAt, expires);
+      this.userApiService.createNewUserApi(uid, name, token, hostUrl, createdAt, expires);
 
       return Response.ok().build();
     }
@@ -61,20 +58,19 @@ public class UserAPIResource {
   /**
    * Endpoint to delete a user.
    *
-   * @param uId Id of the user.
+   * @param uid Id of the user.
    * @param token  The API token.
    * @return Response to the requester.
    */
   @DELETE
   @Authenticated
-//  @Produces(MediaType.TEXT_PLAIN
   @Path("delete")
-  public Response deleteUser(@QueryParam("uId") final String uId,
+  public Response deleteUser(@QueryParam("uId") final String uid,
       @QueryParam("token") final String token) {
 
-    int status = this.userAPIService.deleteByValue(uId, token);
+    int status = this.userApiService.deleteByValue(uid, token);
 
-    if (status == 0){
+    if (status == 0) {
       return Response.ok().build();
     }
 
@@ -84,26 +80,26 @@ public class UserAPIResource {
   /**
    * Endpoint to get all user API tokens of one user.
    *
-   * @param uId Id of the user.
+   * @param uid Id of the user.
    * @return Collection of UserAPI objects.
    */
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<UserAPI> getUserByValue(@QueryParam("uId") final String uId){
+  public Collection<UserApi> getUserByValue(@QueryParam("uId") final String uid) {
 
-    Collection<UserAPI> userAPIs = this.userAPIService.getOwningTokens(uId);
+    Collection<UserApi> userApis = this.userApiService.getOwningTokens(uid);
     final long currentTime = System.currentTimeMillis();
 
-    for (UserAPI uAPI : userAPIs) {
-      if (uAPI.getExpires() != 0 && uAPI.getExpires() < currentTime) {
-        this.userAPIService.deleteByValue(uAPI.getUid(), uAPI.getToken());
+    for (UserApi uapi : userApis) {
+      if (uapi.getExpires() != 0 && uapi.getExpires() < currentTime) {
+        this.userApiService.deleteByValue(uapi.getUid(), uapi.getToken());
       }
     }
 
-    userAPIs = this.userAPIService.getOwningTokens(uId);
+    userApis = this.userApiService.getOwningTokens(uid);
 
-    return userAPIs;
+    return userApis;
   }
 
 }
