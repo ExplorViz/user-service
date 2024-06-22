@@ -50,7 +50,6 @@ public class UserApiResource {
       return Response.status(422).build();
     } else {
       this.userApiService.createNewUserApi(uid, name, token, hostUrl, createdAt, expires);
-
       return Response.ok().build();
     }
   }
