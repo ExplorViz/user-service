@@ -119,7 +119,7 @@ public class UserApiResourceTest {
   }
 
   @Test
-  void deleteUserApi() {
+  void testDeleteUserApi() {
     final String uid = "testuid";
     final String token = "testtoken";
 
@@ -139,7 +139,7 @@ public class UserApiResourceTest {
   }
 
   @Test
-  void deleteNonExistingUserApi() {
+  void testDeleteNonExistingUserApi() {
     final String uid = "testuid";
     final String token = "testtoken";
 
