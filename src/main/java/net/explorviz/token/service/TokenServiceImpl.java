@@ -61,9 +61,12 @@ public class TokenServiceImpl implements TokenService {
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
     if (this.initialTokenCreationEnabled) {
-      this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
-          this.initialTokenSecret, this.initialTokenAlias);
-      LOGGER.atDebug().log("Created default landscape token.");
+      for (int i = 1; i <= 10; i++) {
+        this.createNewConstantToken(this.initialTokenUser,
+            this.initialTokenValue + Integer.toString(i),
+            this.initialTokenSecret + Integer.toString(i), "Landscape " + Integer.toString(i));
+        LOGGER.atDebug().log("Created default landscape token.");
+      }
     }
     LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
