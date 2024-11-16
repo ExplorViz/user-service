@@ -10,7 +10,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 /**
  * Represents a landscape token.
  */
-@MongoEntity
+@MongoEntity(collection = "token")
 public class LandscapeToken {
 
 
