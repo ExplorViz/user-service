@@ -37,11 +37,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "graalvm"
-          java-version: "21"
+      - name: Set Java 21 as default
+        run: |
+          export JAVA_HOME=${JAVA_HOME_21_X64}
+          export PATH=$JAVA_HOME/bin:$PATH
       - name: Cache Gradle Packages
         uses: actions/cache@v4
         with:
@@ -57,11 +56,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "graalvm"
-          java-version: "21"
+      - name: Set Java 21 as default
+        run: |
+          export JAVA_HOME=${JAVA_HOME_21_X64}
+          export PATH=$JAVA_HOME/bin:$PATH
       - name: Cache Gradle Packages
         uses: actions/cache@v4
         with:
