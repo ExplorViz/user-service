@@ -50,7 +50,7 @@ public class UserTokenResource {
     if (alias == null || alias.alias.isBlank()) {
       return this.tokenService.createNewToken(userId);
     } else {
-      return this.tokenService.createNewToken(userId, alias.alias);
+      return this.tokenService.createNewToken(userId, alias.alias, alias.isRequestedFromVSCodeExtension);
     }
 
   }
@@ -84,7 +84,7 @@ public class UserTokenResource {
     final Collection<LandscapeToken> cleanedTokens = new ArrayList<>();
     for (final LandscapeToken t : tokens) {
       cleanedTokens.add(new LandscapeToken(t.getValue(), "", // NOPMD
-          t.getOwnerId(), t.getCreated(), t.getAlias()));
+          t.getOwnerId(), t.getCreated(), t.getAlias(), t.getIsRequestedFromVSCodeExtension()));
     }
     return cleanedTokens;
   }
@@ -96,14 +96,20 @@ public class UserTokenResource {
   private static class TokenAlias {
 
     private final String alias;
+    private final boolean isRequestedFromVSCodeExtension;
 
     @JsonCreator
-    public TokenAlias(final String alias) {
+    public TokenAlias(final String alias, final boolean isRequestedFromVSCodeExtension) {
       this.alias = alias;
+      this.isRequestedFromVSCodeExtension = isRequestedFromVSCodeExtension;
     }
 
     public String getAlias() {
       return this.alias;
+    }
+
+    public boolean getIsRequestedFromVSCodeExtension() {
+      return this.isRequestedFromVSCodeExtension;
     }
   }
 

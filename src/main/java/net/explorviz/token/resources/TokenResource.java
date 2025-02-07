@@ -127,7 +127,7 @@ public class TokenResource {
       } else if ("grant".equals(method)) {
         this.tokenService.grantAccess(token.get(), userId);
       } else if ("clone".equals(method)) {
-        this.tokenService.cloneToken(tokenId, userId, token.get().getAlias());
+        this.tokenService.cloneToken(tokenId, userId, token.get().getAlias(), token.get().getIsRequestedFromVSCodeExtension());
       }
       return Response.noContent().build();
     } else {

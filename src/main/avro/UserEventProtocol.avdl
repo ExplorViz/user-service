@@ -15,6 +15,7 @@ protocol TraceEventProtocol {
 		string secret;
 		long created;
 		string alias;
+		boolean isRequestedFromVSCodeExtension;
 	}
 
   record TokenEvent {

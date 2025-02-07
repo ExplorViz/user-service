@@ -40,6 +40,12 @@ public class LandscapeToken {
    */
   private String alias;
 
+
+  /**
+   * Indicates whether the initial token creation request came from the VSCode extension or from the frontend.
+   */
+  private boolean isRequestedFromVSCodeExtension;
+
   /**
    * Users that may access this token.
    */
@@ -53,24 +59,27 @@ public class LandscapeToken {
    * @param ownerId     Id of the user who generates the token.
    * @param created     Timestamp which indicates when the token was created.
    * @param alias       Used-defined alias to easily identify a token.
+   * @param isRequestedFromVSCodeExtension Indicator for the origin of the initial token creation request.
    * @param sharedUsers Users who have access to this token.
    */
   @BsonCreator
   public LandscapeToken(@BsonProperty("value") final String value,
       @BsonProperty("secret") final String secret, @BsonProperty("owner") final String ownerId,
       @BsonProperty("created") final long created, @BsonProperty("alias") final String alias,
+      @BsonProperty("isRequestedFromVSCodeExtension") final boolean isRequestedFromVSCodeExtension,
       @BsonProperty("sharedUsers") final List<String> sharedUsers) {
     this.value = value;
     this.ownerId = ownerId;
     this.created = created;
     this.alias = alias;
     this.secret = secret;
+    this.isRequestedFromVSCodeExtension = isRequestedFromVSCodeExtension;
     this.sharedUsersIds = sharedUsers;
   }
 
   public LandscapeToken(final String value, final String secret, final String ownerId,
-      final long created, final String alias) {
-    this(value, secret, ownerId, created, alias, new ArrayList<>());
+      final long created, final String alias, final boolean isRequestedFromVSCodeExtension) {
+    this(value, secret, ownerId, created, alias, isRequestedFromVSCodeExtension, new ArrayList<>());
   }
 
   public LandscapeToken() { /* Jackson */
@@ -116,6 +125,16 @@ public class LandscapeToken {
     return this.alias;
   }
 
+  /**
+   * An indicator for the origin of the token creation request.
+   *
+   * @return true if token creation request originally came from the VSCode extension, 
+   * otherwise false
+   */
+  @BsonProperty("isRequestedFromVSCodeExtension")
+  public boolean getIsRequestedFromVSCodeExtension() {
+    return this.isRequestedFromVSCodeExtension;
+  }
 
   /**
    * The secret of the token that is required to write spans to it.
@@ -161,6 +180,7 @@ public class LandscapeToken {
   public net.explorviz.avro.LandscapeToken toAvro() {
     return net.explorviz.avro.LandscapeToken.newBuilder().setValue(this.value)
         .setSecret(this.secret).setOwnerId(this.ownerId).setAlias(this.alias)
+        .setIsRequestedFromVSCodeExtension(this.isRequestedFromVSCodeExtension)
         .setCreated(this.getCreated()).build();
   }
 
