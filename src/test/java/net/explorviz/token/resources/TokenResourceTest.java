@@ -74,7 +74,7 @@ class TokenResourceTest {
             this.tokenAccessService.canRead(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
         .thenReturn(true);
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias", false));
     given().when().get("token/" + value).then().statusCode(200).body("ownerId", is(uid))
         .body("value", is(value));
   }
@@ -93,14 +93,14 @@ class TokenResourceTest {
     Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias", false));
 
     // Auth is disabled in tests, all requests get full permissions.
     // Mock to return empty an empty permission array
     Mockito.when(this.tokenAccessService.getPermissions(ArgumentMatchers.any(),
         ArgumentMatchers.anyString())).thenReturn(new TokenPermission[] {});
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias", false));
 
     given().when().get("token/" + value).then().statusCode(403);
   }
@@ -130,7 +130,7 @@ class TokenResourceTest {
     Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), ""));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "", false));
 
     Mockito.when(
             this.tokenAccessService.canDelete(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
@@ -156,7 +156,7 @@ class TokenResourceTest {
     Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
 
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias", false));
 
     // Can read but not delete
     Mockito.when(
