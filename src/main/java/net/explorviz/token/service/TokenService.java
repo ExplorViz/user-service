@@ -48,16 +48,20 @@ public interface TokenService {
    * @return a new token
    */
   default LandscapeToken createNewToken(final String ownerId) {
-    return this.createNewToken(ownerId, "", false);
+    return this.createNewToken(ownerId, "", false, "", "");
   }
 
   /**
    * Create a new token for a given user with an alias.
    *
    * @param ownerId the user to create the token for
+   * @param alias
+   * @param isRequestedFromVSCodeExtension
+   * @param projectName
+   * @param commitId
    * @return a new token
    */
-  LandscapeToken createNewToken(String ownerId, String alias, boolean isRequestedFromVSCodeExtension);
+  LandscapeToken createNewToken(String ownerId, String alias, boolean isRequestedFromVSCodeExtension, String projectName, String commitId);
 
   /**
    * Grant access to a landscape for a user.
@@ -82,6 +86,8 @@ public interface TokenService {
    * @param ownerId the id of the user that will own the cloned token
    * @param alias   the alias of the cloned token
    * @param isRequestedFromVSCodeExtension the origin of the token creation request of the cloned token
+   * @param projectName
+   * @param commitId
    */
-  LandscapeToken cloneToken(String token, String ownerId, String alias, boolean isRequestedFromVSCodeExtension);
+  LandscapeToken cloneToken(String token, String ownerId, String alias, boolean isRequestedFromVSCodeExtension, String projectName, String commitId);
 }

@@ -79,7 +79,7 @@ public class TokenServiceImpl implements TokenService {
 
     final LandscapeToken token =
         new LandscapeToken(value, secret, ownerId, created, initialTokenAlias,
-            false, Collections.emptyList());
+            false, "", "", Collections.emptyList());
     this.repository.persist(token);
     this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
 
@@ -89,8 +89,8 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public LandscapeToken createNewToken(final String ownerId, final String alias, final boolean isRequestedFromVSCodeExtension) {
-    final LandscapeToken token = this.generator.generateToken(ownerId, alias, isRequestedFromVSCodeExtension);
+  public LandscapeToken createNewToken(final String ownerId, final String alias, final boolean isRequestedFromVSCodeExtension, final String projectName, final String commitId) {
+    final LandscapeToken token = this.generator.generateToken(ownerId, alias, isRequestedFromVSCodeExtension, projectName, commitId);
     this.repository.persist(token);
     this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
     return token;
@@ -98,8 +98,8 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId,
-      final String alias, final boolean isRequestedFromVSCodeExtension) {
-    final var token = this.createNewToken(newOwnerId, alias, isRequestedFromVSCodeExtension);
+      final String alias, final boolean isRequestedFromVSCodeExtension, final String projectName, final String commitId) {
+    final var token = this.createNewToken(newOwnerId, alias, isRequestedFromVSCodeExtension, projectName, commitId);
     this.eventService.dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
     return token;
   }

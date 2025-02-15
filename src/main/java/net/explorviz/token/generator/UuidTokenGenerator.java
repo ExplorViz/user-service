@@ -16,7 +16,7 @@ public class UuidTokenGenerator implements TokenGenerator {
   private static final int SECRET_LEN = 16;
 
   @Override
-  public LandscapeToken generateToken(final String ownerId, final String alias, final boolean isRequestedFromVSCodeExtension) {
+  public LandscapeToken generateToken(final String ownerId, final String alias, final boolean isRequestedFromVSCodeExtension, final String projectName, final String commitId) {
 
     final String value = UUID.randomUUID().toString();
     final long created = System.currentTimeMillis();
@@ -25,6 +25,6 @@ public class UuidTokenGenerator implements TokenGenerator {
     final String secret =
         RandomStringUtils.random(SECRET_LEN, 0, 0, true, true, null, new SecureRandom());
 
-    return new LandscapeToken(value, secret, ownerId, created, alias, isRequestedFromVSCodeExtension, Collections.emptyList());
+    return new LandscapeToken(value, secret, ownerId, created, alias, isRequestedFromVSCodeExtension, projectName, commitId, Collections.emptyList());
   }
 }

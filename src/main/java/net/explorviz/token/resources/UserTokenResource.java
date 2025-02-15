@@ -50,7 +50,7 @@ public class UserTokenResource {
     if (alias == null || alias.alias.isBlank()) {
       return this.tokenService.createNewToken(userId);
     } else {
-      return this.tokenService.createNewToken(userId, alias.alias, alias.isRequestedFromVSCodeExtension);
+      return this.tokenService.createNewToken(userId, alias.alias, alias.isRequestedFromVSCodeExtension, alias.projectName, alias.commitId);
     }
 
   }
@@ -84,7 +84,7 @@ public class UserTokenResource {
     final Collection<LandscapeToken> cleanedTokens = new ArrayList<>();
     for (final LandscapeToken t : tokens) {
       cleanedTokens.add(new LandscapeToken(t.getValue(), "", // NOPMD
-          t.getOwnerId(), t.getCreated(), t.getAlias(), t.getIsRequestedFromVSCodeExtension()));
+          t.getOwnerId(), t.getCreated(), t.getAlias(), t.getIsRequestedFromVSCodeExtension(), t.getProjectName(), t.getCommitId()));
     }
     return cleanedTokens;
   }
@@ -97,11 +97,15 @@ public class UserTokenResource {
 
     private final String alias;
     private final boolean isRequestedFromVSCodeExtension;
+    private final String projectName;
+    private final String commitId;
 
     @JsonCreator
-    public TokenAlias(final String alias, final boolean isRequestedFromVSCodeExtension) {
+    public TokenAlias(final String alias, final boolean isRequestedFromVSCodeExtension, final String projectName, final String commitId) {
       this.alias = alias;
       this.isRequestedFromVSCodeExtension = isRequestedFromVSCodeExtension;
+      this.projectName = projectName;
+      this.commitId = commitId;
     }
 
     public String getAlias() {
@@ -110,6 +114,14 @@ public class UserTokenResource {
 
     public boolean getIsRequestedFromVSCodeExtension() {
       return this.isRequestedFromVSCodeExtension;
+    }
+
+    public String getProjectName() {
+      return this.projectName;
+    }
+
+    public String getCommitId() {
+      return this.commitId;
     }
   }
 
