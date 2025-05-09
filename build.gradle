@@ -110,3 +110,7 @@ test {
 integrationTest.doFirst {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
+
+pmdMain {
+  dependsOn(':compileQuarkusGeneratedSourcesJava')
+}
