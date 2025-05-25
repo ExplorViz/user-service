@@ -31,7 +31,7 @@ class UserApiEventServiceImplTest {
     final String tokenValue = "testtoken";
     final String uid = "testuid";
     final LandscapeToken token =
-        new LandscapeToken(tokenValue, "secret", uid, 0, "", false, Collections.emptyList());
+        new LandscapeToken(tokenValue, "secret", uid, 0, "", false, "", "", Collections.emptyList());
 
     final TokenEvent testEvent =
         TokenEvent.newBuilder().setToken(token.toAvro()).setType(EventType.CREATED)

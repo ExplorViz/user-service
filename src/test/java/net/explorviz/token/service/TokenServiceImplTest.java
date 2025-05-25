@@ -100,7 +100,7 @@ class TokenServiceImplTest {
   void correctAlias() {
     final String sampleUid = "user|0123";
     final String sampleAlias = "aSampleAlias4567";
-    final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid, sampleAlias, false);
+    final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid, sampleAlias, false, "", "");
     assertEquals(sampleAlias, t1.getAlias());
     final LandscapeToken t2 = this.tokenService.createNewToken(sampleUid);
     assertEquals("", t2.getAlias());
@@ -110,9 +110,9 @@ class TokenServiceImplTest {
   void retrieveOnlyOwningToken() {
     final String uid = "testuid";
     final LandscapeToken t1 =
-        new LandscapeToken("t1", "secret", uid, System.currentTimeMillis(), "t1", false);
+        new LandscapeToken("t1", "secret", uid, System.currentTimeMillis(), "t1", false, "", "");
     final LandscapeToken t2 =
-        new LandscapeToken("t1", "secret", "otheruid", System.currentTimeMillis(), "t2", false);
+        new LandscapeToken("t1", "secret", "otheruid", System.currentTimeMillis(), "t2", false, "", "");
     this.repo.persist(t1);
     this.repo.persist(t2);
     final Collection<LandscapeToken> got = this.tokenService.getOwningTokens(uid);
@@ -124,9 +124,9 @@ class TokenServiceImplTest {
   void retrieveSharedTokens() {
     final String uid = "testuid";
     final LandscapeToken t1 =
-        new LandscapeToken("t1", "secret", uid, System.currentTimeMillis(), "t1", false);
+        new LandscapeToken("t1", "secret", uid, System.currentTimeMillis(), "t1", false, "", "");
     final LandscapeToken t2 =
-        new LandscapeToken("t1", "secret", "otheruid", System.currentTimeMillis(), "t2", false);
+        new LandscapeToken("t1", "secret", "otheruid", System.currentTimeMillis(), "t2", false, "", "");
     t2.getSharedUsersIds().add(uid);
     this.repo.persist(t1);
     this.repo.persist(t2);
@@ -144,7 +144,7 @@ class TokenServiceImplTest {
     final String uid = "testuid";
 
     final LandscapeToken t1 =
-        new LandscapeToken("t1", "secret", uid, System.currentTimeMillis(), "", false);
+        new LandscapeToken("t1", "secret", uid, System.currentTimeMillis(), "", false, "", "");
     this.repo.persist(t1);
     final Optional<LandscapeToken> got = this.tokenService.getByValue(value);
     if (got.isPresent()) {
@@ -163,7 +163,7 @@ class TokenServiceImplTest {
         .thenAnswer(invocation -> this.inMemRepo.findByValue("other"));
 
     final LandscapeToken t1 =
-        new LandscapeToken(value, "secret", uid, System.currentTimeMillis(), "", false);
+        new LandscapeToken(value, "secret", uid, System.currentTimeMillis(), "", false, "", "");
     this.repo.persist(t1);
     final Optional<LandscapeToken> got = this.tokenService.getByValue("other");
     assertFalse(got.isPresent());
@@ -175,7 +175,7 @@ class TokenServiceImplTest {
     for (int i = 0; i < 100; i++) {
       this.repo.persist(
           new LandscapeToken(String.valueOf(i), "secret", uid, System.currentTimeMillis(),
-              "alias", false));
+              "alias", false, "", ""));
     }
     final Collection<LandscapeToken> got = this.tokenService.getOwningTokens(uid);
     assertTrue(got.containsAll(this.repo.findForUser(uid)));
@@ -188,7 +188,7 @@ class TokenServiceImplTest {
     Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(tokenValue));
     final LandscapeToken t =
-        new LandscapeToken(tokenValue, "secret", uid, System.currentTimeMillis(), "", false);
+        new LandscapeToken(tokenValue, "secret", uid, System.currentTimeMillis(), "", false, "", "");
     this.repo.persist(t);
     this.tokenService.deleteByValue(t);
     assertEquals(0, this.inMemRepo.size());

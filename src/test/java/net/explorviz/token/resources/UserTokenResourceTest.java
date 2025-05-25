@@ -70,7 +70,7 @@ class UserTokenResourceTest {
     final long created = System.currentTimeMillis();
     final String alias = "somealias";
     final boolean isRequestedFromVSCodeExtension = false;
-    this.repo.persist(new LandscapeToken(value, SECRET, uid, created, alias, isRequestedFromVSCodeExtension));
+    this.repo.persist(new LandscapeToken(value, SECRET, uid, created, alias, isRequestedFromVSCodeExtension, "", ""));
     given().when().get("user/" + uid + "/token").then().statusCode(200).body("size()", is(1))
         .body("[0].ownerId", is(uid)).body("[0].value", is(value)).body("[0].created", is(created))
         .body("[0].alias", is(alias)).body("[0].isRequestedFromVSCodeExtension", is(isRequestedFromVSCodeExtension));
@@ -85,8 +85,8 @@ class UserTokenResourceTest {
     final boolean isRequestedFromVSCodeExtension = false;
     final int tokens = 100;
     for (int i = 0; i < tokens; i++) {
-      this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, uid, created, alias, isRequestedFromVSCodeExtension));
-      this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, "other", created, alias, isRequestedFromVSCodeExtension));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, uid, created, alias, isRequestedFromVSCodeExtension, "", ""));
+      this.repo.persist(new LandscapeToken(String.valueOf(i), SECRET, "other", created, alias, isRequestedFromVSCodeExtension, "", ""));
     }
     given().when().get("user/" + uid + "/token").then().statusCode(200).body("size()", is(tokens));
   }
