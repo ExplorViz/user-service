@@ -14,7 +14,7 @@ public interface TokenGenerator {
    * @return a new landscape token.
    */
   default LandscapeToken generateToken(final String ownerId) {
-    return this.generateToken(ownerId, "");
+    return this.generateToken(ownerId, "Unnamed Token");
   }
 
   /**
