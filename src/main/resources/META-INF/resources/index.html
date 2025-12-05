@@ -1,159 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>userAPI-service - 1.0.0-SNAPSHOT</title>
-  <style>
-    h1, h2, h3, h4, h5, h6 {
-      margin-bottom: 0.5rem;
-      font-weight: 400;
-      line-height: 1.5;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Service - Landscape Token Management</title>
 
-    h1 {
-      font-size: 2.5rem;
-    }
+    <!-- Material Design Components -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+    />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
+    />
 
-    h2 {
-      font-size: 2rem
-    }
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="mdc-top-app-bar">
+      <div class="mdc-top-app-bar__row">
+        <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+          <span class="mdc-top-app-bar__title">
+            <i class="material-icons app-bar-icon">people</i>
+            User Service - Landscape Token Management
+          </span>
+        </section>
+      </div>
+    </header>
 
-    h3 {
-      font-size: 1.75rem
-    }
+    <main class="main-content main-content-offset">
+      <div class="search-section">
+        <h2>Landscape Token Management</h2>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="search-controls">
+          <button type="button" class="mdc-button mdc-button--raised" id="loadAllBtn">
+            <span class="mdc-button__ripple"></span>
+            <i class="material-icons mdc-button__icon" aria-hidden="true">list</i>
+            <span class="mdc-button__label">Load All Tokens</span>
+          </button>
+          <span class="text-secondary">or</span>
+          <form class="search-form search-form-inline" id="searchForm">
+            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field-flex">
+              <input
+                type="text"
+                class="mdc-text-field__input"
+                id="userIdInput"
+                placeholder="Enter User ID to filter"
+              />
+              <div class="mdc-notched-outline">
+                <div class="mdc-notched-outline__leading"></div>
+                <div class="mdc-notched-outline__notch">
+                  <label class="mdc-floating-label" for="userIdInput">Filter by User ID</label>
+                </div>
+                <div class="mdc-notched-outline__trailing"></div>
+              </div>
+            </div>
+            <button type="submit" class="mdc-button mdc-button--raised">
+              <span class="mdc-button__ripple"></span>
+              <i class="material-icons mdc-button__icon" aria-hidden="true">search</i>
+              <span class="mdc-button__label">Search</span>
+            </button>
+          </form>
+        </div>
+      </div>
 
-    h4 {
-      font-size: 1.5rem
-    }
+      <div id="loadingIndicator" class="loading hidden">
+        <div class="spinner"></div>
+        <div>Loading tokens...</div>
+      </div>
 
-    h5 {
-      font-size: 1.25rem
-    }
+      <div id="tokensContainer" class="tokens-section hidden">
+        <div class="section-header">
+          <h2 id="sectionTitle">Landscape Tokens</h2>
+        </div>
+        <div class="tokens-grid" id="tokensGrid"></div>
+      </div>
 
-    h6 {
-      font-size: 1rem
-    }
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-state-icon">
+          <i class="material-icons">search</i>
+        </div>
+        <div class="empty-state-text">
+          <strong>Welcome to User Service</strong><br /><br />
+          Click "Load All Tokens" to view all landscape tokens, or filter by User ID.<br />
+          You can view existing tokens and copy token values to your clipboard.
+        </div>
+      </div>
+    </main>
 
-    .lead {
-      font-weight: 300;
-      font-size: 2rem;
-    }
+    <!-- Material Design Components -->
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 
-    .banner {
-      font-size: 2.7rem;
-      margin: 0;
-      padding: 2rem 1rem;
-      background-color: #00A1E2;
-      color: white;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    }
-
-    code {
-      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 87.5%;
-      color: #e83e8c;
-      word-break: break-word;
-    }
-
-    .left-column {
-      padding: .75rem;
-      max-width: 75%;
-      min-width: 55%;
-    }
-
-    .right-column {
-      padding: .75rem;
-      max-width: 25%;
-    }
-
-    .container {
-      display: flex;
-      width: 100%;
-    }
-
-    li {
-      margin: 0.75rem;
-    }
-
-    .right-section {
-      margin-left: 1rem;
-      padding-left: 0.5rem;
-    }
-
-    .right-section h3 {
-      padding-top: 0;
-      font-weight: 200;
-    }
-
-    .right-section ul {
-      border-left: 0.3rem solid #00A1E2;
-      list-style-type: none;
-      padding-left: 0;
-    }
-
-  </style>
-</head>
-<body>
-
-<div class="banner lead">
-  Your new Cloud-Native application is ready!
-</div>
-
-<div class="container">
-  <div class="left-column">
-    <p class="lead"> Congratulations, you have created a new Quarkus application.</p>
-
-    <h2>Why do you see this?</h2>
-
-    <p>This page is served by Quarkus. The source is in
-      <code>src/main/resources/META-INF/resources/index.html</code>.</p>
-
-    <h2>What can I do from here?</h2>
-
-    <p>If not already done, run the application in <em>dev mode</em> using: <code>mvn compile
-      quarkus:dev</code>.
-    </p>
-    <ul>
-      <li>Add REST resources, Servlets, functions and other services in <code>src/main/java</code>.
-      </li>
-      <li>Your static assets are located in <code>src/main/resources/META-INF/resources</code>.</li>
-      <li>Configure your application in <code>src/main/resources/application.properties</code>.
-      </li>
-    </ul>
-
-    <h2>Do you like Quarkus?</h2>
-    <p>Go give it a star on <a href="https://github.com/quarkusio/quarkus">GitHub</a>.</p>
-
-    <h2>How do I get rid of this page?</h2>
-    <p>Just delete the <code>src/main/resources/META-INF/resources/index.html</code> file.</p>
-  </div>
-  <div class="right-column">
-    <div class="right-section">
-      <h3>Application</h3>
-      <ul>
-        <li>GroupId: net.explorviz</li>
-        <li>ArtifactId: userAPI-service</li>
-        <li>Version: 1.0.0-SNAPSHOT</li>
-        <li>Quarkus Version: 1.8.1.Final</li>
-      </ul>
-    </div>
-    <div class="right-section">
-      <h3>Next steps</h3>
-      <ul>
-        <li><a href="https://quarkus.io/guides/maven-tooling.html" target="_blank">Setup your
-          IDE</a></li>
-        <li><a href="https://quarkus.io/guides/getting-started.html" target="_blank">Getting
-          started</a></li>
-        <li><a href="https://quarkus.io" target="_blank">Quarkus Web Site</a></li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-
-</body>
+    <!-- Custom JavaScript -->
+    <script src="app.js"></script>
+  </body>
 </html>

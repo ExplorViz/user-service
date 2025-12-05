@@ -120,6 +120,11 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
+  public Collection<LandscapeToken> getAllTokens() {
+    return this.repository.getAll();
+  }
+
+  @Override
   public void deleteByValue(final LandscapeToken token) {
     final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
     if (docsAffected == DELETE_FLAG) {
