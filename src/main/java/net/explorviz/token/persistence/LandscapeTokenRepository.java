@@ -19,4 +19,13 @@ public class LandscapeTokenRepository
   public Collection<LandscapeToken> findSharedForUser(final String userId) {
     return this.list("sharedUsers in ?1", userId);
   }
+
+  /**
+   * Retrieve all landscape tokens.
+   *
+   * @return Collection of all landscape tokens
+   */
+  public Collection<LandscapeToken> getAll() {
+    return this.listAll();
+  }
 }
