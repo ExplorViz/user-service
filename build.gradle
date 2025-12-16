@@ -56,6 +56,9 @@ dependencies {
   // Utility
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 
+  // JSR-305 annotations (fixes "unknown enum constant When.MAYBE" warning)
+  implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
   // Auth
   implementation 'io.quarkus:quarkus-oidc'
   implementation 'io.quarkus:quarkus-mongodb-panache'

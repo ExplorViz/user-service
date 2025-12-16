@@ -7,6 +7,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
 import org.bson.Document;
@@ -129,13 +130,10 @@ public class SnapshotServiceImpl implements SnapshotService {
 
         Document subscribedUsers = snapshot.getSubscribedUsers();
 
-        ArrayList<String> subscriberList;
-        try {
-          subscriberList = (ArrayList<String>) subscribedUsers.get("subscriberList");
-        } catch (Exception e) {
-          System.out.println("Something went wrong with the subscriberList");
-          return;
-        }
+        List<String> existingList = subscribedUsers.getList("subscriberList", String.class);
+        List<String> subscriberList = existingList != null
+            ? new ArrayList<>(existingList)
+            : new ArrayList<>();
 
         if (!subscriberList.contains(subscriber)) {
           subscriberList.add(subscriber);
@@ -179,13 +177,10 @@ public class SnapshotServiceImpl implements SnapshotService {
 
         Document subscribedUsers = snapshot.getSubscribedUsers();
 
-        ArrayList<String> subscriberList;
-        try {
-          subscriberList = (ArrayList<String>) subscribedUsers.get("subscriberList");
-        } catch (Exception e) {
-          System.out.println("Something went wrong with the subscriberList");
-          return;
-        }
+        List<String> existingList = subscribedUsers.getList("subscriberList", String.class);
+        List<String> subscriberList = existingList != null
+            ? new ArrayList<>(existingList)
+            : new ArrayList<>();
 
         if (subscriberList.contains(subscriber)) {
           subscriberList.remove(subscriber);

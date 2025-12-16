@@ -14,10 +14,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.service.SnapshotService;
 import org.bson.Document;
-import org.jose4j.json.internal.json_simple.JSONObject;
 
 @Path("snapshot")
 @RequestScoped
@@ -93,10 +93,9 @@ public class SnapshotResource {
 
     for (Snapshot sn : snapshots) {
 
-      ArrayList<String> subscriberList = new ArrayList<>();
-
-      if (!sn.getSubscribedUsers().isEmpty()) {
-        subscriberList = (ArrayList<String>) sn.getSubscribedUsers().get("subscriberList");
+      List<String> subscriberList = sn.getSubscribedUsers().getList("subscriberList", String.class);
+      if (subscriberList == null) {
+        subscriberList = new ArrayList<>();
       }
 
       if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
@@ -105,27 +104,27 @@ public class SnapshotResource {
 
       } else if (sn.getOwner().equals(owner)) { // collect all personal and shared snapshots
 
-        JSONObject jsonSnapshot = new JSONObject();
-        jsonSnapshot.put("owner", sn.getOwner());
-        jsonSnapshot.put("createdAt", sn.getCreatedAt());
-        jsonSnapshot.put("name", sn.getName());
-        jsonSnapshot.put("landscapeToken", sn.getLandscapeToken());
+        Document snapshotDoc = new Document()
+            .append("owner", sn.getOwner())
+            .append("createdAt", sn.getCreatedAt())
+            .append("name", sn.getName())
+            .append("landscapeToken", sn.getLandscapeToken());
 
         if (sn.getIsShared()) {
-          sharedSnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
+          sharedSnapshots.add(snapshotDoc);
         } else {
-          personalSnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
+          personalSnapshots.add(snapshotDoc);
         }
 
       } else if (subscriberList.contains(owner)) {
 
-        JSONObject jsonSnapshot = new JSONObject();
-        jsonSnapshot.put("owner", sn.getOwner());
-        jsonSnapshot.put("createdAt", sn.getCreatedAt());
-        jsonSnapshot.put("name", sn.getName());
-        jsonSnapshot.put("landscapeToken", sn.getLandscapeToken());
+        Document snapshotDoc = new Document()
+            .append("owner", sn.getOwner())
+            .append("createdAt", sn.getCreatedAt())
+            .append("name", sn.getName())
+            .append("landscapeToken", sn.getLandscapeToken());
 
-        subscribedSnapshots.add(Document.parse(jsonSnapshot.toJSONString()));
+        subscribedSnapshots.add(snapshotDoc);
       }
     }
 
