@@ -8,6 +8,7 @@ import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -104,6 +105,30 @@ public class TokenResource {
       throw new ForbiddenException();
     }
 
+  }
+
+  /**
+   * Endpoint to update the alias of a token.
+   *
+   * @param tokenVal     Value of the token which shall be updated.
+   * @param tokenUpdates Token object containing the new alias.
+   * @return Response with no content.
+   */
+  @PATCH
+  @Authenticated
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateTokenAlias(@PathParam("tid") final String tokenVal,
+      final LandscapeToken tokenUpdates) {
+
+    final LandscapeToken token =
+        this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
+    final String uid = this.securityIdentity.getPrincipal().getName();
+    if (this.tokenAccessService.canUpdate(token, uid)) {
+      this.tokenService.updateAlias(token, tokenUpdates.getAlias());
+      return Response.noContent().build();
+    } else {
+      throw new ForbiddenException();
+    }
   }
 
   /**

@@ -153,4 +153,10 @@ public class TokenServiceImpl implements TokenService {
     this.repository.update("{ $pull: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
         .where(DELETE_FLAG_QUERY, token.getValue());
   }
+
+  @Override
+  public void updateAlias(final LandscapeToken token, final String newAlias) {
+    this.repository.update("{ $set: { alias: ?1 } }", newAlias)
+        .where(DELETE_FLAG_QUERY, token.getValue());
+  }
 }

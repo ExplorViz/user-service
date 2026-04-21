@@ -90,4 +90,12 @@ public interface TokenService {
    * @param alias   the alias of the cloned token
    */
   LandscapeToken cloneToken(String token, String ownerId, String alias);
+
+  /**
+   * Update the alias of a token.
+   *
+   * @param token    the token to update
+   * @param newAlias the new alias
+   */
+  void updateAlias(LandscapeToken token, String newAlias);
 }

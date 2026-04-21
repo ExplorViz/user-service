@@ -116,6 +116,11 @@ public class LandscapeToken {
     return this.alias;
   }
 
+  @BsonProperty("alias")
+  public void setAlias(final String alias) {
+    this.alias = alias;
+  }
+
 
   /**
    * The secret of the token that is required to write spans to it.

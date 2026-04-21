@@ -21,11 +21,13 @@ public class TokenAccessServiceImpl implements TokenAccessService {
   public TokenPermission[] getPermissions(final LandscapeToken token, final String userId) {
 
     if (!this.authEnabled.get()) {
-      return new TokenPermission[] {TokenPermission.DELETE, TokenPermission.READ};
+      return new TokenPermission[] {TokenPermission.DELETE, TokenPermission.READ,
+          TokenPermission.UPDATE};
     }
 
     if (token.getOwnerId().equals(userId)) {
-      return new TokenPermission[] {TokenPermission.READ, TokenPermission.DELETE};
+      return new TokenPermission[] {TokenPermission.READ, TokenPermission.DELETE,
+          TokenPermission.UPDATE};
     }
 
     return new TokenPermission[] {};

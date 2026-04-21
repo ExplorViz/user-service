@@ -32,5 +32,14 @@ public interface TokenAccessService {
     return Arrays.asList(this.getPermissions(token, userId)).contains(TokenPermission.DELETE);
   }
 
-
+  /**
+   * Checks whether a user can update a landscape token.
+   *
+   * @param token  the token
+   * @param userId the id of the user
+   * @return {@code true} iff the user is allowed to update the token
+   */
+  default boolean canUpdate(final LandscapeToken token, final String userId) {
+    return Arrays.asList(this.getPermissions(token, userId)).contains(TokenPermission.UPDATE);
+  }
 }
