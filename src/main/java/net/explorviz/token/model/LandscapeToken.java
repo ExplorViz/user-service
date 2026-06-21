@@ -159,14 +159,18 @@ public class LandscapeToken {
   }
 
   /**
-   * Serializes the token to the corresponding avro model.
+   * Converts the token to the corresponding protobuf model.
    *
-   * @return avro representation of this token
+   * @return protobuf representation of this token
    */
-  public net.explorviz.avro.LandscapeToken toAvro() {
-    return net.explorviz.avro.LandscapeToken.newBuilder().setValue(this.value)
-        .setSecret(this.secret).setOwnerId(this.ownerId).setAlias(this.alias)
-        .setCreated(this.getCreated()).build();
+  public net.explorviz.proto.LandscapeToken toProtobuf() {
+    return net.explorviz.proto.LandscapeToken.newBuilder()
+        .setId(this.value)
+        .setSecret(this.secret)
+        .setAlias(this.alias)
+        .setOwnerId(this.ownerId)
+        .setCreated(this.getCreated())
+        .build();
   }
 
 }

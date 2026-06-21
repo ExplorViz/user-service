@@ -8,8 +8,8 @@ import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import net.explorviz.avro.EventType;
-import net.explorviz.avro.TokenEvent;
+import net.explorviz.proto.EventType;
+import net.explorviz.proto.TokenEvent;
 import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
@@ -81,7 +81,9 @@ public class TokenServiceImpl implements TokenService {
         new LandscapeToken(value, secret, ownerId, created, initialTokenAlias,
             Collections.emptyList());
     this.repository.persist(token);
-    this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
+    this.eventService.dispatch(
+        TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CREATED).setToken(token.toProtobuf())
+            .build());
 
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Created default landscape token.");
@@ -92,7 +94,9 @@ public class TokenServiceImpl implements TokenService {
   public LandscapeToken createNewToken(final String ownerId, final String alias) {
     final LandscapeToken token = this.generator.generateToken(ownerId, alias);
     this.repository.persist(token);
-    this.eventService.dispatch(new TokenEvent(EventType.CREATED, token.toAvro(), ""));
+    this.eventService.dispatch(
+        TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CREATED).setToken(token.toProtobuf())
+            .build());
     return token;
   }
 
@@ -100,7 +104,9 @@ public class TokenServiceImpl implements TokenService {
   public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId,
       final String alias) {
     final var token = this.createNewToken(newOwnerId, alias);
-    this.eventService.dispatch(new TokenEvent(EventType.CLONED, token.toAvro(), oldTokenId));
+    this.eventService.dispatch(
+        TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CLONED).setToken(token.toProtobuf())
+            .setClonedTokenId(oldTokenId).build());
     return token;
   }
 
@@ -128,8 +134,9 @@ public class TokenServiceImpl implements TokenService {
   public void deleteByValue(final LandscapeToken token) {
     final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
     if (docsAffected == DELETE_FLAG) {
-      this.eventService.dispatch(new TokenEvent(EventType.DELETED, token.toAvro(), ""));
-
+      this.eventService.dispatch(
+          TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_DELETED).setToken(token.toProtobuf())
+              .build());
     }
   }
 
