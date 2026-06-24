@@ -1,6 +1,6 @@
 package net.explorviz.token.service.messaging;
 
-import net.explorviz.avro.TokenEvent;
+import net.explorviz.proto.TokenEvent;
 
 /**
  * Interface for the emit event service.

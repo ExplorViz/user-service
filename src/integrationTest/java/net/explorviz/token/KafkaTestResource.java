@@ -31,7 +31,7 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
 
     final int partitions = 1;
     final short replication = 1;
-    final NewTopic topicTokens = new NewTopic("token-events", partitions, replication);
+    final NewTopic topicTokens = new NewTopic("tokens.events", partitions, replication);
     final List<NewTopic> topics = List.of(topicTokens);
 
     localKafkaAdmin.createTopics(topics);

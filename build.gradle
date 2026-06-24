@@ -9,9 +9,6 @@ apply from: 'code-analysis/code-analysis.gradle'
 repositories {
   mavenLocal()
   mavenCentral()
-  maven {
-    url "https://packages.confluent.io/maven/"
-  }
 }
 
 sourceSets {
@@ -39,7 +36,7 @@ configurations {
   integrationTestRuntimeOnly.setCanBeResolved(true)
 }
 
-sourceSets.main.java.srcDirs = ['build/classes/java/quarkus-generated-sources/avdl', 'src/main/java']
+sourceSets.main.java.srcDirs = ['build/classes/java/quarkus-generated-sources/grpc', 'src/main/java']
 
 dependencies {
   implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
@@ -50,6 +47,7 @@ dependencies {
   // Base
   implementation 'io.quarkus:quarkus-resteasy-jackson'
   implementation 'io.quarkus:quarkus-resteasy'
+  implementation 'io.quarkus:quarkus-grpc'
   implementation group: 'io.quarkus', name: 'quarkus-messaging'
   implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
 
@@ -64,9 +62,6 @@ dependencies {
   implementation 'io.quarkus:quarkus-mongodb-panache'
 
   // Kafka
-  implementation 'io.quarkus:quarkus-confluent-registry-avro'
-  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.2.1'
-  implementation 'io.quarkus:quarkus-avro'
   implementation group: 'io.quarkus', name: 'quarkus-messaging-kafka'
 
   testImplementation("io.smallrye.reactive:smallrye-reactive-messaging-in-memory")
@@ -112,6 +107,10 @@ test {
 
 integrationTest.doFirst {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
+
+checkstyleMain {
+  dependsOn(':compileQuarkusGeneratedSourcesJava')
 }
 
 pmdMain {
