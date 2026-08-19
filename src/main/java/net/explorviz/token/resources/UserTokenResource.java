@@ -1,6 +1,7 @@
 package net.explorviz.token.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -36,8 +37,8 @@ public class UserTokenResource {
   /**
    * Endpoint to generate a token.
    *
-   * @param userId Id of the user who owns the generated token.
-   * @param alias  User-defined and optional alias for token identification.
+   * @param userId  Id of the user who owns the generated token.
+   * @param request Optional request body with alias, value, and secret.
    * @return Generated landscape token.
    */
   @POST
@@ -46,13 +47,22 @@ public class UserTokenResource {
   @ResourceOwnership(uidField = UID_PARAM)
   @Consumes(MediaType.APPLICATION_JSON)
   public LandscapeToken generateToken(@PathParam("uid") final String userId,
-      final TokenAlias alias) {
-    if (alias == null || alias.alias.isBlank()) {
-      return this.tokenService.createNewToken(userId);
-    } else {
-      return this.tokenService.createNewToken(userId, alias.alias);
+      final TokenCreateRequest request) {
+    final String alias = request == null || request.alias == null ? "" : request.alias;
+    final String value = request == null ? null : request.value;
+    final String secret = request == null ? null : request.secret;
+
+    final boolean hasCustomValue = value != null && !value.isBlank();
+    final boolean hasCustomSecret = secret != null && !secret.isBlank();
+
+    if (!hasCustomValue && !hasCustomSecret) {
+      if (alias.isBlank()) {
+        return this.tokenService.createNewToken(userId);
+      }
+      return this.tokenService.createNewToken(userId, alias);
     }
 
+    return this.tokenService.createNewToken(userId, alias, value, secret);
   }
 
   /**
@@ -91,21 +101,22 @@ public class UserTokenResource {
 
 
   /**
-   * Helper class for retrieving aliases a body data.
+   * Request body for creating a landscape token.
    */
-  private static class TokenAlias {
+  static class TokenCreateRequest {
 
     private final String alias;
+    private final String value;
+    private final String secret;
 
     @JsonCreator
-    public TokenAlias(final String alias) {
+    TokenCreateRequest(@JsonProperty("alias") final String alias,
+        @JsonProperty("value") final String value,
+        @JsonProperty("secret") final String secret) {
       this.alias = alias;
-    }
-
-    public String getAlias() {
-      return this.alias;
+      this.value = value;
+      this.secret = secret;
     }
   }
 
 }
-

@@ -25,4 +25,16 @@ public interface TokenGenerator {
    * @return a new landscape token.
    */
   LandscapeToken generateToken(String ownerId, String alias);
+
+  /**
+   * Generates a new landscape token with optional custom value and secret.
+   *
+   * @param ownerId        the id of the user the token is generated for
+   * @param alias          the alias for the token
+   * @param valueOverride  optional custom token value; generated if null or blank
+   * @param secretOverride optional custom token secret; generated if null or blank
+   * @return a new landscape token.
+   */
+  LandscapeToken generateToken(String ownerId, String alias, String valueOverride,
+      String secretOverride);
 }

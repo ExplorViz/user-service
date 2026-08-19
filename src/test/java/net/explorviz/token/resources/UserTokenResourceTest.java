@@ -42,7 +42,29 @@ class UserTokenResourceTest {
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<Object[]>any()))
+        .thenAnswer(invocation -> {
+          final Object secondArg = invocation.getArgument(1);
+          final String value = secondArg instanceof Object[] params
+              ? (String) params[0]
+              : (String) secondArg;
+          return this.inMemRepo.findByValue(value);
+        });
 
+
+  }
+
+  @Test
+  public void testTokenCreationWithCustomValueAndSecret() {
+    final String sampleUid = "testuid";
+    final String value = "custom-token";
+    final String secret = "custom-secret";
+    given().contentType(MediaType.APPLICATION_JSON)
+        .body("{\"alias\":\"my alias\",\"value\":\"" + value + "\",\"secret\":\"" + secret
+            + "\"}")
+        .when().post("user/" + sampleUid + "/token/")
+        .then().statusCode(200).body("ownerId", equalTo(sampleUid)).body("value", is(value))
+        .body("secret", is(secret)).body("alias", is("my alias"));
   }
 
   @Test

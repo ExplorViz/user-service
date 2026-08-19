@@ -67,6 +67,17 @@ public interface TokenService {
   LandscapeToken createNewToken(String ownerId, String alias);
 
   /**
+   * Create a new token for a given user with optional custom value and secret.
+   *
+   * @param ownerId the user to create the token for
+   * @param alias   optional alias for the token
+   * @param value   optional custom token value; generated if null or blank
+   * @param secret  optional custom token secret; generated if null or blank
+   * @return a new token
+   */
+  LandscapeToken createNewToken(String ownerId, String alias, String value, String secret);
+
+  /**
    * Grant access to a landscape for a user.
    *
    * @param token  the token of the landscape

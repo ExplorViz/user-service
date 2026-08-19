@@ -52,6 +52,19 @@ class TokenServiceImplTest {
         .thenAnswer(invocation -> this.inMemRepo.findSharedForUser(invocation.getArgument(0)));
   }
 
+  private void mockFindByValue() {
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<Object[]>any()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(extractTokenValue(invocation)));
+  }
+
+  private String extractTokenValue(final org.mockito.invocation.InvocationOnMock invocation) {
+    final Object secondArg = invocation.getArgument(1);
+    if (secondArg instanceof Object[] params) {
+      return (String) params[0];
+    }
+    return (String) secondArg;
+  }
+
 
   @Test
   void distinctToken() {
@@ -94,6 +107,31 @@ class TokenServiceImplTest {
     final String sampleUid = "user|0123";
     final LandscapeToken t1 = this.tokenService.createNewToken(sampleUid);
     assertFalse(t1.getCreated() > System.currentTimeMillis());
+  }
+
+  @Test
+  void customValueAndSecret() {
+    mockFindByValue();
+    final String sampleUid = "user|0123";
+    final String sampleAlias = "customAlias";
+    final String value = "my-custom-token";
+    final String secret = "my-custom-secret";
+    final LandscapeToken token =
+        this.tokenService.createNewToken(sampleUid, sampleAlias, value, secret);
+    assertEquals(value, token.getValue());
+    assertEquals(secret, token.getSecret());
+    assertEquals(sampleAlias, token.getAlias());
+  }
+
+  @Test
+  void customValueOnly() {
+    mockFindByValue();
+    final String sampleUid = "user|0123";
+    final String value = "my-custom-token-only";
+    final LandscapeToken token =
+        this.tokenService.createNewToken(sampleUid, "", value, null);
+    assertEquals(value, token.getValue());
+    assertFalse(token.getSecret() == null || token.getSecret().isBlank());
   }
 
   @Test

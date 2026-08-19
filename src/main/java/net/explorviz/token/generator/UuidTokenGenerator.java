@@ -17,13 +17,21 @@ public class UuidTokenGenerator implements TokenGenerator {
 
   @Override
   public LandscapeToken generateToken(final String ownerId, final String alias) {
+    return this.generateToken(ownerId, alias, null, null);
+  }
 
-    final String value = UUID.randomUUID().toString();
+  @Override
+  public LandscapeToken generateToken(final String ownerId, final String alias,
+      final String valueOverride, final String secretOverride) {
+
+    final String value = valueOverride == null || valueOverride.isBlank()
+        ? UUID.randomUUID().toString()
+        : valueOverride.trim();
     final long created = System.currentTimeMillis();
 
-    // 16-char secret
-    final String secret =
-        RandomStringUtils.random(SECRET_LEN, 0, 0, true, true, null, new SecureRandom());
+    final String secret = secretOverride == null || secretOverride.isBlank()
+        ? RandomStringUtils.random(SECRET_LEN, 0, 0, true, true, null, new SecureRandom())
+        : secretOverride.trim();
 
     return new LandscapeToken(value, secret, ownerId, created, alias, Collections.emptyList());
   }

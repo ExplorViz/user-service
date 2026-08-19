@@ -5,6 +5,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -92,7 +94,20 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public LandscapeToken createNewToken(final String ownerId, final String alias) {
-    final LandscapeToken token = this.generator.generateToken(ownerId, alias);
+    return this.createNewToken(ownerId, alias, null, null);
+  }
+
+  @Override
+  public LandscapeToken createNewToken(final String ownerId, final String alias, final String value,
+      final String secret) {
+    final String effectiveAlias = alias == null ? "" : alias;
+    if (value != null && !value.isBlank() && this.getByValue(value.trim()).isPresent()) {
+      throw new WebApplicationException("Token value already exists",
+          Response.Status.CONFLICT);
+    }
+
+    final LandscapeToken token =
+        this.generator.generateToken(ownerId, effectiveAlias, value, secret);
     this.repository.persist(token);
     this.eventService.dispatch(
         TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CREATED).setToken(token.toProtobuf())
