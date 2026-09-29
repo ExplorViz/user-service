@@ -46,15 +46,17 @@ class TokenResourceTest {
     QuarkusMock.installMockForType(this.tokenAccessService, TokenAccessService.class);
 
     this.inMemRepo = new InMemRepo();
-    Mockito.doAnswer(invocation -> {
-      this.inMemRepo.addToken(invocation.getArgument(0));
-      return null;
-    }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addToken(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .persist(ArgumentMatchers.any(LandscapeToken.class));
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
   }
-
 
   @Test
   void getTokenByValue() {
@@ -75,7 +77,12 @@ class TokenResourceTest {
         .thenReturn(true);
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
-    given().when().get("token/" + value).then().statusCode(200).body("ownerId", is(uid))
+    given()
+        .when()
+        .get("token/" + value)
+        .then()
+        .statusCode(200)
+        .body("ownerId", is(uid))
         .body("value", is(value));
   }
 
@@ -97,8 +104,10 @@ class TokenResourceTest {
 
     // Auth is disabled in tests, all requests get full permissions.
     // Mock to return empty an empty permission array
-    Mockito.when(this.tokenAccessService.getPermissions(ArgumentMatchers.any(),
-        ArgumentMatchers.anyString())).thenReturn(new TokenPermission[] {});
+    Mockito.when(
+            this.tokenAccessService.getPermissions(
+                ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+        .thenReturn(new TokenPermission[] {});
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
 

@@ -2,11 +2,8 @@ package net.explorviz.token.service.messaging;
 
 import net.explorviz.proto.TokenEvent;
 
-/**
- * Interface for the emit event service.
- */
+/** Interface for the emit event service. */
 public interface EventService {
 
   void dispatch(TokenEvent event);
-
 }

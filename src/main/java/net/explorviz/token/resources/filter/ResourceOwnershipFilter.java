@@ -28,17 +28,11 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
-  // NOPMD
-  /* default */ Instance<Boolean> authEnabled; // NOCS
+  /* default */ Instance<Boolean> authEnabled;
 
-  @Context
-  // NOPMD
-  /* default */ ResourceInfo resourceInfo; // NOCS
+  @Context /* default */ ResourceInfo resourceInfo;
 
-  @Context
-  // NOPMD
-  /* default */ UriInfo uriInfo; // NOCS
-
+  @Context /* default */ UriInfo uriInfo;
 
   @Override
   public void filter(final ContainerRequestContext requestContext) {
@@ -73,6 +67,5 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
       }
       throw new ForbiddenException();
     }
-
   }
 }

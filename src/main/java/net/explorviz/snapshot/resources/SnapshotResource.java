@@ -40,8 +40,8 @@ public class SnapshotResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("create")
   public Response createNewSnapshot(Snapshot snapshot) {
-    if (snapshotService.snapshotExists(snapshot.getOwner(), snapshot.getCreatedAt(),
-        snapshot.getIsShared())) {
+    if (snapshotService.snapshotExists(
+        snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getIsShared())) {
       return Response.status(422).build();
     } else {
       this.snapshotService.createNewSnapshot(snapshot);
@@ -60,7 +60,8 @@ public class SnapshotResource {
   @DELETE
   @Authenticated
   @Path("delete")
-  public Response deleteSnapshot(@QueryParam("owner") final String owner,
+  public Response deleteSnapshot(
+      @QueryParam("owner") final String owner,
       @QueryParam("createdAt") final Long createdAt,
       @QueryParam("isShared") final boolean isShared) {
 
@@ -104,11 +105,12 @@ public class SnapshotResource {
 
       } else if (sn.getOwner().equals(owner)) { // collect all personal and shared snapshots
 
-        Document snapshotDoc = new Document()
-            .append("owner", sn.getOwner())
-            .append("createdAt", sn.getCreatedAt())
-            .append("name", sn.getName())
-            .append("landscapeToken", sn.getLandscapeToken());
+        Document snapshotDoc =
+            new Document()
+                .append("owner", sn.getOwner())
+                .append("createdAt", sn.getCreatedAt())
+                .append("name", sn.getName())
+                .append("landscapeToken", sn.getLandscapeToken());
 
         if (sn.getIsShared()) {
           sharedSnapshots.add(snapshotDoc);
@@ -118,16 +120,16 @@ public class SnapshotResource {
 
       } else if (subscriberList.contains(owner)) {
 
-        Document snapshotDoc = new Document()
-            .append("owner", sn.getOwner())
-            .append("createdAt", sn.getCreatedAt())
-            .append("name", sn.getName())
-            .append("landscapeToken", sn.getLandscapeToken());
+        Document snapshotDoc =
+            new Document()
+                .append("owner", sn.getOwner())
+                .append("createdAt", sn.getCreatedAt())
+                .append("name", sn.getName())
+                .append("landscapeToken", sn.getLandscapeToken());
 
         subscribedSnapshots.add(snapshotDoc);
       }
     }
-
 
     tinySnapshots.append("personalSnapshots", personalSnapshots);
     tinySnapshots.append("sharedSnapshots", sharedSnapshots);
@@ -145,8 +147,10 @@ public class SnapshotResource {
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/get")
-  public Snapshot getSnapshot(@QueryParam("owner") final String owner,
-      @QueryParam("createdAt") final Long createdAt, @QueryParam("isShared") final boolean isShared,
+  public Snapshot getSnapshot(
+      @QueryParam("owner") final String owner,
+      @QueryParam("createdAt") final Long createdAt,
+      @QueryParam("isShared") final boolean isShared,
       @QueryParam("subscriber") final String subscriber) {
 
     if (isShared && !subscriber.equals(owner)) {
@@ -159,7 +163,8 @@ public class SnapshotResource {
   @PUT
   @Authenticated
   @Path("/subscribe")
-  public Response subscribeSnapshot(@QueryParam("owner") final String owner,
+  public Response subscribeSnapshot(
+      @QueryParam("owner") final String owner,
       @QueryParam("createdAt") final Long createdAt,
       @QueryParam("subscriber") final String subscriber) {
     this.snapshotService.addNewSubscriber(owner, createdAt, subscriber);
@@ -170,7 +175,8 @@ public class SnapshotResource {
   @PUT
   @Authenticated
   @Path("/unsubscribe")
-  public Response unsubscribeSnapshot(@QueryParam("owner") final String owner,
+  public Response unsubscribeSnapshot(
+      @QueryParam("owner") final String owner,
       @QueryParam("createdAt") final Long createdAt,
       @QueryParam("subscriber") final String subscriber) {
     this.snapshotService.removeSubscriber(owner, createdAt, subscriber);
@@ -181,8 +187,10 @@ public class SnapshotResource {
   @PUT
   @Authenticated
   @Path("/share")
-  public Response shareSnapshot(@QueryParam("owner") final String owner,
-      @QueryParam("createdAt") final Long createdAt, @QueryParam("deleteAt") final Long deleteAt) {
+  public Response shareSnapshot(
+      @QueryParam("owner") final String owner,
+      @QueryParam("createdAt") final Long createdAt,
+      @QueryParam("deleteAt") final Long deleteAt) {
 
     int res = this.snapshotService.shareSnapshot(owner, createdAt, deleteAt);
 

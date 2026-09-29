@@ -1,10 +1,10 @@
 package net.explorviz.userapi.service;
 
-import net.explorviz.userapi.model.UserApi;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.explorviz.userapi.model.UserApi;
 
 public class UserApiInMemRepo {
 
@@ -19,8 +19,9 @@ public class UserApiInMemRepo {
   }
 
   public Collection<UserApi> findForUserAndToken(final String uid, final String token) {
-    return this.userApis.stream().filter(a -> a.getUid().equals(uid) && a.getToken().equals(token)).collect(
-        Collectors.toList());
+    return this.userApis.stream()
+        .filter(a -> a.getUid().equals(uid) && a.getToken().equals(token))
+        .collect(Collectors.toList());
   }
 
   public long deleteByValue(final String uid, final String token) {
@@ -32,5 +33,4 @@ public class UserApiInMemRepo {
   public int size() {
     return this.userApis.size();
   }
-
 }

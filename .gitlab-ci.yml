@@ -40,22 +40,51 @@ build:
     paths:
       - build
 
-pmd:
+spotless:
   stage: code-analysis
-  script: ./gradlew pmdMain
+  script: ./gradlew spotlessCheck
 
 checkstyle:
   stage: code-analysis
-  script: ./gradlew checkstyleMain
+  script:
+    - |
+      set +e
+      ./gradlew checkstyleMain --continue
+      CHECKSTYLE_EXIT=$?
+      python3 code-analysis/ci/gitlab-code-quality.py build/reports/checkstyle/main.xml build/reports/ci/checkstyle-code-quality.json
+      python3 code-analysis/ci/report-summary.py build/reports/checkstyle/main.xml
+      exit $CHECKSTYLE_EXIT
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      codequality: build/reports/ci/checkstyle-code-quality.json
+    paths:
+      - build/reports/checkstyle/
+      - build/reports/ci/checkstyle-code-quality.json
 
 test:
   stage: test
   script:
-    - ./gradlew test
-    - ./gradlew jacocoTestReport
-    # Print test coverage to console
-    - cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
+    - |
+      set +e
+      ./gradlew test jacocoTestReport --continue
+      TEST_EXIT=$?
+      REPORT_TEST_EXIT_CODE=$TEST_EXIT \
+      python3 code-analysis/ci/report-summary.py junit build/test-results/test \
+        --jacoco build/reports/jacoco/test/jacocoTestReport.xml
+      cat build/reports/jacoco/test/html/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
+      exit $TEST_EXIT
   coverage: "/Jacoco Coverage Total: ([0-9]{1,3})%/"
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: build/test-results/test/TEST-*.xml
+    paths:
+      - build/reports/tests/test/
+      - build/reports/jacoco/test/html/
+      - build/reports/jacoco/test/jacocoTestReport.xml
 
 integration-test:
   stage: test

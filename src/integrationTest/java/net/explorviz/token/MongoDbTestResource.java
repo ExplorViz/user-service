@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.testcontainers.containers.GenericContainer;
 
-/**
- * Set up MongoDb for integration tests.
- */
+/** Set up MongoDb for integration tests. */
 public class MongoDbTestResource implements QuarkusTestResourceLifecycleManager {
 
   private static final GenericContainer<?> MONGO_DB =
@@ -16,7 +14,8 @@ public class MongoDbTestResource implements QuarkusTestResourceLifecycleManager 
   @Override
   public Map<String, String> start() {
     MONGO_DB.start();
-    return Collections.singletonMap("quarkus.mongodb.connection-string",
+    return Collections.singletonMap(
+        "quarkus.mongodb.connection-string",
         "mongodb://" + MONGO_DB.getHost() + ":" + MONGO_DB.getFirstMappedPort());
   }
 

@@ -17,8 +17,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResourceOwnership {
 
-  /**
-   * Set user ID by default to empty string when authorization is disabled.
-   */
+  /** Set user ID by default to empty string when authorization is disabled. */
   String uidField() default "";
 }

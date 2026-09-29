@@ -11,15 +11,16 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/**
- * Set up Kafka for integration tests.
- */
+/** Set up Kafka for integration tests. */
 public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
 
-  private static final KafkaContainer KAFKA = new KafkaContainer(
-      DockerImageName.parse("docker.io/confluentinc/cp-kafka:7.3.0")
-          .asCompatibleSubstituteFor("confluentinc/cp-kafka:7.3.0")).withKraft();
-      //DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
+  private static final KafkaContainer KAFKA =
+      new KafkaContainer(
+              DockerImageName.parse("docker.io/confluentinc/cp-kafka:7.3.0")
+                  .asCompatibleSubstituteFor("confluentinc/cp-kafka:7.3.0"))
+          .withKraft();
+
+  // DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
 
   @Override
   public Map<String, String> start() {

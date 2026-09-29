@@ -16,8 +16,8 @@ import net.explorviz.token.service.TokenService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
- * HTTP endpoint to get all {@link LandscapeToken}s.
- * This endpoint is only available when OIDC is disabled or in dev mode.
+ * HTTP endpoint to get all {@link LandscapeToken}s. This endpoint is only available when OIDC is
+ * disabled or in dev mode.
  */
 @Path("tokens")
 @RequestScoped
@@ -26,10 +26,9 @@ public class TokensResource {
   private final TokenService tokenService;
 
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
-  /* default */ Instance<Boolean> authEnabled; // NOCS
+  /* default */ Instance<Boolean> authEnabled;
 
-  @Inject
-  LaunchMode launchMode;
+  @Inject LaunchMode launchMode;
 
   @Inject
   public TokensResource(final TokenService tokenService) {
@@ -37,8 +36,8 @@ public class TokensResource {
   }
 
   /**
-   * Endpoint to get all landscape tokens.
-   * This endpoint is only available when OIDC is disabled or in dev mode.
+   * Endpoint to get all landscape tokens. This endpoint is only available when OIDC is disabled or
+   * in dev mode.
    *
    * @return Collection of all landscape tokens.
    * @throws NotFoundException if OIDC is enabled and not in dev mode.
@@ -49,7 +48,7 @@ public class TokensResource {
   public Collection<LandscapeToken> getAllTokens() {
     final boolean isDevMode = launchMode == LaunchMode.DEVELOPMENT;
     final boolean isOidcDisabled = !this.authEnabled.get();
-    
+
     if (!isOidcDisabled && !isDevMode) {
       throw new NotFoundException(
           "This endpoint is only available when OIDC is disabled or in dev mode");
@@ -57,4 +56,3 @@ public class TokensResource {
     return this.tokenService.getAllTokens();
   }
 }
-

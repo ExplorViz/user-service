@@ -3,9 +3,7 @@ package net.explorviz.token.service;
 import java.util.Arrays;
 import net.explorviz.token.model.LandscapeToken;
 
-/**
- * Service for checking token permissions.
- */
+/** Service for checking token permissions. */
 public interface TokenAccessService {
 
   TokenPermission[] getPermissions(LandscapeToken token, String userId);
@@ -13,7 +11,7 @@ public interface TokenAccessService {
   /**
    * Checks whether a user can read a landscape token.
    *
-   * @param token  the token
+   * @param token the token
    * @param userId the id of the user
    * @return {@code true} iff read access is granted to the user
    */
@@ -24,7 +22,7 @@ public interface TokenAccessService {
   /**
    * Checks whether a user can delete a landscape token.
    *
-   * @param token  the token
+   * @param token the token
    * @param userId the id of the user
    * @return {@code true} iff the user is allowed deleted the token
    */
@@ -35,7 +33,7 @@ public interface TokenAccessService {
   /**
    * Checks whether a user can update a landscape token.
    *
-   * @param token  the token
+   * @param token the token
    * @param userId the id of the user
    * @return {@code true} iff the user is allowed to update the token
    */

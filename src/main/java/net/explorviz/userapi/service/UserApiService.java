@@ -3,16 +3,14 @@ package net.explorviz.userapi.service;
 import java.util.Collection;
 import net.explorviz.userapi.model.UserApi;
 
-/**
- * Interface to manage {@link UserApi}s.
- */
+/** Interface to manage {@link UserApi}s. */
 public interface UserApiService {
 
   /**
    * Retrieve all user API tokens owned by a given user.
    *
    * @param uid the id of user
-   * @return collection of all user API tokens  owned by given user
+   * @return collection of all user API tokens owned by given user
    */
   Collection<UserApi> getOwningTokens(String uid);
 
@@ -40,9 +38,13 @@ public interface UserApiService {
    * @param token the token with its creation date and expiration date.
    * @param createdAt the date of the creation.
    * @param expires the date on which the token expires. Can be null.
-   *
    * @return a new user
    */
-  UserApi createNewUserApi(final String uid, final String name, final String token,
-      final String hostUrl, Long createdAt, Long expires);
+  UserApi createNewUserApi(
+      final String uid,
+      final String name,
+      final String token,
+      final String hostUrl,
+      Long createdAt,
+      Long expires);
 }

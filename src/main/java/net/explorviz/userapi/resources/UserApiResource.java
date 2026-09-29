@@ -22,7 +22,6 @@ public class UserApiResource {
 
   private final UserApiService userApiService;
 
-
   @Inject
   public UserApiResource(final UserApiService userApiService) {
     this.userApiService = userApiService;
@@ -32,7 +31,7 @@ public class UserApiResource {
    * Endpoint to create a user.
    *
    * @param uid Id of the user.
-   * @param name  Name of the API token.
+   * @param name Name of the API token.
    * @param token The API token.
    * @param createdAt The creation date.
    * @param expires The expiration date (default = 0).
@@ -41,9 +40,12 @@ public class UserApiResource {
   @POST
   @Authenticated
   @Path("create")
-  public Response createNewUserApi(@QueryParam("uId") final String uid,
-      @QueryParam("name") final String name, @QueryParam("token") final String token,
-      @QueryParam("hostUrl") final String hostUrl, @QueryParam("createdAt") final Long createdAt,
+  public Response createNewUserApi(
+      @QueryParam("uId") final String uid,
+      @QueryParam("name") final String name,
+      @QueryParam("token") final String token,
+      @QueryParam("hostUrl") final String hostUrl,
+      @QueryParam("createdAt") final Long createdAt,
       @QueryParam("expires") @DefaultValue("0") final Long expires) {
 
     if (userApiService.tokenExists(uid, token)) {
@@ -58,14 +60,14 @@ public class UserApiResource {
    * Endpoint to delete a user.
    *
    * @param uid Id of the user.
-   * @param token  The API token.
+   * @param token The API token.
    * @return Response to the requester.
    */
   @DELETE
   @Authenticated
   @Path("delete")
-  public Response deleteUser(@QueryParam("uId") final String uid,
-      @QueryParam("token") final String token) {
+  public Response deleteUser(
+      @QueryParam("uId") final String uid, @QueryParam("token") final String token) {
 
     int status = this.userApiService.deleteByValue(uid, token);
 
@@ -100,5 +102,4 @@ public class UserApiResource {
 
     return userApis;
   }
-
 }

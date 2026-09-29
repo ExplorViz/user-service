@@ -23,36 +23,33 @@ import net.explorviz.token.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * HTTP endpoint to get and delete {@link LandscapeToken}s.
- */
+/** HTTP endpoint to get and delete {@link LandscapeToken}s. */
 @Path("token/{tid}")
 @ApplicationScoped
 public class TokenResource {
 
-
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenResource.class);
   private final TokenService tokenService;
   private final TokenAccessService tokenAccessService;
-  @Inject
-  // NOPMD
-  /* default */ SecurityIdentity securityIdentity; // NOCS
+
+  @Inject /* default */ SecurityIdentity securityIdentity;
 
   /**
    * Resource for a software landscape token.
    *
-   * @param tokenService       Service to manage software landscape tokens.
+   * @param tokenService Service to manage software landscape tokens.
    * @param tokenAccessService Service which checks token permissions.
-   * @param securityIdentity   Quarkus service for user access rights management.
+   * @param securityIdentity Quarkus service for user access rights management.
    */
   @Inject
-  public TokenResource(final TokenService tokenService, final TokenAccessService tokenAccessService,
+  public TokenResource(
+      final TokenService tokenService,
+      final TokenAccessService tokenAccessService,
       final SecurityIdentity securityIdentity) {
     this.tokenService = tokenService;
     this.tokenAccessService = tokenAccessService;
     this.securityIdentity = securityIdentity;
   }
-
 
   /**
    * Endpoint to get a previouly created token by its value.
@@ -99,26 +96,25 @@ public class TokenResource {
       return Response.noContent().build();
     } else {
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Denied deletion-access for user {} to token with owner {}", uid,
-            token.getOwnerId());
+        LOGGER.debug(
+            "Denied deletion-access for user {} to token with owner {}", uid, token.getOwnerId());
       }
       throw new ForbiddenException();
     }
-
   }
 
   /**
    * Endpoint to update the alias of a token.
    *
-   * @param tokenVal     Value of the token which shall be updated.
+   * @param tokenVal Value of the token which shall be updated.
    * @param tokenUpdates Token object containing the new alias.
    * @return Response with no content.
    */
   @PATCH
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Response updateTokenAlias(@PathParam("tid") final String tokenVal,
-      final LandscapeToken tokenUpdates) {
+  public Response updateTokenAlias(
+      @PathParam("tid") final String tokenVal, final LandscapeToken tokenUpdates) {
 
     final LandscapeToken token =
         this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
@@ -135,16 +131,18 @@ public class TokenResource {
    * Endpoint to modify an access token, i.e. grant, remove, or clone access to it.
    *
    * @param tokenId Id of the access token.
-   * @param userId  Id of the user whose access rights are modified.
-   * @param method  Ei her "grant", "revoke", or "clone". Determines modification of access rights.
+   * @param userId Id of the user whose access rights are modified.
+   * @param method Ei her "grant", "revoke", or "clone". Determines modification of access rights.
    * @return Response indicating whether or not the token could be found.
    */
   @Path("/{uid}")
   @POST
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Response modifyAccessToToken(@PathParam("tid") final String tokenId,
-      @PathParam("uid") final String userId, @QueryParam("method") final String method) {
+  public Response modifyAccessToToken(
+      @PathParam("tid") final String tokenId,
+      @PathParam("uid") final String userId,
+      @QueryParam("method") final String method) {
     final Optional<LandscapeToken> token = this.tokenService.getByValue(tokenId);
     if (token.isPresent()) {
       if ("revoke".equals(method)) {

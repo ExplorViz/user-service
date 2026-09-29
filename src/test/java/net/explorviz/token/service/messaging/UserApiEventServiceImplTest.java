@@ -18,12 +18,9 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(FakeKafkaResource.class)
 class UserApiEventServiceImplTest {
 
-  @Inject
-  EventServiceImpl service;
+  @Inject EventServiceImpl service;
 
-  @Inject
-  @Any
-  InMemoryConnector connector;
+  @Inject @Any InMemoryConnector connector;
 
   @Test
   void dispatchEvent() {
@@ -33,7 +30,10 @@ class UserApiEventServiceImplTest {
         new LandscapeToken(tokenValue, "secret", uid, 0, "", Collections.emptyList());
 
     final TokenEvent testEvent =
-        TokenEvent.newBuilder().setToken(token.toProtobuf()).setType(EventType.EVENT_TYPE_CREATED).build();
+        TokenEvent.newBuilder()
+            .setToken(token.toProtobuf())
+            .setType(EventType.EVENT_TYPE_CREATED)
+            .build();
 
     final InMemorySink<byte[]> events = this.connector.sink("token-events");
     this.service.dispatch(testEvent);
@@ -46,5 +46,4 @@ class UserApiEventServiceImplTest {
     }
     Assertions.assertEquals(testEvent, got);
   }
-
 }

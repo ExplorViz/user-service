@@ -25,12 +25,10 @@ import org.mockito.Mockito;
 @QuarkusTest
 class TokenServiceImplTest {
 
-  @Inject
-  TokenService tokenService;
+  @Inject TokenService tokenService;
 
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
-
 
   @BeforeEach
   void setUp() {
@@ -40,10 +38,13 @@ class TokenServiceImplTest {
     QuarkusMock.installMockForType(mockEventService, EventService.class);
 
     this.inMemRepo = new InMemRepo();
-    Mockito.doAnswer(invocation -> {
-      this.inMemRepo.addToken(invocation.getArgument(0));
-      return null;
-    }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addToken(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .persist(ArgumentMatchers.any(LandscapeToken.class));
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
@@ -64,7 +65,6 @@ class TokenServiceImplTest {
     }
     return (String) secondArg;
   }
-
 
   @Test
   void distinctToken() {
@@ -128,8 +128,7 @@ class TokenServiceImplTest {
     mockFindByValue();
     final String sampleUid = "user|0123";
     final String value = "my-custom-token-only";
-    final LandscapeToken token =
-        this.tokenService.createNewToken(sampleUid, "", value, null);
+    final LandscapeToken token = this.tokenService.createNewToken(sampleUid, "", value, null);
     assertEquals(value, token.getValue());
     assertFalse(token.getSecret() == null || token.getSecret().isBlank());
   }
@@ -212,8 +211,8 @@ class TokenServiceImplTest {
     final String uid = "testuid";
     for (int i = 0; i < 100; i++) {
       this.repo.persist(
-          new LandscapeToken(String.valueOf(i), "secret", uid, System.currentTimeMillis(),
-              "alias"));
+          new LandscapeToken(
+              String.valueOf(i), "secret", uid, System.currentTimeMillis(), "alias"));
     }
     final Collection<LandscapeToken> got = this.tokenService.getOwningTokens(uid);
     assertTrue(got.containsAll(this.repo.findForUser(uid)));
@@ -231,8 +230,4 @@ class TokenServiceImplTest {
     this.tokenService.deleteByValue(t);
     assertEquals(0, this.inMemRepo.size());
   }
-
-
 }
-
-
