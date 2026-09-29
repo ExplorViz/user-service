@@ -1,10 +1,10 @@
 package net.explorviz.snapshot.service;
 
-import net.explorviz.snapshot.model.Snapshot;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.explorviz.snapshot.model.Snapshot;
 
 public class SnapshotInMemRepo {
 
@@ -15,17 +15,19 @@ public class SnapshotInMemRepo {
   }
 
   public Collection<Snapshot> findForUser(final String owner) {
-    return this.snapshots.stream().filter(s -> s.getOwner().equals(owner))
+    return this.snapshots.stream()
+        .filter(s -> s.getOwner().equals(owner))
         .collect(Collectors.toList());
   }
 
   public Collection<Snapshot> findForUserAndCreatedAtAndIsShared(
-      final String owner,
-      final long createdAt,
-      final boolean isShared
-  ) {
-    return this.snapshots.stream().filter(s ->
-        s.getOwner().equals(owner) && s.getCreatedAt() == createdAt && s.getIsShared() == isShared)
+      final String owner, final long createdAt, final boolean isShared) {
+    return this.snapshots.stream()
+        .filter(
+            s ->
+                s.getOwner().equals(owner)
+                    && s.getCreatedAt() == createdAt
+                    && s.getIsShared() == isShared)
         .collect(Collectors.toList());
   }
 
@@ -35,8 +37,11 @@ public class SnapshotInMemRepo {
 
   public long deleteByValue(final String owner, final long createdAt, final boolean isShared) {
     final boolean d =
-        this.snapshots.removeIf(s -> s.getOwner().equals(owner) && s.getCreatedAt() == createdAt
-            && s.getIsShared() == isShared);
+        this.snapshots.removeIf(
+            s ->
+                s.getOwner().equals(owner)
+                    && s.getCreatedAt() == createdAt
+                    && s.getIsShared() == isShared);
     return d ? 1L : 0L;
   }
 

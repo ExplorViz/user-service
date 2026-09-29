@@ -4,11 +4,8 @@ import java.util.Collection;
 import java.util.Optional;
 import net.explorviz.token.model.LandscapeToken;
 
-/**
- * Interface to manage {@link LandscapeToken}s.
- */
+/** Interface to manage {@link LandscapeToken}s. */
 public interface TokenService {
-
 
   /**
    * Find a landscape token by its value.
@@ -70,9 +67,9 @@ public interface TokenService {
    * Create a new token for a given user with optional custom value and secret.
    *
    * @param ownerId the user to create the token for
-   * @param alias   optional alias for the token
-   * @param value   optional custom token value; generated if null or blank
-   * @param secret  optional custom token secret; generated if null or blank
+   * @param alias optional alias for the token
+   * @param value optional custom token value; generated if null or blank
+   * @param secret optional custom token secret; generated if null or blank
    * @return a new token
    */
   LandscapeToken createNewToken(String ownerId, String alias, String value, String secret);
@@ -80,7 +77,7 @@ public interface TokenService {
   /**
    * Grant access to a landscape for a user.
    *
-   * @param token  the token of the landscape
+   * @param token the token of the landscape
    * @param userId the id of the user to grant access
    */
   void grantAccess(LandscapeToken token, String userId);
@@ -88,7 +85,7 @@ public interface TokenService {
   /**
    * Revoke access to a landscape for a given user.
    *
-   * @param token  the token of the landscape
+   * @param token the token of the landscape
    * @param userId the id of the user to revoke access
    */
   void revokeAccess(LandscapeToken token, String userId);
@@ -96,16 +93,16 @@ public interface TokenService {
   /**
    * Clone a given token.
    *
-   * @param token   the token of the landscape to be cloned
+   * @param token the token of the landscape to be cloned
    * @param ownerId the id of the user that will own the cloned token
-   * @param alias   the alias of the cloned token
+   * @param alias the alias of the cloned token
    */
   LandscapeToken cloneToken(String token, String ownerId, String alias);
 
   /**
    * Update the alias of a token.
    *
-   * @param token    the token to update
+   * @param token the token to update
    * @param newAlias the new alias
    */
   void updateAlias(LandscapeToken token, String newAlias);

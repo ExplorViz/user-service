@@ -34,24 +34,25 @@ class UserTokenResourceTest {
     QuarkusMock.installMockForType(mockEventService, EventService.class);
 
     this.inMemRepo = new InMemRepo();
-    Mockito.doAnswer(invocation -> {
-      this.inMemRepo.addToken(invocation.getArgument(0));
-      return null;
-    }).when(this.repo).persist(ArgumentMatchers.any(LandscapeToken.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addToken(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .persist(ArgumentMatchers.any(LandscapeToken.class));
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
     Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<Object[]>any()))
-        .thenAnswer(invocation -> {
-          final Object secondArg = invocation.getArgument(1);
-          final String value = secondArg instanceof Object[] params
-              ? (String) params[0]
-              : (String) secondArg;
-          return this.inMemRepo.findByValue(value);
-        });
-
-
+        .thenAnswer(
+            invocation -> {
+              final Object secondArg = invocation.getArgument(1);
+              final String value =
+                  secondArg instanceof Object[] params ? (String) params[0] : (String) secondArg;
+              return this.inMemRepo.findByValue(value);
+            });
   }
 
   @Test
@@ -59,28 +60,42 @@ class UserTokenResourceTest {
     final String sampleUid = "testuid";
     final String value = "custom-token";
     final String secret = "custom-secret";
-    given().contentType(MediaType.APPLICATION_JSON)
-        .body("{\"alias\":\"my alias\",\"value\":\"" + value + "\",\"secret\":\"" + secret
-            + "\"}")
-        .when().post("user/" + sampleUid + "/token/")
-        .then().statusCode(200).body("ownerId", equalTo(sampleUid)).body("value", is(value))
-        .body("secret", is(secret)).body("alias", is("my alias"));
+    given()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("{\"alias\":\"my alias\",\"value\":\"" + value + "\",\"secret\":\"" + secret + "\"}")
+        .when()
+        .post("user/" + sampleUid + "/token/")
+        .then()
+        .statusCode(200)
+        .body("ownerId", equalTo(sampleUid))
+        .body("value", is(value))
+        .body("secret", is(secret))
+        .body("alias", is("my alias"));
   }
 
   @Test
   public void testTokenCreationEndpoint() {
     final String sampleUid = "testuid";
-    given().contentType(MediaType.APPLICATION_JSON).when().post("user/" + sampleUid + "/token/")
-        .then().statusCode(200).body("ownerId", equalTo(sampleUid))
-        .body("value", CoreMatchers.notNullValue()).body("value", CoreMatchers.isA(String.class));
+    given()
+        .contentType(MediaType.APPLICATION_JSON)
+        .when()
+        .post("user/" + sampleUid + "/token/")
+        .then()
+        .statusCode(200)
+        .body("ownerId", equalTo(sampleUid))
+        .body("value", CoreMatchers.notNullValue())
+        .body("value", CoreMatchers.isA(String.class));
   }
-
 
   @Test
   public void testTokenRetrieveEmpty() {
 
     final String sampleUid = "testuid";
-    given().when().get("user/" + sampleUid + "/token/").then().statusCode(200)
+    given()
+        .when()
+        .get("user/" + sampleUid + "/token/")
+        .then()
+        .statusCode(200)
         .body("size()", is(0));
   }
 
@@ -92,8 +107,15 @@ class UserTokenResourceTest {
     final long created = System.currentTimeMillis();
     final String alias = "somealias";
     this.repo.persist(new LandscapeToken(value, SECRET, uid, created, alias));
-    given().when().get("user/" + uid + "/token").then().statusCode(200).body("size()", is(1))
-        .body("[0].ownerId", is(uid)).body("[0].value", is(value)).body("[0].created", is(created))
+    given()
+        .when()
+        .get("user/" + uid + "/token")
+        .then()
+        .statusCode(200)
+        .body("size()", is(1))
+        .body("[0].ownerId", is(uid))
+        .body("[0].value", is(value))
+        .body("[0].created", is(created))
         .body("[0].alias", is(alias));
   }
 
@@ -110,6 +132,4 @@ class UserTokenResourceTest {
     }
     given().when().get("user/" + uid + "/token").then().statusCode(200).body("size()", is(tokens));
   }
-
-
 }

@@ -34,3 +34,7 @@ build/
 
 # Quarkus
 .quarkus
+
+# Python
+__pycache__/
+*.py[cod]

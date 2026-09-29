@@ -2,6 +2,7 @@ plugins {
   id 'java'
   id 'io.quarkus'
   id 'com.adarshr.test-logger' version '3.2.0'
+  id 'com.diffplug.spotless' version '6.25.0'
 }
 
 apply from: 'code-analysis/code-analysis.gradle'
@@ -109,10 +110,10 @@ integrationTest.doFirst {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
 
-checkstyleMain {
+tasks.named('checkstyleMain') {
   dependsOn(':compileQuarkusGeneratedSourcesJava')
 }
 
-pmdMain {
+tasks.named('spotlessCheck') {
   dependsOn(':compileQuarkusGeneratedSourcesJava')
 }

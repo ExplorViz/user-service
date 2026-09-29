@@ -17,8 +17,7 @@ class TokenServiceImplIntegrationTest {
 
   private static final String USER_1 = "user1";
   private static final String USER_2 = "user2";
-  @Inject
-  TokenService tokenService;
+  @Inject TokenService tokenService;
   private LandscapeToken token;
 
   /*
@@ -66,5 +65,3 @@ class TokenServiceImplIntegrationTest {
     assertEquals(number, tokensSharedWithUser2.size());
   }
 }
-
-

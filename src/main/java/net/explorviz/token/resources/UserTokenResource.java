@@ -18,16 +18,13 @@ import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.resources.filter.ResourceOwnership;
 import net.explorviz.token.service.TokenService;
 
-/**
- * HTTP endpoint to get and create {@link LandscapeToken}s for a user.
- */
+/** HTTP endpoint to get and create {@link LandscapeToken}s for a user. */
 @Path("user/{uid}/token")
 @RequestScoped
 public class UserTokenResource {
 
   private static final String UID_PARAM = "uid";
   private final TokenService tokenService;
-
 
   @Inject
   public UserTokenResource(final TokenService tokenService) {
@@ -37,7 +34,7 @@ public class UserTokenResource {
   /**
    * Endpoint to generate a token.
    *
-   * @param userId  Id of the user who owns the generated token.
+   * @param userId Id of the user who owns the generated token.
    * @param request Optional request body with alias, value, and secret.
    * @return Generated landscape token.
    */
@@ -46,8 +43,8 @@ public class UserTokenResource {
   @Authenticated
   @ResourceOwnership(uidField = UID_PARAM)
   @Consumes(MediaType.APPLICATION_JSON)
-  public LandscapeToken generateToken(@PathParam("uid") final String userId,
-      final TokenCreateRequest request) {
+  public LandscapeToken generateToken(
+      @PathParam("uid") final String userId, final TokenCreateRequest request) {
     final String alias = request == null || request.alias == null ? "" : request.alias;
     final String value = request == null ? null : request.value;
     final String secret = request == null ? null : request.secret;
@@ -93,16 +90,13 @@ public class UserTokenResource {
   private Collection<LandscapeToken> cleanSharedTokens(final Collection<LandscapeToken> tokens) {
     final Collection<LandscapeToken> cleanedTokens = new ArrayList<>();
     for (final LandscapeToken t : tokens) {
-      cleanedTokens.add(new LandscapeToken(t.getValue(), "", // NOPMD
-          t.getOwnerId(), t.getCreated(), t.getAlias()));
+      cleanedTokens.add(
+          new LandscapeToken(t.getValue(), "", t.getOwnerId(), t.getCreated(), t.getAlias()));
     }
     return cleanedTokens;
   }
 
-
-  /**
-   * Request body for creating a landscape token.
-   */
+  /** Request body for creating a landscape token. */
   static class TokenCreateRequest {
 
     private final String alias;
@@ -110,7 +104,8 @@ public class UserTokenResource {
     private final String secret;
 
     @JsonCreator
-    TokenCreateRequest(@JsonProperty("alias") final String alias,
+    TokenCreateRequest(
+        @JsonProperty("alias") final String alias,
         @JsonProperty("value") final String value,
         @JsonProperty("secret") final String secret) {
       this.alias = alias;
@@ -118,5 +113,4 @@ public class UserTokenResource {
       this.secret = secret;
     }
   }
-
 }

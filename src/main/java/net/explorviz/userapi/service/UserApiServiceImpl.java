@@ -17,22 +17,27 @@ public class UserApiServiceImpl implements UserApiService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserApiService.class);
 
-
   private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "uid = ?1 and token = ?2";
   private final UserApiRepository repository;
+
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
-  /* default */ Instance<Boolean> authEnabled; // NOCS
+  /* default */ Instance<Boolean> authEnabled;
+
   @ConfigProperty(name = "initial.token.creation.enabled")
-  /* default */ boolean initialTokenCreationEnabled; // NOCS
+  /* default */ boolean initialTokenCreationEnabled;
+
   @ConfigProperty(name = "initial.token.user")
-  /* default */ String initialTokenUser; // NOCS
+  /* default */ String initialTokenUser;
+
   @ConfigProperty(name = "initial.token.value")
-  /* default */ String initialTokenValue; // NOCS
+  /* default */ String initialTokenValue;
+
   @ConfigProperty(name = "initial.token.secret")
-  /* default */ String initialTokenSecret; // NOCS
+  /* default */ String initialTokenSecret;
+
   @ConfigProperty(name = "initial.token.alias")
-  /* default */ String initialTokenAlias; // NOCS
+  /* default */ String initialTokenAlias;
 
   @Inject
   public UserApiServiceImpl(UserApiRepository repository) {
@@ -41,19 +46,22 @@ public class UserApiServiceImpl implements UserApiService {
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
     if (this.initialTokenCreationEnabled) {
-      this.createNewConstantUserApi(this.initialTokenUser, this.initialTokenAlias,
-          this.initialTokenValue, "testUrl", 0L);
+      this.createNewConstantUserApi(
+          this.initialTokenUser, this.initialTokenAlias, this.initialTokenValue, "testUrl", 0L);
       LOGGER.atDebug().log("Created default user API token.");
     }
     LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
 
-  private void createNewConstantUserApi(final String uid, final String name, final String token,
-      final String hostUrl, final Long expires) {
+  private void createNewConstantUserApi(
+      final String uid,
+      final String name,
+      final String token,
+      final String hostUrl,
+      final Long expires) {
     final long createdAt = System.currentTimeMillis();
 
-    final UserApi userApi =
-        new UserApi(uid, name, token, hostUrl, createdAt, expires);
+    final UserApi userApi = new UserApi(uid, name, token, hostUrl, createdAt, expires);
     this.repository.persist(userApi);
   }
 
@@ -83,12 +91,16 @@ public class UserApiServiceImpl implements UserApiService {
   }
 
   @Override
-  public UserApi createNewUserApi(final String uid, final String name, final String token,
-      final String hostUrl, final Long createdAt, final Long expires) {
+  public UserApi createNewUserApi(
+      final String uid,
+      final String name,
+      final String token,
+      final String hostUrl,
+      final Long createdAt,
+      final Long expires) {
     final UserApi userApi = new UserApi(uid, name, token, hostUrl, createdAt, expires);
     this.repository.persist(userApi);
 
     return userApi;
   }
-
 }

@@ -20,9 +20,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Implements the use cases for managing and accessing tokens.
- */
+/** Implements the use cases for managing and accessing tokens. */
 @ApplicationScoped
 public class TokenServiceImpl implements TokenService {
 
@@ -33,28 +31,36 @@ public class TokenServiceImpl implements TokenService {
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
+
   @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
-  /* default */ Instance<Boolean> authEnabled; // NOCS
+  /* default */ Instance<Boolean> authEnabled;
+
   @ConfigProperty(name = "initial.token.creation.enabled")
-  /* default */ boolean initialTokenCreationEnabled; // NOCS
+  /* default */ boolean initialTokenCreationEnabled;
+
   @ConfigProperty(name = "initial.token.user")
-  /* default */ String initialTokenUser; // NOCS
+  /* default */ String initialTokenUser;
+
   @ConfigProperty(name = "initial.token.value")
-  /* default */ String initialTokenValue; // NOCS
+  /* default */ String initialTokenValue;
+
   @ConfigProperty(name = "initial.token.secret")
-  /* default */ String initialTokenSecret; // NOCS
+  /* default */ String initialTokenSecret;
+
   @ConfigProperty(name = "initial.token.alias")
-  /* default */ String initialTokenAlias; // NOCS
+  /* default */ String initialTokenAlias;
 
   /**
    * Implementation of the token service, responsible for token management.
    *
-   * @param generator    Object which can generate new landscape tokens.
-   * @param repository   MongoRepository for landscape tokens.
+   * @param generator Object which can generate new landscape tokens.
+   * @param repository MongoRepository for landscape tokens.
    * @param eventService Service to emit events.
    */
   @Inject
-  public TokenServiceImpl(final TokenGenerator generator, final LandscapeTokenRepository repository,
+  public TokenServiceImpl(
+      final TokenGenerator generator,
+      final LandscapeTokenRepository repository,
       final EventService eventService) {
     this.generator = generator;
     this.repository = repository;
@@ -63,14 +69,20 @@ public class TokenServiceImpl implements TokenService {
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
     if (this.initialTokenCreationEnabled) {
-      this.createNewConstantToken(this.initialTokenUser, this.initialTokenValue,
-          this.initialTokenSecret, this.initialTokenAlias);
+      this.createNewConstantToken(
+          this.initialTokenUser,
+          this.initialTokenValue,
+          this.initialTokenSecret,
+          this.initialTokenAlias);
       LOGGER.atDebug().log("Created default landscape token.");
     }
     LOGGER.atDebug().addArgument(authEnabled.get()).log("Quarkus OIDC is enabled: {}");
   }
 
-  private void createNewConstantToken(final String ownerId, final String value, final String secret,
+  private void createNewConstantToken(
+      final String ownerId,
+      final String value,
+      final String secret,
       final String initialTokenAlias) {
     // Avoid creation of duplicate tokens
     if (this.getByValue(value).isPresent()) {
@@ -80,11 +92,13 @@ public class TokenServiceImpl implements TokenService {
     final long created = System.currentTimeMillis();
 
     final LandscapeToken token =
-        new LandscapeToken(value, secret, ownerId, created, initialTokenAlias,
-            Collections.emptyList());
+        new LandscapeToken(
+            value, secret, ownerId, created, initialTokenAlias, Collections.emptyList());
     this.repository.persist(token);
     this.eventService.dispatch(
-        TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CREATED).setToken(token.toProtobuf())
+        TokenEvent.newBuilder()
+            .setType(EventType.EVENT_TYPE_CREATED)
+            .setToken(token.toProtobuf())
             .build());
 
     if (LOGGER.isDebugEnabled()) {
@@ -98,30 +112,34 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public LandscapeToken createNewToken(final String ownerId, final String alias, final String value,
-      final String secret) {
+  public LandscapeToken createNewToken(
+      final String ownerId, final String alias, final String value, final String secret) {
     final String effectiveAlias = alias == null ? "" : alias;
     if (value != null && !value.isBlank() && this.getByValue(value.trim()).isPresent()) {
-      throw new WebApplicationException("Token value already exists",
-          Response.Status.CONFLICT);
+      throw new WebApplicationException("Token value already exists", Response.Status.CONFLICT);
     }
 
     final LandscapeToken token =
         this.generator.generateToken(ownerId, effectiveAlias, value, secret);
     this.repository.persist(token);
     this.eventService.dispatch(
-        TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CREATED).setToken(token.toProtobuf())
+        TokenEvent.newBuilder()
+            .setType(EventType.EVENT_TYPE_CREATED)
+            .setToken(token.toProtobuf())
             .build());
     return token;
   }
 
   @Override
-  public LandscapeToken cloneToken(final String oldTokenId, final String newOwnerId,
-      final String alias) {
+  public LandscapeToken cloneToken(
+      final String oldTokenId, final String newOwnerId, final String alias) {
     final var token = this.createNewToken(newOwnerId, alias);
     this.eventService.dispatch(
-        TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_CLONED).setToken(token.toProtobuf())
-            .setClonedTokenId(oldTokenId).build());
+        TokenEvent.newBuilder()
+            .setType(EventType.EVENT_TYPE_CLONED)
+            .setToken(token.toProtobuf())
+            .setClonedTokenId(oldTokenId)
+            .build());
     return token;
   }
 
@@ -150,7 +168,9 @@ public class TokenServiceImpl implements TokenService {
     final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
     if (docsAffected == DELETE_FLAG) {
       this.eventService.dispatch(
-          TokenEvent.newBuilder().setType(EventType.EVENT_TYPE_DELETED).setToken(token.toProtobuf())
+          TokenEvent.newBuilder()
+              .setType(EventType.EVENT_TYPE_DELETED)
+              .setToken(token.toProtobuf())
               .build());
     }
   }
@@ -164,21 +184,24 @@ public class TokenServiceImpl implements TokenService {
 
     // the $set is a workaround till quarkus 1.13
     // https://github.com/quarkusio/quarkus/issues/9956
-    this.repository.update("{ $addToSet: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}",
-        userId).where(DELETE_FLAG_QUERY, token.getValue());
+    this.repository
+        .update("{ $addToSet: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
+        .where(DELETE_FLAG_QUERY, token.getValue());
     // update("{ $push: { sharedUsers: ?1 } } }", userId).where(DELETE_FLAG_QUERY,
     // token.getValue());
   }
 
   @Override
   public void revokeAccess(final LandscapeToken token, final String userId) {
-    this.repository.update("{ $pull: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
+    this.repository
+        .update("{ $pull: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
         .where(DELETE_FLAG_QUERY, token.getValue());
   }
 
   @Override
   public void updateAlias(final LandscapeToken token, final String newAlias) {
-    this.repository.update("{ $set: { alias: ?1 } }", newAlias)
+    this.repository
+        .update("{ $set: { alias: ?1 } }", newAlias)
         .where(DELETE_FLAG_QUERY, token.getValue());
   }
 }

@@ -8,49 +8,34 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 @MongoEntity(collection = "userapi")
 public class UserApi {
 
-  /**
-   * The user id given by auth0.
-   * Builds 'identifier' with token.
-   */
+  /** The user id given by auth0. Builds 'identifier' with token. */
   private String uid;
 
-  /**
-   * The name of the corresponding API token.
-   */
+  /** The name of the corresponding API token. */
   private String name;
 
-  /**
-   * The actual API token.
-   * Builds 'uId' with token.
-   */
-
+  /** The actual API token. Builds 'uId' with token. */
   private String token;
 
-  /**
-   * The host url.
-   */
+  /** The host url. */
   private String hostUrl;
 
-  /**
-   * The value of the creation date.
-   */
+  /** The value of the creation date. */
   private Long createdAt;
 
-  /**
-   * The optional value of the expiration date.
-   * Default value = 0
-   */
+  /** The optional value of the expiration date. Default value = 0 */
   private Long expires;
 
   /**
    * UserAPI entrie for one API token.
    *
-   * @param uid       The user id given by auth0.
-   * @param name      The name of the corresponding API token.
-   * @param token     The API token.
+   * @param uid The user id given by auth0.
+   * @param name The name of the corresponding API token.
+   * @param token The API token.
    */
   @BsonCreator
-  public UserApi(@BsonProperty("uid") String uid,
+  public UserApi(
+      @BsonProperty("uid") String uid,
       @BsonProperty("name") String name,
       @BsonProperty("token") String token,
       @BsonProperty("hostUrl") String hostUrl,
@@ -126,5 +111,4 @@ public class UserApi {
   public Long getExpires() {
     return this.expires;
   }
-
 }

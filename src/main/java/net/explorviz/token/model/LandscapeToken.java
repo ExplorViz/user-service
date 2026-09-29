@@ -7,58 +7,47 @@ import java.util.List;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-/**
- * Represents a landscape token.
- */
+/** Represents a landscape token. */
 @MongoEntity(collection = "token")
 public class LandscapeToken {
 
-
-  /**
-   * The actual token value.
-   */
+  /** The actual token value. */
   private String value;
 
   // Property should unique, panache mongodb does not yet
   // support indices: https://github.com/quarkusio/quarkus/issues/9801
 
-
   private String secret;
 
-  /**
-   * The id of the user owning this token.
-   */
+  /** The id of the user owning this token. */
   private String ownerId;
 
-  /**
-   * Timestamp when the token was created.
-   */
+  /** Timestamp when the token was created. */
   private long created;
 
-  /**
-   * User defined alias.
-   */
+  /** User defined alias. */
   private String alias;
 
-  /**
-   * Users that may access this token.
-   */
+  /** Users that may access this token. */
   private List<String> sharedUsersIds;
 
   /**
    * Token for access to a software landscape.
    *
-   * @param value       The actual token value.
-   * @param secret      Secret string, which together with "value" is used to check authorization.
-   * @param ownerId     Id of the user who generates the token.
-   * @param created     Timestamp which indicates when the token was created.
-   * @param alias       Used-defined alias to easily identify a token.
+   * @param value The actual token value.
+   * @param secret Secret string, which together with "value" is used to check authorization.
+   * @param ownerId Id of the user who generates the token.
+   * @param created Timestamp which indicates when the token was created.
+   * @param alias Used-defined alias to easily identify a token.
    * @param sharedUsers Users who have access to this token.
    */
   @BsonCreator
-  public LandscapeToken(@BsonProperty("value") final String value,
-      @BsonProperty("secret") final String secret, @BsonProperty("owner") final String ownerId,
-      @BsonProperty("created") final long created, @BsonProperty("alias") final String alias,
+  public LandscapeToken(
+      @BsonProperty("value") final String value,
+      @BsonProperty("secret") final String secret,
+      @BsonProperty("owner") final String ownerId,
+      @BsonProperty("created") final long created,
+      @BsonProperty("alias") final String alias,
       @BsonProperty("sharedUsers") final List<String> sharedUsers) {
     this.value = value;
     this.ownerId = ownerId;
@@ -68,12 +57,17 @@ public class LandscapeToken {
     this.sharedUsersIds = sharedUsers;
   }
 
-  public LandscapeToken(final String value, final String secret, final String ownerId,
-      final long created, final String alias) {
+  public LandscapeToken(
+      final String value,
+      final String secret,
+      final String ownerId,
+      final long created,
+      final String alias) {
     this(value, secret, ownerId, created, alias, new ArrayList<>());
   }
 
-  public LandscapeToken() { /* Jackson */
+  public LandscapeToken() {
+    /* Jackson */
   }
 
   /**
@@ -121,7 +115,6 @@ public class LandscapeToken {
     this.alias = alias;
   }
 
-
   /**
    * The secret of the token that is required to write spans to it.
    *
@@ -135,7 +128,6 @@ public class LandscapeToken {
   @BsonProperty("sharedUsers")
   public List<String> getSharedUsersIds() {
     return this.sharedUsersIds;
-
   }
 
   @Override
@@ -147,10 +139,12 @@ public class LandscapeToken {
       return false;
     }
     final LandscapeToken token = (LandscapeToken) o;
-    return Objects.equal(this.value, token.value) && Objects.equal(this.ownerId, token.ownerId)
-        && Objects.equal(this.created, token.created) && Objects.equal(this.alias, token.alias)
-        && Objects.equal(this.secret, token.secret) && Objects.equal(this.sharedUsersIds,
-        token.sharedUsersIds);
+    return Objects.equal(this.value, token.value)
+        && Objects.equal(this.ownerId, token.ownerId)
+        && Objects.equal(this.created, token.created)
+        && Objects.equal(this.alias, token.alias)
+        && Objects.equal(this.secret, token.secret)
+        && Objects.equal(this.sharedUsersIds, token.sharedUsersIds);
   }
 
   @Override
@@ -172,5 +166,4 @@ public class LandscapeToken {
         .setCreated(this.getCreated())
         .build();
   }
-
 }

@@ -5,75 +5,53 @@ import org.bson.Document;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-
 @MongoEntity(collection = "snapshot")
 public class Snapshot {
 
-  /**
-   * The creator of the snapshot.
-   * Part-Identifier
-   */
+  /** The creator of the snapshot. Part-Identifier */
   private String owner;
 
-  /**
-   * The time the snapshot was created.
-   * Part-Identifier
-   */
+  /** The time the snapshot was created. Part-Identifier */
   private Long createdAt;
 
-  /**
-   * The given name of the snapshot.
-   */
+  /** The given name of the snapshot. */
   private String name;
 
-  /**
-   * The landscape token of the corresponding landscape.
-   */
+  /** The landscape token of the corresponding landscape. */
   private Document landscapeToken;
 
-  /**
-   * The structure data describing the landscape.
-   */
+  /** The structure data describing the landscape. */
   private Document structureData;
 
-  /**
-   * The serialized data of the room.
-   */
+  /** The serialized data of the room. */
   private Document serializedRoom;
 
-  /**
-   * The timestamps of a room.
-   */
+  /** The timestamps of a room. */
   private Document timestamps;
 
-  /**
-   * The camera data describing position of the camera.
-   */
+  /** The camera data describing position of the camera. */
   private Document camera;
 
-  /**
-   * The identifier whether the snapshot is shared or not.
-   */
+  /** The identifier whether the snapshot is shared or not. */
   private boolean isShared;
 
-  /**
-   * Collection of users that subscribed the snapshot.
-   */
+  /** Collection of users that subscribed the snapshot. */
   private Document subscribedUsers;
 
-  /**
-   * The optional value of the expiration date used for sharing.
-   * Default value = 0
-   */
+  /** The optional value of the expiration date used for sharing. Default value = 0 */
   private Long deleteAt;
 
   @BsonCreator
-  public Snapshot(@BsonProperty("owner") String owner, @BsonProperty("createdAt") Long createdAt,
-      @BsonProperty("name") String name, @BsonProperty("landscapeToken") Document landscapeToken,
+  public Snapshot(
+      @BsonProperty("owner") String owner,
+      @BsonProperty("createdAt") Long createdAt,
+      @BsonProperty("name") String name,
+      @BsonProperty("landscapeToken") Document landscapeToken,
       @BsonProperty("structureData") Document structureData,
       @BsonProperty("serializedRoom") Document serializedRoom,
       @BsonProperty("timestamps") Document timestamps,
-      @BsonProperty("camera") Document camera, @BsonProperty("isShared") boolean isShared,
+      @BsonProperty("camera") Document camera,
+      @BsonProperty("isShared") boolean isShared,
       @BsonProperty("subscribedUsers") Document subscribedUsers,
       @BsonProperty("deleteAt") Long deleteAt) {
     this.owner = owner;
@@ -89,7 +67,7 @@ public class Snapshot {
     this.deleteAt = deleteAt;
   }
 
-  public Snapshot() {  }
+  public Snapshot() {}
 
   @BsonProperty("owner")
   public String getOwner() {
@@ -148,8 +126,26 @@ public class Snapshot {
 
   @Override
   public String toString() {
-    return getOwner() + " " + getCreatedAt() + " " + getName() + " " + getLandscapeToken() + " "
-        + getLandscapeToken() + " " + getStructureData() + " " + getSerializedRoom() + " "
-        + getTimestamps() + " " + getIsShared() + " " + getSubscribedUsers() + " " + getDeleteAt();
+    return getOwner()
+        + " "
+        + getCreatedAt()
+        + " "
+        + getName()
+        + " "
+        + getLandscapeToken()
+        + " "
+        + getLandscapeToken()
+        + " "
+        + getStructureData()
+        + " "
+        + getSerializedRoom()
+        + " "
+        + getTimestamps()
+        + " "
+        + getIsShared()
+        + " "
+        + getSubscribedUsers()
+        + " "
+        + getDeleteAt();
   }
 }

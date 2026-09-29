@@ -3,9 +3,7 @@ package net.explorviz.snapshot.service;
 import java.util.Collection;
 import net.explorviz.snapshot.model.Snapshot;
 
-/**
- * Interface to manage {@link Snapshot}s.
- */
+/** Interface to manage {@link Snapshot}s. */
 public interface SnapshotService {
 
   /**

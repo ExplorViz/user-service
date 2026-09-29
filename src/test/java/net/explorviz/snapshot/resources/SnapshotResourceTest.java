@@ -1,24 +1,21 @@
 package net.explorviz.snapshot.resources;
 
-import io.quarkus.test.Mock;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
+
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
 import net.explorviz.snapshot.service.SnapshotInMemRepo;
 import net.explorviz.snapshot.service.SnapshotServiceImpl;
-import org.apache.kafka.common.protocol.types.Field.Str;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
 public class SnapshotResourceTest {
@@ -34,23 +31,28 @@ public class SnapshotResourceTest {
     QuarkusMock.installMockForType(this.repo, SnapshotRepository.class);
 
     this.inMemRepo = new SnapshotInMemRepo();
-    Mockito.doAnswer(invocation -> {
-      this.inMemRepo.addSnapshot(invocation.getArgument(0));
-      return null;
-    }).when(this.repo).persist(ArgumentMatchers.any(Snapshot.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addSnapshot(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .persist(ArgumentMatchers.any(Snapshot.class));
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
-    Mockito.when(this.repo.findForUserAndCreatedAtAndIsShared(
-        ArgumentMatchers.anyString(),
-        ArgumentMatchers.anyLong(),
-        ArgumentMatchers.anyBoolean()
-    )).thenAnswer(invocation -> this.inMemRepo.findForUserAndCreatedAtAndIsShared(
-        invocation.getArgument(0),
-        invocation.getArgument(1),
-        invocation.getArgument(2)
-    ));
+    Mockito.when(
+            this.repo.findForUserAndCreatedAtAndIsShared(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyBoolean()))
+        .thenAnswer(
+            invocation ->
+                this.inMemRepo.findForUserAndCreatedAtAndIsShared(
+                    invocation.getArgument(0),
+                    invocation.getArgument(1),
+                    invocation.getArgument(2)));
 
     Mockito.when(this.repo.getAll()).thenAnswer(invocation -> this.inMemRepo.getAll());
   }
@@ -69,17 +71,36 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 0L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.snapshotService = Mockito.mock(SnapshotServiceImpl.class);
     QuarkusMock.installMockForType(this.snapshotService, SnapshotServiceImpl.class);
-    Mockito.when(this.snapshotService.snapshotExists(ArgumentMatchers.anyString(),
-        ArgumentMatchers.anyLong(), ArgumentMatchers.anyBoolean()))
+    Mockito.when(
+            this.snapshotService.snapshotExists(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyBoolean()))
         .thenAnswer(invocation -> false);
 
-    given().body(snapshot).contentType(MediaType.APPLICATION_JSON).when().post("snapshot/create/")
-        .then().statusCode(200);
+    given()
+        .body(snapshot)
+        .contentType(MediaType.APPLICATION_JSON)
+        .when()
+        .post("snapshot/create/")
+        .then()
+        .statusCode(200);
   }
 
   @Test
@@ -96,19 +117,34 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 0L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().body(snapshot).contentType(MediaType.APPLICATION_JSON).when().post("snapshot/create/")
-        .then().statusCode(422);
+    given()
+        .body(snapshot)
+        .contentType(MediaType.APPLICATION_JSON)
+        .when()
+        .post("snapshot/create/")
+        .then()
+        .statusCode(422);
   }
 
   @Test
   public void testSnapshotRetrieveAllByOwnerEmpty() {
-    given().when().get("snapshot/").then().statusCode(200)
-        .body("size()", is(3));
+    given().when().get("snapshot/").then().statusCode(200).body("size()", is(3));
   }
 
   @Test
@@ -125,12 +161,28 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 0L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().param("owner", owner).when().get("snapshot/").then().statusCode(200)
+    given()
+        .param("owner", owner)
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
         .body("size()", is(3))
         .body("personalSnapshots[0].owner", is(owner))
         .body("personalSnapshots[0].createdAt", is(createdAt))
@@ -152,12 +204,28 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 0L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().param("owner", owner).when().get("snapshot/").then().statusCode(200)
+    given()
+        .param("owner", owner)
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
         .body("size()", is(3))
         .body("sharedSnapshots[0].owner", is(owner))
         .body("sharedSnapshots[0].createdAt", is(createdAt))
@@ -185,12 +253,28 @@ public class SnapshotResourceTest {
     subList.add(user);
     subscribedUsers.append("subscriberList", subList);
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().param("owner", user).when().get("snapshot/").then().statusCode(200)
+    given()
+        .param("owner", user)
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
         .body("size()", is(3))
         .body("subscribedSnapshots[0].owner", is(owner))
         .body("subscribedSnapshots[0].createdAt", is(createdAt))
@@ -212,19 +296,31 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 0L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(),
-        ArgumentMatchers.<Object>any()))
+    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(owner, createdAt, isShared));
 
     this.repo.persist(snapshot);
 
-    given().params("owner", owner,
-        "createdAt", createdAt,
-        "isShared", isShared).when().delete("snapshot/delete/")
-        .then().statusCode(200);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "isShared", isShared)
+        .when()
+        .delete("snapshot/delete/")
+        .then()
+        .statusCode(200);
   }
 
   @Test
@@ -233,14 +329,15 @@ public class SnapshotResourceTest {
     final long createdAt = 1700000L;
     final boolean isShared = false;
 
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(),
-            ArgumentMatchers.<Object>any()))
+    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(owner, createdAt, isShared));
 
-    given().params("owner", owner,
-            "createdAt", createdAt,
-            "isShared", isShared).when().delete("snapshot/delete/")
-        .then().statusCode(400);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "isShared", isShared)
+        .when()
+        .delete("snapshot/delete/")
+        .then()
+        .statusCode(400);
   }
 
   @Test
@@ -251,10 +348,12 @@ public class SnapshotResourceTest {
 
     // doesn't need more tests, because 200 should always be the
     // response (frontend doesn't need any infos)
-    given().params("owner", owner,
-            "createdAt", createdAt,
-            "subscriber", subscriber).when().put("snapshot/subscribe/")
-        .then().statusCode(200);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "subscriber", subscriber)
+        .when()
+        .put("snapshot/subscribe/")
+        .then()
+        .statusCode(200);
   }
 
   @Test
@@ -265,10 +364,12 @@ public class SnapshotResourceTest {
 
     // doesn't need more tests, because 200 should always be the
     // response (frontend doesn't need any infos)
-    given().params("owner", owner,
-            "createdAt", createdAt,
-            "subscriber", subscriber).when().put("snapshot/unsubscribe/")
-        .then().statusCode(200);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "subscriber", subscriber)
+        .when()
+        .put("snapshot/unsubscribe/")
+        .then()
+        .statusCode(200);
   }
 
   @Test
@@ -285,15 +386,28 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 1900000000L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().params("owner", owner,
-        "createdAt", createdAt,
-        "deleteAt", deleteAt).when().put("snapshot/share/")
-        .then().statusCode(200);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "deleteAt", deleteAt)
+        .when()
+        .put("snapshot/share/")
+        .then()
+        .statusCode(200);
   }
 
   @Test
@@ -310,15 +424,28 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 1900000000L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().params("owner", owner,
-            "createdAt", createdAt,
-            "deleteAt", deleteAt).when().put("snapshot/share/")
-        .then().statusCode(222);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "deleteAt", deleteAt)
+        .when()
+        .put("snapshot/share/")
+        .then()
+        .statusCode(222);
   }
 
   @Test
@@ -327,10 +454,12 @@ public class SnapshotResourceTest {
     final long createdAt = 1700000L;
     final long deleteAt = 1900000000L;
 
-    given().params("owner", owner,
-            "createdAt", createdAt,
-            "deleteAt", deleteAt).when().put("snapshot/share/")
-        .then().statusCode(400);
+    given()
+        .params("owner", owner, "createdAt", createdAt, "deleteAt", deleteAt)
+        .when()
+        .put("snapshot/share/")
+        .then()
+        .statusCode(400);
   }
 
   @Test
@@ -349,16 +478,30 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 1900000000L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
-    given().params("owner", owner,
-        "createdAt", createdAt,
-        "isShared", isShared,
-        "subscriber", subscriber).when().get("snapshot/get/")
-        .then().statusCode(200).body("size()", is(11))
+    given()
+        .params(
+            "owner", owner, "createdAt", createdAt, "isShared", isShared, "subscriber", subscriber)
+        .when()
+        .get("snapshot/get/")
+        .then()
+        .statusCode(200)
+        .body("size()", is(11))
         .body("owner", is(owner))
         .body("createdAt", is(1700000))
         .body("name", is(name))
@@ -388,8 +531,19 @@ public class SnapshotResourceTest {
     final Document subscribedUsers = new Document();
     final long deleteAt = 1900000000L;
 
-    final Snapshot snapshot = new Snapshot(owner, createdAt, name, landscapeToken,
-        structureData, serializedRoom, timestamps, camera, isShared, subscribedUsers, deleteAt);
+    final Snapshot snapshot =
+        new Snapshot(
+            owner,
+            createdAt,
+            name,
+            landscapeToken,
+            structureData,
+            serializedRoom,
+            timestamps,
+            camera,
+            isShared,
+            subscribedUsers,
+            deleteAt);
 
     this.repo.persist(snapshot);
 
@@ -397,11 +551,14 @@ public class SnapshotResourceTest {
     subList.add(subscriber);
     subscribedUsers.append("subscriberList", subList);
 
-    given().params("owner", owner,
-            "createdAt", createdAt,
-            "isShared", isShared,
-            "subscriber", subscriber).when().get("snapshot/get/")
-        .then().statusCode(200).body("size()", is(11))
+    given()
+        .params(
+            "owner", owner, "createdAt", createdAt, "isShared", isShared, "subscriber", subscriber)
+        .when()
+        .get("snapshot/get/")
+        .then()
+        .statusCode(200)
+        .body("size()", is(11))
         .body("owner", is(owner))
         .body("createdAt", is(1700000))
         .body("name", is(name))
