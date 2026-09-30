@@ -156,10 +156,65 @@ jobs:
         if: steps.unit_tests.outputs.exit_code != '0'
         run: exit 1
 
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: "graalvm"
+          java-version: "21"
+      - name: Cache Gradle Packages
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      # Testcontainers (Kafka, MongoDB) uses the Docker daemon preinstalled on ubuntu-latest.
+      - name: Run Integration Tests
+        id: integration_tests
+        run: |
+          set +e
+          ./gradlew integrationTest --continue
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+      - name: Write Integration Test Summary
+        if: always()
+        env:
+          REPORT_COMMIT_SHA: ${{ github.sha }}
+          REPORT_BRANCH: ${{ github.head_ref || github.ref_name }}
+          REPORT_WORKFLOW: ${{ github.workflow }}
+          REPORT_RUN_NUMBER: ${{ github.run_number }}
+          REPORT_OS: ${{ runner.os }}
+          REPORT_RUNTIME: GraalVM
+          REPORT_RUNTIME_VERSION: "21"
+          REPORT_TEST_FRAMEWORK: JUnit Jupiter (Quarkus, Testcontainers)
+          REPORT_TEST_EXIT_CODE: ${{ steps.integration_tests.outputs.exit_code }}
+        run: |
+          python3 code-analysis/ci/report-summary.py junit build/test-results/integrationTest \
+            >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish Integration Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-report
+          path: |
+            build/reports/tests/integrationTest/
+            build/test-results/integrationTest/
+      - name: Fail on Test Failures
+        if: steps.integration_tests.outputs.exit_code != '0'
+        run: exit 1
+
   docker-image-native:
     name: Docker image native
     if: github.event_name == 'push' && github.ref_name == 'main'
-    needs: [unit-test]
+    needs: [unit-test,integration-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -176,7 +231,7 @@ jobs:
   docker-image-jvm:
     name: Docker image JVM
     if: github.event_name == 'push' && github.ref_name == 'main'
-    needs: [unit-test]
+    needs: [unit-test,integration-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

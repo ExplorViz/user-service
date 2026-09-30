@@ -16,11 +16,9 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
 
   private static final KafkaContainer KAFKA =
       new KafkaContainer(
-              DockerImageName.parse("docker.io/confluentinc/cp-kafka:7.3.0")
-                  .asCompatibleSubstituteFor("confluentinc/cp-kafka:7.3.0"))
+              DockerImageName.parse("docker.io/confluentinc/cp-kafka:7.6.1")
+                  .asCompatibleSubstituteFor("confluentinc/cp-kafka"))
           .withKraft();
-
-  // DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
 
   @Override
   public Map<String, String> start() {
