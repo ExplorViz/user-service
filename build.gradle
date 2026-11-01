@@ -40,6 +40,7 @@ configurations {
 sourceSets.main.java.srcDirs = ['build/classes/java/quarkus-generated-sources/grpc', 'src/main/java']
 
 dependencies {
+  implementation 'io.quarkus:quarkus-opentelemetry'
   implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
 
   implementation 'io.quarkus:quarkus-container-image-jib'
