@@ -1,14 +1,13 @@
 plugins {
   id 'java'
   id 'io.quarkus'
-  id 'com.adarshr.test-logger' version '3.2.0'
-  id 'com.diffplug.spotless' version '6.25.0'
+  id 'com.adarshr.test-logger' version '4.0.0'
+  id 'com.diffplug.spotless' version '8.10.4'
 }
 
 apply from: 'code-analysis/code-analysis.gradle'
 
 repositories {
-  mavenLocal()
   mavenCentral()
 }
 
@@ -20,21 +19,18 @@ sourceSets {
   }
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
   description = 'Runs integration tests.'
   group = 'verification'
 
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
-  shouldRunAfter test
+  shouldRunAfter tasks.named('test')
 }
 
 configurations {
   integrationTestImplementation.extendsFrom implementation
   integrationTestRuntimeOnly.extendsFrom runtimeOnly
-
-  integrationTestImplementation.setCanBeResolved(true)
-  integrationTestRuntimeOnly.setCanBeResolved(true)
 }
 
 sourceSets.main.java.srcDirs = ['build/classes/java/quarkus-generated-sources/grpc', 'src/main/java']
@@ -50,11 +46,10 @@ dependencies {
   implementation 'io.quarkus:quarkus-resteasy-jackson'
   implementation 'io.quarkus:quarkus-resteasy'
   implementation 'io.quarkus:quarkus-grpc'
-  implementation group: 'io.quarkus', name: 'quarkus-messaging'
-  implementation group: 'io.smallrye.reactive', name: 'smallrye-reactive-messaging-in-memory'
+  implementation 'io.quarkus:quarkus-messaging'
 
   // Utility
-  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+  implementation 'org.apache.commons:commons-lang3'
 
   // JSR-305 annotations (fixes "unknown enum constant When.MAYBE" warning)
   implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -64,50 +59,47 @@ dependencies {
   implementation 'io.quarkus:quarkus-mongodb-panache'
 
   // Kafka
-  implementation group: 'io.quarkus', name: 'quarkus-messaging-kafka'
+  implementation 'io.quarkus:quarkus-messaging-kafka'
 
-  testImplementation("io.smallrye.reactive:smallrye-reactive-messaging-in-memory")
+  testImplementation 'io.smallrye.reactive:smallrye-reactive-messaging-in-memory'
 
-  testImplementation 'io.quarkus:quarkus-junit5'
-  testImplementation("io.quarkus:quarkus-junit5-mockito")
+  testImplementation 'io.quarkus:quarkus-junit'
+  testImplementation 'io.quarkus:quarkus-junit-mockito'
   testImplementation 'io.rest-assured:rest-assured'
-  testImplementation 'org.mockito:mockito-core:4.8.0'
+  testImplementation 'org.mockito:mockito-core'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
   // Integration Testing
-  integrationTestImplementation 'io.quarkus:quarkus-junit5'
-  integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
-  integrationTestImplementation "org.testcontainers:testcontainers"
-  integrationTestImplementation "org.testcontainers:kafka"
+  integrationTestImplementation 'io.quarkus:quarkus-junit'
+  integrationTestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  integrationTestImplementation 'org.testcontainers:testcontainers'
+  integrationTestImplementation 'org.testcontainers:testcontainers-kafka'
 }
 
-group 'net.explorviz'
-version '1.0-SNAPSHOT'
-
-compileJava {
-  options.encoding = 'UTF-8'
-  options.compilerArgs << '-parameters'
+tasks.named('check') {
+  dependsOn tasks.named('integrationTest')
 }
 
-compileTestJava {
-  options.encoding = 'UTF-8'
-}
+group = 'net.explorviz'
+version = '1.0-SNAPSHOT'
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_21
-  targetCompatibility = JavaVersion.VERSION_21
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'UTF-8'
+  options.release = 21
+  options.compilerArgs << '-parameters'
   // Turn on all javac warnings instead of classfile and processing, which produces many false-positives about
   // annotations and cast which is triggered by the auto-generated Dao implementations
   options.compilerArgs << "-Xlint:all" << "-Xlint:-classfile" << "-Xlint:-processing" << "-Xlint:-cast"
 }
 
-test {
-  systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
-}
-
-integrationTest.doFirst {
+tasks.withType(Test).configureEach {
+  useJUnitPlatform()
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
 

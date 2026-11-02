@@ -3,7 +3,8 @@ apply plugin: 'jacoco'
 
 jacocoTestReport {
 
-  executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+  executionData(tasks.withType(Test))
+  mustRunAfter(tasks.withType(Test))
 
   reports {
     xml.required = true

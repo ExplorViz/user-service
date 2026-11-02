@@ -17,9 +17,20 @@ container is ready, start the application with `./gradlew quarkusDev`. The appli
 
 ## Prerequisites
 
-- Java 11 or higher
+- Java 21 (JDK)
+- Use the included Gradle 9.7 wrapper (`./gradlew`)
+- A running Docker-compatible container runtime for integration tests
 - Make sure to run the [ExplorViz software stack](https://git.se.informatik.uni-kiel.de/ExplorViz/code/deployment)
   before starting the service, as it provides the required database(s) and the Kafka broker
+
+## Running tests
+
+Run the unit tests with `./gradlew test` and the integration tests with
+`./gradlew integrationTest`. Integration tests start their own Kafka and MongoDB
+containers through Testcontainers; no separately running ExplorViz stack is needed.
+
+`./gradlew check` runs both test suites and the code-analysis checks.
+The Quarkus 3.40.1.1 LTS BOM manages the Testcontainers and Docker client versions.
 
 ## Running the application in dev mode
 
@@ -47,7 +58,7 @@ Be aware that it’s not an _über-jar_ as the dependencies are copied into the 
 
 If you want to build an _über-jar_, which includes the entire application in a single jar file, execute the following command:
 ```shell script
-./gradlew build -Dquarkus.package.type=uber-jar
+./gradlew build -Dquarkus.package.jar.type=uber-jar
 ```
 
 The application, packaged as an _über-jar_, is now runnable using
@@ -58,12 +69,12 @@ You can add `-Dquarkus.profile=dev` to enable the `%dev` properties.
 
 You can create a native executable using:
 ```shell script
-./gradlew build -Dquarkus.package.type=native
+./gradlew build -Dquarkus.native.enabled=true
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 ```shell script
-./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
+./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with: `./build/user-service-1.0-SNAPSHOT-runner`

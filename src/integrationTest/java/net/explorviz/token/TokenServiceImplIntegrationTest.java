@@ -20,11 +20,6 @@ class TokenServiceImplIntegrationTest {
   @Inject TokenService tokenService;
   private LandscapeToken token;
 
-  /*
-   * This test requires a running mongodb on port 27017. You can start one with:
-   *
-   * docker run -ti --rm -p 27017:27017 mongo:4.0
-   */
   @Test
   void grantAndRevokeAccessToToken() {
     givenTokenForUser1();
