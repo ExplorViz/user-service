@@ -13,12 +13,15 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Collection;
+import net.explorviz.demo.DemoMode;
 import net.explorviz.userapi.model.UserApi;
 import net.explorviz.userapi.service.UserApiService;
 
 @Path("userapi")
 @RequestScoped
 public class UserApiResource {
+
+  @Inject DemoMode demoMode;
 
   private final UserApiService userApiService;
 
@@ -94,7 +97,9 @@ public class UserApiResource {
 
     for (UserApi uapi : userApis) {
       if (uapi.getExpires() != 0 && uapi.getExpires() < currentTime) {
-        this.userApiService.deleteByValue(uapi.getUid(), uapi.getToken());
+        if (!demoMode.isEnabled()) {
+          this.userApiService.deleteByValue(uapi.getUid(), uapi.getToken());
+        }
       }
     }
 

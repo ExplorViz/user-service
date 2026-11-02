@@ -2,6 +2,7 @@ package net.explorviz.snapshot.resources;
 
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.explorviz.demo.DemoMode;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.service.SnapshotService;
 import org.bson.Document;
@@ -22,6 +24,8 @@ import org.bson.Document;
 @Path("snapshot")
 @RequestScoped
 public class SnapshotResource {
+
+  @Inject DemoMode demoMode;
 
   private final SnapshotService snapshotService;
 
@@ -101,7 +105,9 @@ public class SnapshotResource {
 
       if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
 
-        this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt(), sn.getIsShared());
+        if (!demoMode.isEnabled()) {
+          this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt(), sn.getIsShared());
+        }
 
       } else if (sn.getOwner().equals(owner)) { // collect all personal and shared snapshots
 
@@ -153,7 +159,7 @@ public class SnapshotResource {
       @QueryParam("isShared") final boolean isShared,
       @QueryParam("subscriber") final String subscriber) {
 
-    if (isShared && !subscriber.equals(owner)) {
+    if (!demoMode.isEnabled() && isShared && !subscriber.equals(owner)) {
       this.snapshotService.addNewSubscriber(owner, createdAt, subscriber);
     }
 

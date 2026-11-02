@@ -6,6 +6,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import java.util.Collection;
+import net.explorviz.demo.DemoMode;
 import net.explorviz.userapi.model.UserApi;
 import net.explorviz.userapi.persistence.UserApiRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class UserApiServiceImpl implements UserApiService {
+
+  @Inject DemoMode demoMode;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserApiService.class);
 
@@ -45,6 +48,9 @@ public class UserApiServiceImpl implements UserApiService {
   }
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
+    if (demoMode.isEnabled()) {
+      return;
+    }
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantUserApi(
           this.initialTokenUser, this.initialTokenAlias, this.initialTokenValue, "testUrl", 0L);

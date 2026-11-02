@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import net.explorviz.demo.DemoMode;
 import net.explorviz.proto.EventType;
 import net.explorviz.proto.TokenEvent;
 import net.explorviz.token.generator.TokenGenerator;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 /** Implements the use cases for managing and accessing tokens. */
 @ApplicationScoped
 public class TokenServiceImpl implements TokenService {
+
+  @Inject DemoMode demoMode;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
 
@@ -68,6 +71,9 @@ public class TokenServiceImpl implements TokenService {
   }
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
+    if (demoMode.isEnabled()) {
+      return;
+    }
     if (this.initialTokenCreationEnabled) {
       this.createNewConstantToken(
           this.initialTokenUser,
