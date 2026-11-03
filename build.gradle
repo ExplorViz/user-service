@@ -41,6 +41,7 @@ dependencies {
 
   implementation 'io.quarkus:quarkus-container-image-jib'
   implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
+  implementation 'io.quarkus:quarkus-micrometer-opentelemetry'
 
   // Base
   implementation 'io.quarkus:quarkus-resteasy-jackson'
