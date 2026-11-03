@@ -34,17 +34,20 @@ class MongoDbSpanProcessorTest {
     var recorder = mock(SpanProcessor.class);
     when(recorder.isEndRequired()).thenReturn(true);
     when(recorder.shutdown()).thenReturn(CompletableResultCode.ofSuccess());
-    try (var provider = SdkTracerProvider.builder()
-        .addSpanProcessor(new MongoDbSpanProcessor())
-        .addSpanProcessor(recorder)
-        .build()) {
+    try (var provider =
+        SdkTracerProvider.builder()
+            .addSpanProcessor(new MongoDbSpanProcessor())
+            .addSpanProcessor(recorder)
+            .build()) {
       var telemetry = OpenTelemetrySdk.builder().setTracerProvider(provider).build();
       var tracing = mock(MongoTracingRuntimeConfig.class);
       when(tracing.commandDetailLevel()).thenReturn(CommandDetailLevel.FULL);
       var config = mock(MongoConfig.class);
       when(config.tracing()).thenReturn(tracing);
-      var listener = new MongoTracingCommandListener(telemetry, config, mock(OTelRuntimeConfig.class));
-      var connection = new ConnectionDescription(new ServerId(new ClusterId(), new ServerAddress()));
+      var listener =
+          new MongoTracingCommandListener(telemetry, config, mock(OTelRuntimeConfig.class));
+      var connection =
+          new ConnectionDescription(new ServerId(new ClusterId(), new ServerAddress()));
       var command = BsonDocument.parse("{\"find\":\"token\",\"filter\":{\"owner\":\"user1\"}}");
 
       listener.commandStarted(
@@ -64,7 +67,8 @@ class MongoDbSpanProcessorTest {
 
   @Test
   void leavesOtherInstrumentationUnchanged() {
-    try (var provider = SdkTracerProvider.builder().addSpanProcessor(new MongoDbSpanProcessor()).build()) {
+    try (var provider =
+        SdkTracerProvider.builder().addSpanProcessor(new MongoDbSpanProcessor()).build()) {
       var span = provider.get("http-server").spanBuilder("GET /tokens").startSpan();
       span.end();
       var attributes = ((ReadableSpan) span).toSpanData().getAttributes();
