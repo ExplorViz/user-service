@@ -221,6 +221,10 @@ jobs:
         uses: actions/checkout@v7
       - name: Build and Push Image
         uses: explorviz/deployment/.github/actions/build-and-deploy-quarkus-native@main
+        env:
+          # The shared action uses JDK 21 for Gradle. Use Mandrel 25 for native compilation.
+          QUARKUS_NATIVE_CONTAINER_BUILD: "true"
+          QUARKUS_NATIVE_BUILDER_IMAGE: quay.io/quarkus/ubi9-quarkus-mandrel-builder-image:jdk-25
         with:
           platforms: "linux/amd64,linux/arm64/v8"
           docker-username: ${{ secrets.DOCKER_USERNAME }}
