@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -98,12 +99,17 @@ public class SnapshotResource {
 
     for (Snapshot sn : snapshots) {
 
-      List<String> subscriberList = sn.getSubscribedUsers().getList("subscriberList", String.class);
+      List<String> subscriberList = null;
+      if (sn.getSubscribedUsers() != null) {
+        subscriberList = sn.getSubscribedUsers().getList("subscriberList", String.class);
+      }
       if (subscriberList == null) {
         subscriberList = new ArrayList<>();
       }
 
-      if (sn.getDeleteAt() != 0 && sn.getDeleteAt() < currentTime) {
+      final long deleteAt = sn.getDeleteAt() == null ? 0L : sn.getDeleteAt();
+
+      if (deleteAt != 0 && deleteAt < currentTime) {
 
         if (!demoMode.isEnabled()) {
           this.snapshotService.deleteByValue(sn.getOwner(), sn.getCreatedAt(), sn.getIsShared());
@@ -159,11 +165,19 @@ public class SnapshotResource {
       @QueryParam("isShared") final boolean isShared,
       @QueryParam("subscriber") final String subscriber) {
 
-    if (!demoMode.isEnabled() && isShared && !subscriber.equals(owner)) {
+    if (!demoMode.isEnabled()
+        && isShared
+        && subscriber != null
+        && !subscriber.isEmpty()
+        && !subscriber.equals(owner)) {
       this.snapshotService.addNewSubscriber(owner, createdAt, subscriber);
     }
 
-    return this.snapshotService.getSnapshot(owner, createdAt, isShared);
+    final Snapshot snapshot = this.snapshotService.getSnapshot(owner, createdAt, isShared);
+    if (snapshot == null) {
+      throw new NotFoundException();
+    }
+    return snapshot;
   }
 
   @PUT
@@ -198,7 +212,8 @@ public class SnapshotResource {
       @QueryParam("createdAt") final Long createdAt,
       @QueryParam("deleteAt") final Long deleteAt) {
 
-    int res = this.snapshotService.shareSnapshot(owner, createdAt, deleteAt);
+    int res =
+        this.snapshotService.shareSnapshot(owner, createdAt, deleteAt == null ? 0L : deleteAt);
 
     if (res == 0) {
       return Response.ok().build();

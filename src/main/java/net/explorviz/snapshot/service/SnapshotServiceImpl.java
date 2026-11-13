@@ -86,7 +86,10 @@ public class SnapshotServiceImpl implements SnapshotService {
 
         Document subscribedUsers = snapshot.getSubscribedUsers();
 
-        List<String> existingList = subscribedUsers.getList("subscriberList", String.class);
+        List<String> existingList =
+            subscribedUsers == null
+                ? null
+                : subscribedUsers.getList("subscriberList", String.class);
         List<String> subscriberList =
             existingList != null ? new ArrayList<>(existingList) : new ArrayList<>();
 
@@ -143,7 +146,10 @@ public class SnapshotServiceImpl implements SnapshotService {
 
         Document subscribedUsers = snapshot.getSubscribedUsers();
 
-        List<String> existingList = subscribedUsers.getList("subscriberList", String.class);
+        List<String> existingList =
+            subscribedUsers == null
+                ? null
+                : subscribedUsers.getList("subscriberList", String.class);
         List<String> subscriberList =
             existingList != null ? new ArrayList<>(existingList) : new ArrayList<>();
 

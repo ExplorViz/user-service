@@ -39,6 +39,7 @@ class DemoModeReadTest {
   @Test
   void openingSharedSnapshotDoesNotSubscribeViewer() throws Exception {
     SnapshotService service = mock(SnapshotService.class);
+    when(service.getSnapshot("owner", 1L, true)).thenReturn(mock(Snapshot.class));
     SnapshotResource resource = new SnapshotResource(service);
     enable(resource);
     resource.getSnapshot("owner", 1L, true, "viewer");
