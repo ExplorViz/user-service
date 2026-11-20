@@ -207,7 +207,7 @@ public class TokenServiceImpl implements TokenService {
   @Override
   public void updateAlias(final LandscapeToken token, final String newAlias) {
     this.repository
-        .update("{ $set: { alias: ?1 } }", newAlias)
+        .update("{ $set: { alias: ?1 } }", newAlias == null ? "" : newAlias)
         .where(DELETE_FLAG_QUERY, token.getValue());
   }
 }

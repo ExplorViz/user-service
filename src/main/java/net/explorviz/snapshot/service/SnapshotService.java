@@ -22,6 +22,14 @@ public interface SnapshotService {
   Collection<Snapshot> getAllSnapshots();
 
   /**
+   * Retrieve all snapshots a user owns or has subscribed to.
+   *
+   * @param user the user id
+   * @return snapshots owned by or subscribed to by the user
+   */
+  Collection<Snapshot> getVisibleSnapshots(String user);
+
+  /**
    * Delete a snapshot.
    *
    * @param owner the given owner

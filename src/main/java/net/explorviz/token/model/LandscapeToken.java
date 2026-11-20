@@ -159,11 +159,25 @@ public class LandscapeToken {
    */
   public net.explorviz.proto.LandscapeToken toProtobuf() {
     return net.explorviz.proto.LandscapeToken.newBuilder()
-        .setId(this.value)
-        .setSecret(this.secret)
-        .setAlias(this.alias)
-        .setOwnerId(this.ownerId)
+        .setId(nullToEmpty(this.value))
+        .setSecret(nullToEmpty(this.secret))
+        .setAlias(nullToEmpty(this.alias))
+        .setOwnerId(nullToEmpty(this.ownerId))
         .setCreated(this.getCreated())
         .build();
+  }
+
+  /**
+   * Creates the view of this token that users it was shared with may see, i.e., without the secret
+   * and without the list of other users it was shared with.
+   *
+   * @return a copy of this token without confidential attributes
+   */
+  public LandscapeToken toSharedView() {
+    return new LandscapeToken(this.value, "", this.ownerId, this.created, this.alias);
+  }
+
+  private static String nullToEmpty(final String s) {
+    return s == null ? "" : s;
   }
 }

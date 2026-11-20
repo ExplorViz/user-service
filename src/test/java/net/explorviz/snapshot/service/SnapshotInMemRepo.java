@@ -31,6 +31,22 @@ public class SnapshotInMemRepo {
         .collect(Collectors.toList());
   }
 
+  public Collection<Snapshot> findVisibleTo(final String user) {
+    return this.snapshots.stream()
+        .filter(
+            s -> {
+              if (user.equals(s.getOwner())) {
+                return true;
+              }
+              final List<String> subs =
+                  s.getSubscribedUsers() == null
+                      ? null
+                      : s.getSubscribedUsers().getList("subscriberList", String.class);
+              return subs != null && subs.contains(user);
+            })
+        .collect(Collectors.toList());
+  }
+
   public Collection<Snapshot> getAll() {
     return this.snapshots;
   }

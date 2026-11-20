@@ -20,7 +20,6 @@ public class UserApiServiceImpl implements UserApiService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserApiService.class);
 
-  private static final int DELETE_FLAG = 1;
   private static final String DELETE_FLAG_QUERY = "uid = ?1 and token = ?2";
   private final UserApiRepository repository;
 
@@ -65,6 +64,10 @@ public class UserApiServiceImpl implements UserApiService {
       final String token,
       final String hostUrl,
       final Long expires) {
+    // Avoid creating a duplicate on every restart
+    if (this.tokenExists(uid, token)) {
+      return;
+    }
     final long createdAt = System.currentTimeMillis();
 
     final UserApi userApi = new UserApi(uid, name, token, hostUrl, createdAt, expires);
@@ -80,7 +83,8 @@ public class UserApiServiceImpl implements UserApiService {
   public int deleteByValue(final String uid, final String token) {
     Collection<UserApi> userApiToDelete = this.repository.findForUserAndToken(uid, token);
 
-    if (userApiToDelete.size() != 1) {
+    // Delete all matches so that duplicates (e.g. from concurrent creation) can be removed
+    if (userApiToDelete.isEmpty()) {
       return -1;
     }
 

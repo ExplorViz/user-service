@@ -4,6 +4,7 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
@@ -16,7 +17,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.Optional;
+import net.explorviz.auth.CallerGuard;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.service.TokenAccessService;
 import net.explorviz.token.service.TokenService;
@@ -33,6 +34,8 @@ public class TokenResource {
   private final TokenAccessService tokenAccessService;
 
   @Inject /* default */ SecurityIdentity securityIdentity;
+
+  @Inject /* default */ CallerGuard callerGuard;
 
   /**
    * Resource for a software landscape token.
@@ -69,11 +72,12 @@ public class TokenResource {
     final LandscapeToken token =
         this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
 
-    if (this.tokenAccessService.canRead(token, this.securityIdentity.getPrincipal().getName())) {
-      return token;
-    } else {
+    final String uid = this.securityIdentity.getPrincipal().getName();
+    if (!this.tokenAccessService.canRead(token, uid)) {
       throw new ForbiddenException();
     }
+    // Only users who may modify the token (i.e. its owner) get to see its secret
+    return this.tokenAccessService.canUpdate(token, uid) ? token : token.toSharedView();
   }
 
   /**
@@ -116,6 +120,9 @@ public class TokenResource {
   public Response updateTokenAlias(
       @PathParam("tid") final String tokenVal, final LandscapeToken tokenUpdates) {
 
+    if (tokenUpdates == null || tokenUpdates.getAlias() == null) {
+      throw new BadRequestException("Request body must contain an alias");
+    }
     final LandscapeToken token =
         this.tokenService.getByValue(tokenVal).orElseThrow(NotFoundException::new);
     final String uid = this.securityIdentity.getPrincipal().getName();
@@ -130,10 +137,15 @@ public class TokenResource {
   /**
    * Endpoint to modify an access token, i.e. grant, remove, or clone access to it.
    *
+   * <p>Granting and revoking access is restricted to users who may update the token (its owner).
+   * Cloning requires read access to the token, and the clone must be created for the caller.
+   *
    * @param tokenId Id of the access token.
-   * @param userId Id of the user whose access rights are modified.
-   * @param method Ei her "grant", "revoke", or "clone". Determines modification of access rights.
-   * @return Response indicating whether or not the token could be found.
+   * @param userId Id of the user whose access rights are modified, or the owner of the clone.
+   * @param method Either "grant", "revoke", or "clone". Determines modification of access rights.
+   * @return 204 for grant and revoke, the cloned token for clone.
+   * @throws BadRequestException if the method is unknown.
+   * @throws ForbiddenException if the caller lacks the required permission.
    */
   @Path("/{uid}")
   @POST
@@ -143,18 +155,38 @@ public class TokenResource {
       @PathParam("tid") final String tokenId,
       @PathParam("uid") final String userId,
       @QueryParam("method") final String method) {
-    final Optional<LandscapeToken> token = this.tokenService.getByValue(tokenId);
-    if (token.isPresent()) {
-      if ("revoke".equals(method)) {
-        this.tokenService.revokeAccess(token.get(), userId);
-      } else if ("grant".equals(method)) {
-        this.tokenService.grantAccess(token.get(), userId);
-      } else if ("clone".equals(method)) {
-        this.tokenService.cloneToken(tokenId, userId, token.get().getAlias());
-      }
-      return Response.noContent().build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
+    if (!"revoke".equals(method) && !"grant".equals(method) && !"clone".equals(method)) {
+      throw new BadRequestException("Query parameter 'method' must be grant, revoke, or clone");
     }
+
+    final LandscapeToken token =
+        this.tokenService.getByValue(tokenId).orElseThrow(NotFoundException::new);
+    final String callerId = this.securityIdentity.getPrincipal().getName();
+
+    if ("clone".equals(method)) {
+      if (!this.tokenAccessService.canRead(token, callerId) || !this.callerGuard.isCaller(userId)) {
+        throw new ForbiddenException();
+      }
+      final LandscapeToken clone = this.tokenService.cloneToken(tokenId, userId, token.getAlias());
+      return Response.ok(clone).build();
+    }
+
+    if (!this.tokenAccessService.canUpdate(token, callerId)) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Denied {}-access for user {} to token with owner {}",
+            method,
+            callerId,
+            token.getOwnerId());
+      }
+      throw new ForbiddenException();
+    }
+
+    if ("revoke".equals(method)) {
+      this.tokenService.revokeAccess(token, userId);
+    } else {
+      this.tokenService.grantAccess(token, userId);
+    }
+    return Response.noContent().build();
   }
 }

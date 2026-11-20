@@ -124,6 +124,19 @@ public class Snapshot {
     return deleteAt;
   }
 
+  /**
+   * Checks whether the snapshot's expiration date has passed. A missing or zero expiration date
+   * means the snapshot never expires.
+   *
+   * @param snapshot the snapshot to check
+   * @param now the current time in epoch milliseconds
+   * @return {@code true} iff the snapshot is expired at the given time
+   */
+  public static boolean isExpired(final Snapshot snapshot, final long now) {
+    final Long deleteAt = snapshot.getDeleteAt();
+    return deleteAt != null && deleteAt != 0 && deleteAt < now;
+  }
+
   @Override
   public String toString() {
     return getOwner()

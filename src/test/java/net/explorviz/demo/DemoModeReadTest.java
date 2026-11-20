@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.explorviz.auth.CallerGuard;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.resources.SnapshotResource;
 import net.explorviz.snapshot.service.SnapshotService;
@@ -21,6 +22,9 @@ class DemoModeReadTest {
     var field = resource.getClass().getDeclaredField("demoMode");
     field.setAccessible(true);
     field.set(resource, mode);
+    var guard = resource.getClass().getDeclaredField("callerGuard");
+    guard.setAccessible(true);
+    guard.set(resource, mock(CallerGuard.class));
   }
 
   @Test
@@ -29,7 +33,7 @@ class DemoModeReadTest {
     Snapshot expired = mock(Snapshot.class);
     when(expired.getDeleteAt()).thenReturn(1L);
     when(expired.getSubscribedUsers()).thenReturn(new Document());
-    when(service.getAllSnapshots()).thenReturn(List.of(expired));
+    when(service.getVisibleSnapshots("user")).thenReturn(List.of(expired));
     SnapshotResource resource = new SnapshotResource(service);
     enable(resource);
     assertNotNull(resource.getSnapshotByValue("user"));

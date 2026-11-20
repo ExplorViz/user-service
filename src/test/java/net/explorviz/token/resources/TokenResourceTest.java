@@ -187,4 +187,71 @@ class TokenResourceTest {
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
     given().when().delete("token/" + value).then().statusCode(404);
   }
+
+  private void givenCallerAndToken(final String caller, final String owner, final String value) {
+    final Principal principal = Mockito.mock(Principal.class);
+    Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
+    Mockito.when(principal.getName()).thenReturn(caller);
+    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
+    this.repo.persist(
+        new LandscapeToken(value, SECRET, owner, System.currentTimeMillis(), "alias"));
+  }
+
+  @Test
+  void getTokenByValueAsSharedUserHidesSecret() {
+    givenCallerAndToken("other", "testuid", "token");
+    Mockito.when(
+            this.tokenAccessService.canRead(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+        .thenReturn(true);
+
+    given()
+        .when()
+        .get("token/token")
+        .then()
+        .statusCode(200)
+        .body("value", is("token"))
+        .body("secret", is(""));
+  }
+
+  @Test
+  void grantAccessWithoutPermission() {
+    givenCallerAndToken("other", "testuid", "token");
+    given().when().post("token/token/attacker?method=grant").then().statusCode(403);
+    Mockito.verify(this.repo, Mockito.never())
+        .update(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any());
+  }
+
+  @Test
+  void revokeAccessWithoutPermission() {
+    givenCallerAndToken("other", "testuid", "token");
+    given().when().post("token/token/testuid?method=revoke").then().statusCode(403);
+  }
+
+  @Test
+  void cloneTokenWithoutReadPermission() {
+    givenCallerAndToken("other", "testuid", "token");
+    given().when().post("token/token/other?method=clone").then().statusCode(403);
+  }
+
+  @Test
+  void modifyAccessWithUnknownMethod() {
+    givenCallerAndToken("testuid", "testuid", "token");
+    given().when().post("token/token/someone?method=share").then().statusCode(400);
+  }
+
+  @Test
+  void updateAliasWithoutAlias() {
+    givenCallerAndToken("testuid", "testuid", "token");
+    Mockito.when(
+            this.tokenAccessService.canUpdate(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+        .thenReturn(true);
+    given()
+        .contentType("application/json")
+        .body("{}")
+        .when()
+        .patch("token/token")
+        .then()
+        .statusCode(400);
+  }
 }

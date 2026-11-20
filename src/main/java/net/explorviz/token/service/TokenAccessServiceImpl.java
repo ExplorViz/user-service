@@ -2,6 +2,7 @@ package net.explorviz.token.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
+import java.util.List;
 import net.explorviz.token.model.LandscapeToken;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -25,10 +26,19 @@ public class TokenAccessServiceImpl implements TokenAccessService {
       };
     }
 
-    if (token.getOwnerId().equals(userId)) {
+    if (userId == null) {
+      return new TokenPermission[] {};
+    }
+
+    if (userId.equals(token.getOwnerId())) {
       return new TokenPermission[] {
         TokenPermission.READ, TokenPermission.DELETE, TokenPermission.UPDATE
       };
+    }
+
+    final List<String> sharedUsers = token.getSharedUsersIds();
+    if (sharedUsers != null && sharedUsers.contains(userId)) {
+      return new TokenPermission[] {TokenPermission.READ};
     }
 
     return new TokenPermission[] {};

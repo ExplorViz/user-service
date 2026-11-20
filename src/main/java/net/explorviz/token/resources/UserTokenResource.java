@@ -90,8 +90,7 @@ public class UserTokenResource {
   private Collection<LandscapeToken> cleanSharedTokens(final Collection<LandscapeToken> tokens) {
     final Collection<LandscapeToken> cleanedTokens = new ArrayList<>();
     for (final LandscapeToken t : tokens) {
-      cleanedTokens.add(
-          new LandscapeToken(t.getValue(), "", t.getOwnerId(), t.getCreated(), t.getAlias()));
+      cleanedTokens.add(t.toSharedView());
     }
     return cleanedTokens;
   }

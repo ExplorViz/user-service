@@ -55,6 +55,59 @@ public class SnapshotResourceTest {
                     invocation.getArgument(2)));
 
     Mockito.when(this.repo.getAll()).thenAnswer(invocation -> this.inMemRepo.getAll());
+
+    Mockito.when(this.repo.findVisibleTo(ArgumentMatchers.anyString()))
+        .thenAnswer(invocation -> this.inMemRepo.findVisibleTo(invocation.getArgument(0)));
+  }
+
+  @Test
+  void testSnapshotCreationWithoutOwnerIsRejected() {
+    given()
+        .body("{\"name\": \"x\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .when()
+        .post("snapshot/create/")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void testSubscribeWithoutOwnerIsRejected() {
+    given()
+        .params("createdAt", 1L, "subscriber", "s")
+        .when()
+        .put("snapshot/subscribe/")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void testSnapshotListIgnoresSnapshotsWithoutOwner() {
+    this.repo.persist(
+        new Snapshot(null, 1L, "broken", null, null, null, null, null, false, null, 0L));
+    this.repo.persist(
+        new Snapshot("testowner", 2L, "fine", null, null, null, null, null, false, null, 0L));
+
+    given()
+        .param("owner", "testowner")
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
+        .body("personalSnapshots.size()", is(1));
+  }
+
+  @Test
+  void testGetExpiredSnapshotReturnsNotFound() {
+    this.repo.persist(
+        new Snapshot("testowner", 3L, "old", null, null, null, null, null, true, null, 1L));
+
+    given()
+        .params("owner", "testowner", "createdAt", 3L, "isShared", true)
+        .when()
+        .get("snapshot/get/")
+        .then()
+        .statusCode(404);
   }
 
   @Test
@@ -384,7 +437,7 @@ public class SnapshotResourceTest {
     final Document camera = new Document();
     final boolean isShared = false;
     final Document subscribedUsers = new Document();
-    final long deleteAt = 1900000000L;
+    final long deleteAt = 4102444800000L;
 
     final Snapshot snapshot =
         new Snapshot(
@@ -422,7 +475,7 @@ public class SnapshotResourceTest {
     final Document camera = new Document();
     final boolean isShared = true;
     final Document subscribedUsers = new Document();
-    final long deleteAt = 1900000000L;
+    final long deleteAt = 4102444800000L;
 
     final Snapshot snapshot =
         new Snapshot(
@@ -452,7 +505,7 @@ public class SnapshotResourceTest {
   void testShareNonExistingSnapshot() {
     final String owner = "testowner";
     final long createdAt = 1700000L;
-    final long deleteAt = 1900000000L;
+    final long deleteAt = 4102444800000L;
 
     given()
         .params("owner", owner, "createdAt", createdAt, "deleteAt", deleteAt)
@@ -476,7 +529,7 @@ public class SnapshotResourceTest {
     final Document camera = new Document();
     final boolean isShared = true;
     final Document subscribedUsers = new Document();
-    final long deleteAt = 1900000000L;
+    final long deleteAt = 4102444800000L;
 
     final Snapshot snapshot =
         new Snapshot(
@@ -512,7 +565,7 @@ public class SnapshotResourceTest {
         .body("camera", is(camera))
         .body("isShared", is(isShared))
         .body("subscribedUsers", is(subscribedUsers))
-        .body("deleteAt", is(1900000000));
+        .body("deleteAt", is(4102444800000L));
   }
 
   @Test
@@ -529,7 +582,7 @@ public class SnapshotResourceTest {
     final Document camera = new Document();
     final boolean isShared = true;
     final Document subscribedUsers = new Document();
-    final long deleteAt = 1900000000L;
+    final long deleteAt = 4102444800000L;
 
     final Snapshot snapshot =
         new Snapshot(
@@ -569,6 +622,6 @@ public class SnapshotResourceTest {
         .body("camera", is(camera))
         .body("isShared", is(isShared))
         .body("subscribedUsers", is(subscribedUsers))
-        .body("deleteAt", is(1900000000));
+        .body("deleteAt", is(4102444800000L));
   }
 }

@@ -66,7 +66,7 @@ public class UserApiResourceTest {
         .thenAnswer(invocation -> false);
 
     given()
-        .params(
+        .queryParams(
             "uId",
             uid,
             "name",
@@ -101,7 +101,7 @@ public class UserApiResourceTest {
     this.repo.persist(new UserApi(uid, name, token, url, createdAt, expires));
 
     given()
-        .params(
+        .queryParams(
             "uId",
             uid,
             "name",
@@ -185,5 +185,17 @@ public class UserApiResourceTest {
         .delete("userapi/delete/")
         .then()
         .statusCode(400);
+  }
+
+  @Test
+  void testUserApiRetrieveWithoutExpiration() {
+    this.repo.persist(new UserApi("testuid", "n", "t", "h", 17L, null));
+
+    given().params("uId", "testuid").when().get("userapi/").then().statusCode(200);
+  }
+
+  @Test
+  void testUserApiCreationWithoutToken() {
+    given().queryParams("uId", "testuid").when().post("userapi/create/").then().statusCode(400);
   }
 }

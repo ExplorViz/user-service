@@ -39,7 +39,7 @@ public class UserApi {
       @BsonProperty("name") String name,
       @BsonProperty("token") String token,
       @BsonProperty("hostUrl") String hostUrl,
-      @BsonProperty("createdAt") long createdAt,
+      @BsonProperty("createdAt") Long createdAt,
       @BsonProperty("expires") Long expires) {
     this.uid = uid;
     this.name = name;
