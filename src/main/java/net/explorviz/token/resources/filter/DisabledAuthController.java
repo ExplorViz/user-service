@@ -21,7 +21,7 @@ public class DisabledAuthController extends AuthorizationController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DisabledAuthController.class);
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @Override

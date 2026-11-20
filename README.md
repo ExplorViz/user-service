@@ -69,12 +69,12 @@ You can add `-Dquarkus.profile=dev` to enable the `%dev` properties.
 
 You can create a native executable using:
 ```shell script
-./gradlew build -Dquarkus.native.enabled=true
+./gradlew build -Dquarkus.native.enabled=true -Dquarkus.package.jar.enabled=false
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 ```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
+./gradlew build -Dquarkus.native.enabled=true -Dquarkus.package.jar.enabled=false -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with: `./build/user-service-1.0-SNAPSHOT-runner`

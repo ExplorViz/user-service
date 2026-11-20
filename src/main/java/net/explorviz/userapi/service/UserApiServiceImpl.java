@@ -23,7 +23,7 @@ public class UserApiServiceImpl implements UserApiService {
   private static final String DELETE_FLAG_QUERY = "uid = ?1 and token = ?2";
   private final UserApiRepository repository;
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @ConfigProperty(name = "initial.token.creation.enabled")

@@ -15,7 +15,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class CallerGuard {
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @Inject /* default */ SecurityIdentity securityIdentity;

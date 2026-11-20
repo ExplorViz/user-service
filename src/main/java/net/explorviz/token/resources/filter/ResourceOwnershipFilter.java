@@ -27,7 +27,7 @@ public class ResourceOwnershipFilter implements ContainerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOwnershipFilter.class);
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "true")
+  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @Context /* default */ ResourceInfo resourceInfo;
