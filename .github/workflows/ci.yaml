@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: "graalvm"
-          java-version: "21"
+          java-version: "25"
       - name: Cache Gradle Packages
         uses: actions/cache@v6
         with:
@@ -43,7 +43,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: "graalvm"
-          java-version: "21"
+          java-version: "25"
       - name: Cache Gradle Packages
         uses: actions/cache@v6
         with:
@@ -67,7 +67,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: "graalvm"
-          java-version: "21"
+          java-version: "25"
       - name: Cache Gradle Packages
         uses: actions/cache@v6
         with:
@@ -111,7 +111,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: "graalvm"
-          java-version: "21"
+          java-version: "25"
       - name: Cache Gradle Packages
         uses: actions/cache@v6
         with:
@@ -136,7 +136,7 @@ jobs:
           REPORT_RUN_NUMBER: ${{ github.run_number }}
           REPORT_OS: ${{ runner.os }}
           REPORT_RUNTIME: GraalVM
-          REPORT_RUNTIME_VERSION: "21"
+          REPORT_RUNTIME_VERSION: "25"
           REPORT_TEST_FRAMEWORK: JUnit Jupiter (Quarkus)
           REPORT_TEST_EXIT_CODE: ${{ steps.unit_tests.outputs.exit_code }}
         run: |
@@ -167,7 +167,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: "graalvm"
-          java-version: "21"
+          java-version: "25"
       - name: Cache Gradle Packages
         uses: actions/cache@v6
         with:
@@ -193,7 +193,7 @@ jobs:
           REPORT_RUN_NUMBER: ${{ github.run_number }}
           REPORT_OS: ${{ runner.os }}
           REPORT_RUNTIME: GraalVM
-          REPORT_RUNTIME_VERSION: "21"
+          REPORT_RUNTIME_VERSION: "25"
           REPORT_TEST_FRAMEWORK: JUnit Jupiter (Quarkus, Testcontainers)
           REPORT_TEST_EXIT_CODE: ${{ steps.integration_tests.outputs.exit_code }}
         run: |
@@ -222,7 +222,7 @@ jobs:
       - name: Build and Push Image
         uses: explorviz/deployment/.github/actions/build-and-deploy-quarkus-native@main
         env:
-          # The shared action uses JDK 21 for Gradle. Use Mandrel 25 for native compilation.
+          # The shared action sets up JDK 21; Gradle provisions the JDK 25 toolchain itself.
           QUARKUS_NATIVE_CONTAINER_BUILD: "true"
           QUARKUS_NATIVE_BUILDER_IMAGE: quay.io/quarkus/ubi9-quarkus-mandrel-builder-image:jdk-25
         with:

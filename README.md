@@ -17,7 +17,7 @@ container is ready, start the application with `./gradlew quarkusDev`. The appli
 
 ## Prerequisites
 
-- Java 21 (JDK)
+- Java 25 (JDK; Gradle downloads it automatically if missing)
 - Use the included Gradle 9.7 wrapper (`./gradlew`)
 - A running Docker-compatible container runtime for integration tests
 - Make sure to run the [ExplorViz software stack](https://git.se.informatik.uni-kiel.de/ExplorViz/code/deployment)
