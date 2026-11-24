@@ -1,8 +1,10 @@
 package net.explorviz.token.resources.filter;
 
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.security.spi.runtime.AuthorizationController;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Instance;
 import jakarta.interceptor.Interceptor;
@@ -24,13 +26,15 @@ public class DisabledAuthController extends AuthorizationController {
   @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
+  /** Warns once, as {@link #isAuthorizationEnabled()} is called several times per request. */
+  /* default */ void onStart(@Observes final StartupEvent ev) {
+    if (!this.authEnabled.get()) {
+      LOGGER.warn("Authentication is disabled, skipping token and ownership checks");
+    }
+  }
+
   @Override
   public boolean isAuthorizationEnabled() {
-
-    if (LOGGER.isWarnEnabled() && !this.authEnabled.get()) {
-      LOGGER.warn("Authentication is disabled, skipping token check");
-    }
-
     return this.authEnabled.get();
   }
 }
