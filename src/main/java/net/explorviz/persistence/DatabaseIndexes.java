@@ -78,7 +78,9 @@ public class DatabaseIndexes {
     final MongoCollection<Document> snapshotCollection =
         documents(this.snapshots.mongoCollection());
     createUnique(snapshotCollection, Set.of(), "owner", "createdAt", "isShared");
-    snapshotCollection.createIndex(Indexes.ascending("subscribedUsers.subscriberList"));
+    // Includes the order of the list of subscribed snapshots
+    snapshotCollection.createIndex(
+        Indexes.ascending("subscribedUsers.subscriberList", "createdAt", "owner"));
     snapshotCollection.createIndex(Indexes.ascending("deleteAt"));
 
     final MongoCollection<Document> userApiCollection = documents(this.userApis.mongoCollection());
@@ -93,8 +95,8 @@ public class DatabaseIndexes {
 
   /**
    * Creates a unique index. Redundant documents that would prevent this are deleted. If there are
-   * documents with the same key but different contents, the index is not created, since it is
-   * unknown which of them should be kept.
+   * documents with the same key but different contents, it is unknown which of them should be kept.
+   * Then, an index that is not unique takes its place, so that queries are fast nonetheless.
    */
   private static void createUnique(
       final MongoCollection<Document> collection,
@@ -114,15 +116,28 @@ public class DatabaseIndexes {
             List.of(keys),
             collection.getNamespace().getCollectionName(),
             conflicts);
+        collection.createIndex(
+            Indexes.ascending(keys), new IndexOptions().name(substituteName(keys)));
         return;
       }
       createUnique(collection, keys);
+    }
+    final String substitute = substituteName(keys);
+    for (final Document index : collection.listIndexes()) {
+      if (substitute.equals(index.getString("name"))) {
+        collection.dropIndex(substitute);
+        break;
+      }
     }
   }
 
   private static void createUnique(
       final MongoCollection<Document> collection, final String... keys) {
     collection.createIndex(Indexes.ascending(keys), new IndexOptions().unique(true));
+  }
+
+  private static String substituteName(final String... keys) {
+    return String.join("_", keys) + "_not_unique";
   }
 
   private static int deleteRedundant(

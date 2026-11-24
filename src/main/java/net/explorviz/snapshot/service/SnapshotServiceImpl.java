@@ -1,11 +1,14 @@
 package net.explorviz.snapshot.service;
 
 import com.mongodb.MongoWriteException;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Collection;
+import java.util.Optional;
 import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.snapshot.model.Snapshot;
+import net.explorviz.snapshot.model.SnapshotOverview;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
 
 @ApplicationScoped
@@ -32,31 +35,22 @@ public class SnapshotServiceImpl implements SnapshotService {
   }
 
   @Override
-  public Collection<Snapshot> getVisibleSnapshots(final String user) {
-    return this.repository.findVisibleTo(user);
+  public SnapshotOverview getVisibleSnapshots(final String user, final Page page) {
+    final long now = System.currentTimeMillis();
+    return new SnapshotOverview(
+        this.repository.findPersonal(user, now, page),
+        this.repository.findShared(user, now, page),
+        this.repository.findSubscribed(user, now, page));
   }
 
   @Override
   public int deleteByValue(final String owner, final Long createdAt, final boolean isShared) {
-    Collection<Snapshot> snapshotToDelete =
-        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
-
-    // Delete all matches so that duplicates (e.g. from concurrent creation) can be removed
-    if (snapshotToDelete.isEmpty()) {
-      return -1;
-    }
-
-    this.repository.delete(DELETE_FLAG_QUERY, owner, createdAt, isShared);
-
-    return 0;
+    return this.repository.delete(DELETE_FLAG_QUERY, owner, createdAt, isShared) > 0 ? 0 : -1;
   }
 
   @Override
   public boolean snapshotExists(final String owner, final Long createdAt, final boolean isShared) {
-    Collection<Snapshot> snapshots =
-        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
-
-    return !snapshots.isEmpty();
+    return this.repository.exists(owner, createdAt, isShared);
   }
 
   @Override
@@ -67,11 +61,7 @@ public class SnapshotServiceImpl implements SnapshotService {
 
   @Override
   public Snapshot getSnapshot(final String owner, final Long createdAt, final boolean isShared) {
-    Collection<Snapshot> snapshot =
-        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, isShared);
-
-    // Tolerate duplicates (e.g. from concurrent creation) instead of hiding the snapshot
-    return snapshot.isEmpty() ? null : snapshot.iterator().next();
+    return this.repository.findSnapshot(owner, createdAt, isShared).orElse(null);
   }
 
   @Override
@@ -90,26 +80,19 @@ public class SnapshotServiceImpl implements SnapshotService {
 
   @Override
   public int shareSnapshot(final String owner, final Long createdAt, final Long deleteAt) {
-    final Collection<Snapshot> shared =
-        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, true);
-
-    if (!shared.isEmpty()) {
-      final long now = System.currentTimeMillis();
-      if (shared.stream().anyMatch(sn -> !Snapshot.isExpired(sn, now))) {
-        return 1;
-      }
-      // The previous shared copy has expired, so it can be replaced
-      this.repository.delete(DELETE_FLAG_QUERY, owner, createdAt, true);
+    final long now = System.currentTimeMillis();
+    if (this.repository.isShared(owner, createdAt, now)) {
+      return 1;
     }
 
-    final Collection<Snapshot> snapshot =
-        this.repository.findForUserAndCreatedAtAndIsShared(owner, createdAt, false);
-
-    if (snapshot.isEmpty()) {
+    final Optional<Snapshot> personal = this.repository.findSnapshot(owner, createdAt, false);
+    if (personal.isEmpty()) {
       return -1;
     }
+    final Snapshot sn = personal.get();
 
-    Snapshot sn = snapshot.iterator().next();
+    // A previous shared copy that has expired can be replaced
+    this.repository.deleteExpiredShared(owner, createdAt, now);
 
     Snapshot sharedSnapshot =
         new Snapshot(

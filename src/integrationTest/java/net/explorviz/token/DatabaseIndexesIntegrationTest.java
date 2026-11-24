@@ -12,6 +12,7 @@ import com.mongodb.client.MongoCollection;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -63,6 +64,11 @@ class DatabaseIndexesIntegrationTest {
       }
     }
     return false;
+  }
+
+  private static boolean hasIndex(final MongoCollection<?> collection, final String index) {
+    return collection.listIndexes().into(new ArrayList<>()).stream()
+        .anyMatch(d -> index.equals(d.getString("name")));
   }
 
   @Test
@@ -135,7 +141,7 @@ class DatabaseIndexesIntegrationTest {
     this.indexes.create();
 
     assertEquals(2, this.userApis.count());
-    assertEquals(1L, this.userApis.findForUserAndToken("u", "t").iterator().next().getCreatedAt());
+    assertEquals(1L, this.userApis.find("token", "t").firstResult().getCreatedAt());
     assertEquals(1, this.snapshots.count());
     assertTrue(isUnique(this.userApis.mongoCollection(), "uid_1_token_1"));
     assertTrue(isUnique(this.snapshots.mongoCollection(), "owner_1_createdAt_1_isShared_1"));
@@ -152,6 +158,22 @@ class DatabaseIndexesIntegrationTest {
     assertFalse(isUnique(this.snapshots.mongoCollection(), "owner_1_createdAt_1_isShared_1"));
     assertTrue(isUnique(this.tokens.mongoCollection(), "value_1"));
     assertTrue(isUnique(this.userApis.mongoCollection(), "uid_1_token_1"));
+  }
+
+  @Test
+  void conflictingDocumentsAreIndexedUntilTheyAreRemoved() {
+    final String substitute = "owner_createdAt_isShared_not_unique";
+    this.snapshots.persist(snapshot(1L, "a", 0L));
+    this.snapshots.persist(snapshot(1L, "b", 0L));
+
+    this.indexes.create();
+    this.indexes.create(); // e.g. after a restart
+    assertTrue(hasIndex(this.snapshots.mongoCollection(), substitute));
+
+    this.snapshots.delete("name", "b");
+    this.indexes.create();
+    assertFalse(hasIndex(this.snapshots.mongoCollection(), substitute));
+    assertTrue(isUnique(this.snapshots.mongoCollection(), "owner_1_createdAt_1_isShared_1"));
   }
 
   @Test
@@ -187,7 +209,6 @@ class DatabaseIndexesIntegrationTest {
         .then()
         .statusCode(200);
     assertEquals(
-        List.of("new"),
-        this.userApis.findForUserAndToken("u", "t").stream().map(UserApi::getName).toList());
+        List.of("new"), this.userApis.findForUser("u").stream().map(UserApi::getName).toList());
   }
 }

@@ -1,5 +1,6 @@
 package net.explorviz.userapi.persistence;
 
+import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.Filters;
 import io.quarkus.mongodb.panache.PanacheMongoRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,8 +14,27 @@ public class UserApiRepository implements PanacheMongoRepositoryBase<UserApi, St
     return this.list("uid", uid);
   }
 
-  public Collection<UserApi> findForUserAndToken(final String uid, final String token) {
-    return this.list("uid = ?1 and token = ?2", uid, token);
+  /**
+   * Checks whether a user has an API token that can still be used.
+   *
+   * @param uid the user id
+   * @param token the API token
+   * @param now the current time in epoch milliseconds
+   * @return whether there is an API token that has not expired
+   */
+  public boolean exists(final String uid, final String token, final long now) {
+    return this.mongoCollection()
+            .countDocuments(
+                Filters.and(
+                    Filters.eq("uid", uid),
+                    Filters.eq("token", token),
+                    // Equivalent to UserApi.isExpired being false
+                    Filters.or(
+                        Filters.eq("expires", null),
+                        Filters.eq("expires", 0L),
+                        Filters.gte("expires", now))),
+                new CountOptions().limit(1))
+        > 0;
   }
 
   /**

@@ -18,10 +18,10 @@ public class UserApiInMemRepo {
     return this.userApis.stream().filter(a -> a.getUid().equals(uid)).collect(Collectors.toList());
   }
 
-  public Collection<UserApi> findForUserAndToken(final String uid, final String token) {
+  public boolean exists(final String uid, final String token, final long now) {
     return this.userApis.stream()
         .filter(a -> a.getUid().equals(uid) && a.getToken().equals(token))
-        .collect(Collectors.toList());
+        .anyMatch(a -> !UserApi.isExpired(a, now));
   }
 
   public long deleteByValue(final String uid, final String token) {

@@ -90,24 +90,12 @@ public class UserApiServiceImpl implements UserApiService {
 
   @Override
   public int deleteByValue(final String uid, final String token) {
-    Collection<UserApi> userApiToDelete = this.repository.findForUserAndToken(uid, token);
-
-    // Delete all matches so that duplicates (e.g. from concurrent creation) can be removed
-    if (userApiToDelete.isEmpty()) {
-      return -1;
-    }
-
-    this.repository.delete(DELETE_FLAG_QUERY, uid, token);
-
-    return 0;
+    return this.repository.delete(DELETE_FLAG_QUERY, uid, token) > 0 ? 0 : -1;
   }
 
   @Override
   public boolean tokenExists(final String uid, final String token) {
-    Collection<UserApi> tokenUid = this.repository.findForUserAndToken(uid, token);
-
-    final long now = System.currentTimeMillis();
-    return tokenUid.stream().anyMatch(userApi -> !UserApi.isExpired(userApi, now));
+    return this.repository.exists(uid, token, System.currentTimeMillis());
   }
 
   @Override

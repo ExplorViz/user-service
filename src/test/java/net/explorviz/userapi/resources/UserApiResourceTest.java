@@ -46,12 +46,12 @@ public class UserApiResourceTest {
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
     Mockito.when(
-            this.repo.findForUserAndToken(
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+            this.repo.exists(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyLong()))
         .thenAnswer(
-            invocation ->
-                this.inMemRepo.findForUserAndToken(
-                    invocation.getArgument(0), invocation.getArgument(1)));
+            i -> this.inMemRepo.exists(i.getArgument(0), i.getArgument(1), i.getArgument(2)));
   }
 
   @Test
@@ -100,9 +100,6 @@ public class UserApiResourceTest {
     final String url = "testurl";
     final long createdAt = 1700000L;
     final long expires = 0L;
-
-    Mockito.when(this.repo.findForUserAndToken(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenAnswer(invocation -> this.inMemRepo.findForUserAndToken(uid, token));
 
     this.repo.persist(new UserApi(uid, name, token, url, createdAt, expires));
 
@@ -161,9 +158,8 @@ public class UserApiResourceTest {
     final String uid = "testuid";
     final String token = "testtoken";
 
-    Mockito.when(this.repo.findForUserAndToken(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenAnswer(invocation -> this.inMemRepo.findForUserAndToken(uid, token));
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(
+            this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.any(Object[].class)))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(uid, token));
 
     this.repo.persist(new UserApi(uid, "test", token, "test", 170000000L, 0L));
@@ -181,9 +177,8 @@ public class UserApiResourceTest {
     final String uid = "testuid";
     final String token = "testtoken";
 
-    Mockito.when(this.repo.findForUserAndToken(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenAnswer(invocation -> this.inMemRepo.findForUserAndToken(uid, token));
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(
+            this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.any(Object[].class)))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(uid, token));
 
     given()

@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.List;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
 import net.explorviz.snapshot.service.SnapshotInMemRepo;
@@ -15,6 +16,8 @@ import net.explorviz.snapshot.service.SnapshotServiceImpl;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -44,21 +47,90 @@ public class SnapshotResourceTest {
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
     Mockito.when(
-            this.repo.findForUserAndCreatedAtAndIsShared(
+            this.repo.findSnapshot(
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.anyLong(),
                 ArgumentMatchers.anyBoolean()))
         .thenAnswer(
-            invocation ->
-                this.inMemRepo.findForUserAndCreatedAtAndIsShared(
-                    invocation.getArgument(0),
-                    invocation.getArgument(1),
-                    invocation.getArgument(2)));
+            i -> this.inMemRepo.findSnapshot(i.getArgument(0), i.getArgument(1), i.getArgument(2)));
+    Mockito.when(
+            this.repo.exists(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyBoolean()))
+        .thenAnswer(
+            i ->
+                this.inMemRepo
+                    .findSnapshot(i.getArgument(0), i.getArgument(1), i.getArgument(2))
+                    .isPresent());
+    Mockito.when(
+            this.repo.isShared(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyLong()))
+        .thenAnswer(
+            i -> this.inMemRepo.isShared(i.getArgument(0), i.getArgument(1), i.getArgument(2)));
 
     Mockito.when(this.repo.getAll()).thenAnswer(invocation -> this.inMemRepo.getAll());
 
-    Mockito.when(this.repo.findVisibleTo(ArgumentMatchers.anyString()))
-        .thenAnswer(invocation -> this.inMemRepo.findVisibleTo(invocation.getArgument(0)));
+    Mockito.when(
+            this.repo.findPersonal(
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(), ArgumentMatchers.any()))
+        .thenAnswer(
+            i ->
+                this.inMemRepo.findOwned(
+                    i.getArgument(0), false, i.getArgument(1), i.getArgument(2)));
+    Mockito.when(
+            this.repo.findShared(
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(), ArgumentMatchers.any()))
+        .thenAnswer(
+            i ->
+                this.inMemRepo.findOwned(
+                    i.getArgument(0), true, i.getArgument(1), i.getArgument(2)));
+    Mockito.when(
+            this.repo.findSubscribed(
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(), ArgumentMatchers.any()))
+        .thenAnswer(
+            i ->
+                this.inMemRepo.findSubscribed(
+                    i.getArgument(0), i.getArgument(1), i.getArgument(2)));
+  }
+
+  @Test
+  void testSnapshotListIsPaginated() {
+    for (long createdAt = 1L; createdAt <= 5L; createdAt++) {
+      this.repo.persist(
+          new Snapshot("testowner", createdAt, "n", null, null, null, null, null, false, null, 0L));
+    }
+
+    given()
+        .params("owner", "testowner", "page", 1, "size", 2)
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
+        .body("personalSnapshots.createdAt", is(List.of(3, 2)));
+    given()
+        .params("owner", "testowner", "size", 2)
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
+        .body("personalSnapshots.createdAt", is(List.of(5, 4)));
+    given()
+        .params("owner", "testowner")
+        .when()
+        .get("snapshot/")
+        .then()
+        .statusCode(200)
+        .body("personalSnapshots.createdAt", is(List.of(5, 4, 3, 2, 1)));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {"size=0", "size=-1", "page=-1&size=1", "page=1", "page=2&size=2147483647"})
+  void testInvalidPageIsRejected(final String query) {
+    given().when().get("snapshot?owner=testowner&" + query).then().statusCode(400);
   }
 
   @Test
@@ -365,7 +437,8 @@ public class SnapshotResourceTest {
             subscribedUsers,
             deleteAt);
 
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any()))
+    Mockito.when(
+            this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.any(Object[].class)))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(owner, createdAt, isShared));
 
     this.repo.persist(snapshot);
@@ -384,7 +457,8 @@ public class SnapshotResourceTest {
     final long createdAt = 1700000L;
     final boolean isShared = false;
 
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any()))
+    Mockito.when(
+            this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.any(Object[].class)))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(owner, createdAt, isShared));
 
     given()

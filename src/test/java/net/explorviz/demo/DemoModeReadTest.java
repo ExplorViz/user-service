@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import net.explorviz.auth.CallerGuard;
 import net.explorviz.snapshot.model.Snapshot;
+import net.explorviz.snapshot.model.SnapshotOverview;
 import net.explorviz.snapshot.resources.SnapshotResource;
 import net.explorviz.snapshot.service.SnapshotService;
 import net.explorviz.userapi.model.UserApi;
 import net.explorviz.userapi.resources.UserApiResource;
 import net.explorviz.userapi.service.UserApiService;
-import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
 class DemoModeReadTest {
@@ -30,13 +30,11 @@ class DemoModeReadTest {
   @Test
   void readingSnapshotsDoesNotDeleteExpiredRecords() throws Exception {
     SnapshotService service = mock(SnapshotService.class);
-    Snapshot expired = mock(Snapshot.class);
-    when(expired.getDeleteAt()).thenReturn(1L);
-    when(expired.getSubscribedUsers()).thenReturn(new Document());
-    when(service.getVisibleSnapshots("user")).thenReturn(List.of(expired));
+    when(service.getVisibleSnapshots(eq("user"), any()))
+        .thenReturn(new SnapshotOverview(List.of(), List.of(), List.of()));
     SnapshotResource resource = new SnapshotResource(service);
     enable(resource);
-    assertNotNull(resource.getSnapshotByValue("user"));
+    assertNotNull(resource.getSnapshotByValue("user", null, null));
     verify(service, never()).deleteByValue(any(), any(), anyBoolean());
   }
 

@@ -1,5 +1,6 @@
 package net.explorviz.snapshot.resources;
 
+import io.quarkus.panache.common.Page;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -15,15 +16,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import net.explorviz.auth.CallerGuard;
 import net.explorviz.demo.DemoMode;
 import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.snapshot.model.Snapshot;
+import net.explorviz.snapshot.model.SnapshotOverview;
 import net.explorviz.snapshot.service.SnapshotService;
-import org.bson.Document;
 
 @Path("snapshot")
 @RequestScoped
@@ -92,55 +91,29 @@ public class SnapshotResource {
   }
 
   /**
-   * Endpoint to get all snapshots owned by a user.
+   * Endpoint to get the snapshots a user owns or has subscribed to, newest first. Returns complete
+   * lists unless a page size is given.
    *
    * @param owner owner of snapshots.
-   * @return Collection of snapshots.
+   * @param pageIndex index of the requested page (default = 0).
+   * @param pageSize maximum number of snapshots per list.
+   * @return the requested page of the personal, shared, and subscribed snapshots.
    */
   @GET
   @Authenticated
   @Produces(MediaType.APPLICATION_JSON)
-  public Document getSnapshotByValue(@QueryParam("owner") final String owner) {
-    Document tinySnapshots = new Document();
-    ArrayList<Document> personalSnapshots = new ArrayList<>();
-    ArrayList<Document> sharedSnapshots = new ArrayList<>();
-    ArrayList<Document> subscribedSnapshots = new ArrayList<>();
-
+  public SnapshotOverview getSnapshotByValue(
+      @QueryParam("owner") final String owner,
+      @QueryParam("page") final Integer pageIndex,
+      @QueryParam("size") final Integer pageSize) {
+    final Page page = toPage(pageIndex, pageSize);
     final String user = owner == null ? this.callerGuard.callerId() : owner;
     this.callerGuard.requireCaller(user);
 
-    final Collection<Snapshot> snapshots =
-        user == null || user.isEmpty() ? List.of() : this.snapshotService.getVisibleSnapshots(user);
-    final long currentTime = System.currentTimeMillis();
-
-    for (Snapshot sn : snapshots) {
-
-      List<String> subscriberList = null;
-      if (sn.getSubscribedUsers() != null) {
-        subscriberList = sn.getSubscribedUsers().getList("subscriberList", String.class);
-      }
-      if (subscriberList == null) {
-        subscriberList = new ArrayList<>();
-      }
-
-      if (Snapshot.isExpired(sn, currentTime)) {
-        continue; // not deleted yet
-      }
-      if (user.equals(sn.getOwner())) { // collect all personal and shared snapshots
-        if (sn.getIsShared()) {
-          sharedSnapshots.add(toSummary(sn));
-        } else {
-          personalSnapshots.add(toSummary(sn));
-        }
-      } else if (subscriberList.contains(user)) {
-        subscribedSnapshots.add(toSummary(sn));
-      }
+    if (user == null || user.isEmpty()) {
+      return new SnapshotOverview(List.of(), List.of(), List.of());
     }
-
-    tinySnapshots.append("personalSnapshots", personalSnapshots);
-    tinySnapshots.append("sharedSnapshots", sharedSnapshots);
-    tinySnapshots.append("subscribedSnapshots", subscribedSnapshots);
-    return tinySnapshots;
+    return this.snapshotService.getVisibleSnapshots(user, page);
   }
 
   /**
@@ -236,12 +209,18 @@ public class SnapshotResource {
     }
   }
 
-  private static Document toSummary(final Snapshot sn) {
-    return new Document()
-        .append("owner", sn.getOwner())
-        .append("createdAt", sn.getCreatedAt())
-        .append("name", sn.getName())
-        .append("landscapeToken", sn.getLandscapeToken());
+  private static Page toPage(final Integer index, final Integer size) {
+    if (size == null) {
+      if (index != null) {
+        throw new BadRequestException("Query parameter 'page' requires 'size'");
+      }
+      return Page.ofSize(Integer.MAX_VALUE);
+    }
+    final int effectiveIndex = index == null ? 0 : index;
+    if (size < 1 || effectiveIndex < 0 || (long) effectiveIndex * size > Integer.MAX_VALUE) {
+      throw new BadRequestException("Query parameters 'page' and 'size' are out of range");
+    }
+    return Page.of(effectiveIndex, size);
   }
 
   private static void requireIdentifier(final String owner, final Long createdAt) {

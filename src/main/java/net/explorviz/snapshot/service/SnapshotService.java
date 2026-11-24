@@ -1,7 +1,9 @@
 package net.explorviz.snapshot.service;
 
+import io.quarkus.panache.common.Page;
 import java.util.Collection;
 import net.explorviz.snapshot.model.Snapshot;
+import net.explorviz.snapshot.model.SnapshotOverview;
 
 /** Interface to manage {@link Snapshot}s. */
 public interface SnapshotService {
@@ -22,12 +24,13 @@ public interface SnapshotService {
   Collection<Snapshot> getAllSnapshots();
 
   /**
-   * Retrieve all snapshots a user owns or has subscribed to.
+   * Retrieve the snapshots a user owns or has subscribed to, without those that have expired.
    *
    * @param user the user id
+   * @param page the requested part of each list
    * @return snapshots owned by or subscribed to by the user
    */
-  Collection<Snapshot> getVisibleSnapshots(String user);
+  SnapshotOverview getVisibleSnapshots(String user, Page page);
 
   /**
    * Delete a snapshot.
@@ -35,7 +38,7 @@ public interface SnapshotService {
    * @param owner the given owner
    * @param createdAt creation date of the snapshot
    * @param isShared whether snapshot is shared or not
-   * @return number of deleted snapshots
+   * @return returns 0 if deleted and -1 if there is no such snapshot
    */
   int deleteByValue(String owner, Long createdAt, boolean isShared);
 

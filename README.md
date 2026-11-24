@@ -32,11 +32,18 @@ repeated events.
 Deleting a token also deletes the snapshots which its owner created of the landscape. Snapshots of
 other users are kept.
 
+## Snapshot lists
+
+`GET /snapshot` returns the personal, shared, and subscribed snapshots of a user, newest first. Use the
+query parameters `size` and `page` (starting at 0) to get only a part of each of the three lists, e.g.
+`?size=20&page=1`. A list with fewer than `size` entries has no further pages. Without `size`,
+complete lists are returned.
+
 ## Unique indexes
 
 The service creates unique indexes at startup. Redundant copies in existing data are deleted. If
 there are documents with the same key but different contents, an error is logged and the
-respective index is not created until the duplicates are removed and the service is restarted.
+respective index is not unique until the duplicates are removed and the service is restarted.
 
 ## Prerequisites
 
