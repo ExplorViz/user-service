@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.Collection;
 import net.explorviz.auth.CallerGuard;
 import net.explorviz.demo.DemoMode;
+import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.userapi.model.UserApi;
 import net.explorviz.userapi.service.UserApiService;
 
@@ -61,7 +62,7 @@ public class UserApiResource {
     this.callerGuard.requireCaller(uid);
 
     if (userApiService.tokenExists(uid, token)) {
-      return Response.status(422).build();
+      return DuplicateKeys.conflict("API token already exists.");
     } else {
       final long effectiveCreatedAt = createdAt == null ? System.currentTimeMillis() : createdAt;
       this.userApiService.createNewUserApi(
@@ -105,20 +106,9 @@ public class UserApiResource {
   public Collection<UserApi> getUserByValue(@QueryParam("uId") final String uid) {
     this.callerGuard.requireCaller(uid);
 
-    Collection<UserApi> userApis = this.userApiService.getOwningTokens(uid);
     final long currentTime = System.currentTimeMillis();
-
-    for (UserApi uapi : userApis) {
-      final Long expires = uapi.getExpires();
-      if (expires != null && expires != 0 && expires < currentTime) {
-        if (!demoMode.isEnabled()) {
-          this.userApiService.deleteByValue(uapi.getUid(), uapi.getToken());
-        }
-      }
-    }
-
-    userApis = this.userApiService.getOwningTokens(uid);
-
-    return userApis;
+    return this.userApiService.getOwningTokens(uid).stream()
+        .filter(userApi -> demoMode.isEnabled() || !UserApi.isExpired(userApi, currentTime))
+        .toList();
   }
 }

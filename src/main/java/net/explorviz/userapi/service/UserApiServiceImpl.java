@@ -1,5 +1,6 @@
 package net.explorviz.userapi.service;
 
+import com.mongodb.MongoWriteException;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -7,6 +8,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import java.util.Collection;
 import net.explorviz.demo.DemoMode;
+import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.userapi.model.UserApi;
 import net.explorviz.userapi.persistence.UserApiRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -71,7 +73,14 @@ public class UserApiServiceImpl implements UserApiService {
     final long createdAt = System.currentTimeMillis();
 
     final UserApi userApi = new UserApi(uid, name, token, hostUrl, createdAt, expires);
-    this.repository.persist(userApi);
+    try {
+      this.repository.persist(userApi);
+    } catch (final MongoWriteException e) {
+      if (!DuplicateKeys.isDuplicateKey(e)) {
+        throw e;
+      }
+      LOGGER.debug("Default user API token was created by another instance.");
+    }
   }
 
   @Override
@@ -97,7 +106,8 @@ public class UserApiServiceImpl implements UserApiService {
   public boolean tokenExists(final String uid, final String token) {
     Collection<UserApi> tokenUid = this.repository.findForUserAndToken(uid, token);
 
-    return !tokenUid.isEmpty();
+    final long now = System.currentTimeMillis();
+    return tokenUid.stream().anyMatch(userApi -> !UserApi.isExpired(userApi, now));
   }
 
   @Override
@@ -108,6 +118,8 @@ public class UserApiServiceImpl implements UserApiService {
       final String hostUrl,
       final Long createdAt,
       final Long expires) {
+    // An expired API token may be replaced even if it is not deleted yet
+    this.repository.deleteExpired(uid, token, System.currentTimeMillis());
     final UserApi userApi = new UserApi(uid, name, token, hostUrl, createdAt, expires);
     this.repository.persist(userApi);
 

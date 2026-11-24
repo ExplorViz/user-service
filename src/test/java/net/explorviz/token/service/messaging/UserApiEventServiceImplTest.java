@@ -36,7 +36,8 @@ class UserApiEventServiceImplTest {
             .build();
 
     final InMemorySink<byte[]> events = this.connector.sink("token-events");
-    this.service.dispatch(testEvent);
+    final var result = this.service.dispatch(testEvent).toCompletableFuture();
+    Assertions.assertTrue(result.isDone() && !result.isCompletedExceptionally());
 
     final TokenEvent got;
     try {

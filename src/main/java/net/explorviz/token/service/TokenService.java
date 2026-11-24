@@ -11,7 +11,7 @@ public interface TokenService {
    * Find a landscape token by its value.
    *
    * @param tokenValue the token value
-   * @return an optional containing the token if it exiACCESS_REVOKEDsts
+   * @return an optional containing the token if it exists
    */
   Optional<LandscapeToken> getByValue(String tokenValue);
 
@@ -39,7 +39,7 @@ public interface TokenService {
   Collection<LandscapeToken> getAllTokens();
 
   /**
-   * Delete a token.
+   * Delete a token and the snapshots its owner created of it.
    *
    * @param token the token to delete.
    */

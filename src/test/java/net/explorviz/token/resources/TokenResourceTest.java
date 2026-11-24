@@ -8,14 +8,14 @@ import io.quarkus.security.runtime.SecurityIdentityProxy;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.security.Principal;
+import net.explorviz.snapshot.persistence.SnapshotRepository;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
 import net.explorviz.token.service.TokenAccessService;
 import net.explorviz.token.service.TokenAccessServiceImpl;
 import net.explorviz.token.service.TokenPermission;
-import net.explorviz.token.service.messaging.EventService;
-import net.explorviz.token.service.messaging.EventServiceImpl;
+import net.explorviz.token.service.messaging.TokenEventOutbox;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -27,6 +27,8 @@ class TokenResourceTest {
   private static final String SECRET = "secret";
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
+  TokenEventOutbox outbox;
+  SnapshotRepository snapshots;
   SecurityIdentity identity;
   private TokenAccessServiceImpl tokenAccessService;
 
@@ -39,8 +41,10 @@ class TokenResourceTest {
     this.identity = Mockito.mock(SecurityIdentityProxy.class);
     QuarkusMock.installMockForType(this.identity, SecurityIdentity.class);
 
-    final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
-    QuarkusMock.installMockForType(mockEventService, EventService.class);
+    this.outbox = Mockito.mock(TokenEventOutbox.class);
+    QuarkusMock.installMockForType(this.outbox, TokenEventOutbox.class);
+    this.snapshots = Mockito.mock(SnapshotRepository.class);
+    QuarkusMock.installMockForType(this.snapshots, SnapshotRepository.class);
 
     this.tokenAccessService = Mockito.mock(TokenAccessServiceImpl.class);
     QuarkusMock.installMockForType(this.tokenAccessService, TokenAccessService.class);
@@ -53,6 +57,13 @@ class TokenResourceTest {
             })
         .when(this.repo)
         .persist(ArgumentMatchers.any(LandscapeToken.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addToken(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .create(ArgumentMatchers.any(LandscapeToken.class), ArgumentMatchers.any());
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
@@ -69,7 +80,7 @@ class TokenResourceTest {
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(uid);
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
     Mockito.when(
@@ -97,7 +108,7 @@ class TokenResourceTest {
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn("other");
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
@@ -117,7 +128,7 @@ class TokenResourceTest {
   @Test
   void getTokenByUnknownValue() {
     final String value = "unknown";
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
     given().when().get("token/" + value).then().statusCode(404);
@@ -134,9 +145,9 @@ class TokenResourceTest {
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(uid);
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.markDeleted(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), ""));
@@ -160,9 +171,9 @@ class TokenResourceTest {
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn("other");
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.markDeleted(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
 
     this.repo.persist(new LandscapeToken(value, SECRET, uid, System.currentTimeMillis(), "alias"));
@@ -181,9 +192,9 @@ class TokenResourceTest {
   void deleteUnknownToken() {
 
     final String value = "unknown";
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.markDeleted(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(value));
     given().when().delete("token/" + value).then().statusCode(404);
   }
@@ -192,7 +203,7 @@ class TokenResourceTest {
     final Principal principal = Mockito.mock(Principal.class);
     Mockito.when(this.identity.getPrincipal()).thenReturn(principal);
     Mockito.when(principal.getName()).thenReturn(caller);
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
     this.repo.persist(
         new LandscapeToken(value, SECRET, owner, System.currentTimeMillis(), "alias"));
@@ -219,7 +230,7 @@ class TokenResourceTest {
     givenCallerAndToken("other", "testuid", "token");
     given().when().post("token/token/attacker?method=grant").then().statusCode(403);
     Mockito.verify(this.repo, Mockito.never())
-        .update(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any());
+        .grantAccess(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
   }
 
   @Test

@@ -2,6 +2,7 @@ package net.explorviz.snapshot.resources;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -192,7 +193,8 @@ public class SnapshotResourceTest {
         .when()
         .post("snapshot/create/")
         .then()
-        .statusCode(422);
+        .statusCode(409)
+        .body("message", notNullValue());
   }
 
   @Test

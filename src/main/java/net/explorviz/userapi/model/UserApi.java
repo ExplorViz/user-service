@@ -111,4 +111,17 @@ public class UserApi {
   public Long getExpires() {
     return this.expires;
   }
+
+  /**
+   * Checks whether the expiration date of an API token has passed. A missing or zero expiration
+   * date means the API token never expires.
+   *
+   * @param userApi the API token to check
+   * @param now the current time in epoch milliseconds
+   * @return {@code true} iff the API token is expired at the given time
+   */
+  public static boolean isExpired(final UserApi userApi, final long now) {
+    final Long expires = userApi.getExpires();
+    return expires != null && expires != 0 && expires < now;
+  }
 }

@@ -48,6 +48,7 @@ dependencies {
   implementation 'io.quarkus:quarkus-resteasy'
   implementation 'io.quarkus:quarkus-grpc'
   implementation 'io.quarkus:quarkus-messaging'
+  implementation 'io.quarkus:quarkus-scheduler'
 
   // Utility
   implementation 'org.apache.commons:commons-lang3'
@@ -72,6 +73,7 @@ dependencies {
 
   // Integration Testing
   integrationTestImplementation 'io.quarkus:quarkus-junit'
+  integrationTestImplementation 'io.rest-assured:rest-assured'
   integrationTestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
   integrationTestImplementation 'org.testcontainers:testcontainers'
   integrationTestImplementation 'org.testcontainers:testcontainers-kafka'

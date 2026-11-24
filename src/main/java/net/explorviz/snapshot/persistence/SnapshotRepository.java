@@ -74,6 +74,33 @@ public class SnapshotRepository implements PanacheMongoRepositoryBase<Snapshot, 
             Updates.pull(SUBSCRIBER_LIST, subscriber));
   }
 
+  /**
+   * Deletes the snapshots that the owner of a landscape token created of the landscape. Snapshots
+   * of other users are kept: they belong to these users and can be viewed without the landscape.
+   *
+   * @param owner owner of the landscape token
+   * @param tokenValue value of the landscape token
+   * @return number of deleted snapshots
+   */
+  public long deleteForToken(final String owner, final String tokenValue) {
+    return this.mongoCollection()
+        .deleteMany(
+            Filters.and(Filters.eq("owner", owner), Filters.eq("landscapeToken.value", tokenValue)))
+        .getDeletedCount();
+  }
+
+  /**
+   * Deletes all snapshots whose expiration date has passed.
+   *
+   * @param now the current time in epoch milliseconds
+   * @return number of deleted snapshots
+   */
+  public long deleteExpired(final long now) {
+    return this.mongoCollection()
+        .deleteMany(Filters.and(Filters.gt("deleteAt", 0L), Filters.lt("deleteAt", now)))
+        .getDeletedCount();
+  }
+
   private static Bson sharedSnapshot(final String owner, final Long createdAt) {
     return Filters.and(
         Filters.eq("owner", owner),

@@ -1,6 +1,7 @@
 package net.explorviz.token.service.messaging;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -81,7 +82,7 @@ class KafkaRecordTelemetryTest {
       service.eventEmitter = emitter;
       var parent = provider.get("test-http-server").spanBuilder("POST /tokens").startSpan();
       try (var scope = parent.makeCurrent()) {
-        service.dispatch(event);
+        assertFalse(service.dispatch(event).toCompletableFuture().isDone());
       }
       verify(emitter).send(records.capture());
       var message = records.getValue();

@@ -1,22 +1,24 @@
 package net.explorviz.token.service;
 
+import com.mongodb.MongoWriteException;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import net.explorviz.demo.DemoMode;
+import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.proto.EventType;
-import net.explorviz.proto.TokenEvent;
+import net.explorviz.snapshot.persistence.SnapshotRepository;
 import net.explorviz.token.generator.TokenGenerator;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
-import net.explorviz.token.service.messaging.EventService;
+import net.explorviz.token.persistence.PendingEvent;
+import net.explorviz.token.service.messaging.TokenEventOutbox;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +31,10 @@ public class TokenServiceImpl implements TokenService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
 
-  private static final int DELETE_FLAG = 1;
-  private static final String DELETE_FLAG_QUERY = "value = ?1";
   private final TokenGenerator generator;
   private final LandscapeTokenRepository repository;
-  private final EventService eventService;
+  private final TokenEventOutbox outbox;
+  private final SnapshotRepository snapshotRepository;
 
   @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
@@ -58,16 +59,19 @@ public class TokenServiceImpl implements TokenService {
    *
    * @param generator Object which can generate new landscape tokens.
    * @param repository MongoRepository for landscape tokens.
-   * @param eventService Service to emit events.
+   * @param outbox Publishes pending events of tokens.
+   * @param snapshotRepository MongoRepository for snapshots.
    */
   @Inject
   public TokenServiceImpl(
       final TokenGenerator generator,
       final LandscapeTokenRepository repository,
-      final EventService eventService) {
+      final TokenEventOutbox outbox,
+      final SnapshotRepository snapshotRepository) {
     this.generator = generator;
     this.repository = repository;
-    this.eventService = eventService;
+    this.outbox = outbox;
+    this.snapshotRepository = snapshotRepository;
   }
 
   /* default */ void onStart(@Observes final StartupEvent ev) {
@@ -91,7 +95,7 @@ public class TokenServiceImpl implements TokenService {
       final String secret,
       final String initialTokenAlias) {
     // Avoid creation of duplicate tokens
-    if (this.getByValue(value).isPresent()) {
+    if (this.repository.isValueInUse(value)) {
       return;
     }
 
@@ -100,12 +104,16 @@ public class TokenServiceImpl implements TokenService {
     final LandscapeToken token =
         new LandscapeToken(
             value, secret, ownerId, created, initialTokenAlias, Collections.emptyList());
-    this.repository.persist(token);
-    this.eventService.dispatch(
-        TokenEvent.newBuilder()
-            .setType(EventType.EVENT_TYPE_CREATED)
-            .setToken(token.toProtobuf())
-            .build());
+    try {
+      this.repository.create(token, PendingEvent.of(EventType.EVENT_TYPE_CREATED));
+    } catch (final MongoWriteException e) {
+      if (DuplicateKeys.isDuplicateKey(e)) {
+        LOGGER.info("Default landscape token was not created, its value is already in use.");
+        return;
+      }
+      throw e;
+    }
+    this.outbox.publishSoon(value);
 
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Created default landscape token.");
@@ -120,38 +128,43 @@ public class TokenServiceImpl implements TokenService {
   @Override
   public LandscapeToken createNewToken(
       final String ownerId, final String alias, final String value, final String secret) {
-    final String effectiveAlias = alias == null ? "" : alias;
-    if (value != null && !value.isBlank() && this.getByValue(value.trim()).isPresent()) {
-      throw new WebApplicationException("Token value already exists", Response.Status.CONFLICT);
-    }
-
-    final LandscapeToken token =
-        this.generator.generateToken(ownerId, effectiveAlias, value, secret);
-    this.repository.persist(token);
-    this.eventService.dispatch(
-        TokenEvent.newBuilder()
-            .setType(EventType.EVENT_TYPE_CREATED)
-            .setToken(token.toProtobuf())
-            .build());
-    return token;
+    return this.create(
+        ownerId, alias, value, secret, PendingEvent.of(EventType.EVENT_TYPE_CREATED));
   }
 
   @Override
   public LandscapeToken cloneToken(
       final String oldTokenId, final String newOwnerId, final String alias) {
-    final var token = this.createNewToken(newOwnerId, alias);
-    this.eventService.dispatch(
-        TokenEvent.newBuilder()
-            .setType(EventType.EVENT_TYPE_CLONED)
-            .setToken(token.toProtobuf())
-            .setClonedTokenId(oldTokenId)
-            .build());
+    return this.create(
+        newOwnerId,
+        alias,
+        null,
+        null,
+        PendingEvent.of(EventType.EVENT_TYPE_CREATED),
+        PendingEvent.ofClone(oldTokenId));
+  }
+
+  private LandscapeToken create(
+      final String ownerId,
+      final String alias,
+      final String value,
+      final String secret,
+      final PendingEvent... events) {
+    final String effectiveAlias = alias == null ? "" : alias;
+    if (value != null && !value.isBlank() && this.repository.isValueInUse(value.trim())) {
+      throw new WebApplicationException(DuplicateKeys.conflict("Token value already exists"));
+    }
+
+    final LandscapeToken token =
+        this.generator.generateToken(ownerId, effectiveAlias, value, secret);
+    this.repository.create(token, events);
+    this.outbox.publishSoon(token.getValue());
     return token;
   }
 
   @Override
   public Optional<LandscapeToken> getByValue(final String tokenValue) {
-    return this.repository.find(DELETE_FLAG_QUERY, tokenValue).stream().findFirst();
+    return this.repository.findByValue(tokenValue);
   }
 
   @Override
@@ -171,43 +184,31 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public void deleteByValue(final LandscapeToken token) {
-    final long docsAffected = this.repository.delete(DELETE_FLAG_QUERY, token.getValue());
-    if (docsAffected == DELETE_FLAG) {
-      this.eventService.dispatch(
-          TokenEvent.newBuilder()
-              .setType(EventType.EVENT_TYPE_DELETED)
-              .setToken(token.toProtobuf())
-              .build());
+    if (this.repository.markDeleted(token.getValue())) {
+      // The outbox repeats this in case the service stops right now
+      this.snapshotRepository.deleteForToken(token.getOwnerId(), token.getValue());
+      this.outbox.publishSoon(token.getValue());
     }
   }
 
   @Override
   public void grantAccess(final LandscapeToken token, final String userId) {
-    // Document doc = new Document("$push", new Document("sharedUsers", userId));
-    // this.repository.mongoCollection().updateOne(
-    // Filters.eq("value", token.getValue()),
-    // doc);
-
-    // the $set is a workaround till quarkus 1.13
-    // https://github.com/quarkusio/quarkus/issues/9956
-    this.repository
-        .update("{ $addToSet: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
-        .where(DELETE_FLAG_QUERY, token.getValue());
-    // update("{ $push: { sharedUsers: ?1 } } }", userId).where(DELETE_FLAG_QUERY,
-    // token.getValue());
+    if (this.repository.grantAccess(token.getValue(), userId)) {
+      this.outbox.publishSoon(token.getValue());
+    }
   }
 
   @Override
   public void revokeAccess(final LandscapeToken token, final String userId) {
-    this.repository
-        .update("{ $pull: { sharedUsers: ?1 } } }, $set: { ownerId: '$ownerId'}", userId)
-        .where(DELETE_FLAG_QUERY, token.getValue());
+    if (this.repository.revokeAccess(token.getValue(), userId)) {
+      this.outbox.publishSoon(token.getValue());
+    }
   }
 
   @Override
   public void updateAlias(final LandscapeToken token, final String newAlias) {
-    this.repository
-        .update("{ $set: { alias: ?1 } }", newAlias == null ? "" : newAlias)
-        .where(DELETE_FLAG_QUERY, token.getValue());
+    if (this.repository.updateAlias(token.getValue(), newAlias == null ? "" : newAlias)) {
+      this.outbox.publishSoon(token.getValue());
+    }
   }
 }

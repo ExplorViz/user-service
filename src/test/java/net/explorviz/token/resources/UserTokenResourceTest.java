@@ -7,11 +7,11 @@ import static org.hamcrest.CoreMatchers.is;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.MediaType;
+import net.explorviz.snapshot.persistence.SnapshotRepository;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
-import net.explorviz.token.service.messaging.EventService;
-import net.explorviz.token.service.messaging.EventServiceImpl;
+import net.explorviz.token.service.messaging.TokenEventOutbox;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,14 +24,18 @@ class UserTokenResourceTest {
   private static final String SECRET = "secret";
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
+  TokenEventOutbox outbox;
+  SnapshotRepository snapshots;
 
   @BeforeEach
   void setUp() {
 
     this.repo = Mockito.mock(LandscapeTokenRepository.class);
     QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
-    final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
-    QuarkusMock.installMockForType(mockEventService, EventService.class);
+    this.outbox = Mockito.mock(TokenEventOutbox.class);
+    QuarkusMock.installMockForType(this.outbox, TokenEventOutbox.class);
+    this.snapshots = Mockito.mock(SnapshotRepository.class);
+    QuarkusMock.installMockForType(this.snapshots, SnapshotRepository.class);
 
     this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(
@@ -41,18 +45,19 @@ class UserTokenResourceTest {
             })
         .when(this.repo)
         .persist(ArgumentMatchers.any(LandscapeToken.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addToken(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .create(ArgumentMatchers.any(LandscapeToken.class), ArgumentMatchers.any());
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<Object[]>any()))
-        .thenAnswer(
-            invocation -> {
-              final Object secondArg = invocation.getArgument(1);
-              final String value =
-                  secondArg instanceof Object[] params ? (String) params[0] : (String) secondArg;
-              return this.inMemRepo.findByValue(value);
-            });
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(invocation.getArgument(0)));
   }
 
   @Test

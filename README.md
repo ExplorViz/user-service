@@ -20,6 +20,24 @@ the service and point `QUARKUS_OIDC_AUTH_SERVER_URL` and `QUARKUS_OIDC_TOKEN_ISS
 realm. Do not set `QUARKUS_OIDC_ENABLED=false` while building: Quarkus evaluates this
 variable at build time, too, and would remove OIDC support from the resulting artifact.
 
+## Token events
+
+Every change of a landscape token is published to the Kafka topic `tokens.events`, see
+[token_event.proto](src/main/proto/token_event.proto). The record key is the token value and deletions
+are tombstones, i.e. records without a value. Pending events are stored in the token's document in
+MongoDB until they are published, so they are not lost if Kafka is unavailable or the service stops.
+Events of a token are published in order and at least once. Hence, consumers have to tolerate
+repeated events.
+
+Deleting a token also deletes the snapshots which its owner created of the landscape. Snapshots of
+other users are kept.
+
+## Unique indexes
+
+The service creates unique indexes at startup. Redundant copies in existing data are deleted. If
+there are documents with the same key but different contents, an error is logged and the
+respective index is not created until the duplicates are removed and the service is restarted.
+
 ## Prerequisites
 
 - Java 25 (JDK; Gradle downloads it automatically if missing)

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import net.explorviz.auth.CallerGuard;
 import net.explorviz.demo.DemoMode;
+import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.service.SnapshotService;
 import org.bson.Document;
@@ -56,7 +57,7 @@ public class SnapshotResource {
 
     if (snapshotService.snapshotExists(
         snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getIsShared())) {
-      return Response.status(422).build();
+      return DuplicateKeys.conflict("Snapshot already exists.");
     } else {
       this.snapshotService.createNewSnapshot(snapshot);
 
@@ -123,8 +124,9 @@ public class SnapshotResource {
       }
 
       if (Snapshot.isExpired(sn, currentTime)) {
-        this.deleteExpired(sn);
-      } else if (user.equals(sn.getOwner())) { // collect all personal and shared snapshots
+        continue; // not deleted yet
+      }
+      if (user.equals(sn.getOwner())) { // collect all personal and shared snapshots
         if (sn.getIsShared()) {
           sharedSnapshots.add(toSummary(sn));
         } else {
@@ -167,11 +169,7 @@ public class SnapshotResource {
     }
 
     final Snapshot snapshot = this.snapshotService.getSnapshot(owner, createdAt, isShared);
-    if (snapshot == null) {
-      throw new NotFoundException();
-    }
-    if (Snapshot.isExpired(snapshot, System.currentTimeMillis())) {
-      this.deleteExpired(snapshot);
+    if (snapshot == null || Snapshot.isExpired(snapshot, System.currentTimeMillis())) {
       throw new NotFoundException();
     }
 
@@ -235,13 +233,6 @@ public class SnapshotResource {
     } else {
       // if given data doesn't correspond to an existing snapshot return status 400
       return Response.status(400).build();
-    }
-  }
-
-  private void deleteExpired(final Snapshot snapshot) {
-    if (!demoMode.isEnabled()) {
-      this.snapshotService.deleteByValue(
-          snapshot.getOwner(), snapshot.getCreatedAt(), snapshot.getIsShared());
     }
   }
 

@@ -2,13 +2,19 @@ package net.explorviz.userapi.resources;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
+import com.mongodb.MongoWriteException;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteError;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.List;
 import net.explorviz.userapi.model.UserApi;
 import net.explorviz.userapi.persistence.UserApiRepository;
 import net.explorviz.userapi.service.UserApiInMemRepo;
 import net.explorviz.userapi.service.UserApiServiceImpl;
+import org.bson.BsonDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -117,7 +123,8 @@ public class UserApiResourceTest {
         .when()
         .post("userapi/create/")
         .then()
-        .statusCode(422);
+        .statusCode(409)
+        .body("message", notNullValue());
   }
 
   @Test
@@ -192,6 +199,40 @@ public class UserApiResourceTest {
     this.repo.persist(new UserApi("testuid", "n", "t", "h", 17L, null));
 
     given().params("uId", "testuid").when().get("userapi/").then().statusCode(200);
+  }
+
+  @Test
+  void testExpiredUserApiIsHiddenWithoutDeletingIt() {
+    this.repo.persist(new UserApi("testuid", "n", "t", "h", 17L, 1L));
+
+    given()
+        .params("uId", "testuid")
+        .when()
+        .get("userapi/")
+        .then()
+        .statusCode(200)
+        .body("size()", is(0));
+    Mockito.verify(this.repo, Mockito.never())
+        .delete(ArgumentMatchers.anyString(), ArgumentMatchers.<Object>any());
+  }
+
+  @Test
+  void testConcurrentCreationIsReportedAsConflict() {
+    Mockito.doThrow(
+            new MongoWriteException(
+                new WriteError(11000, "duplicate key", new BsonDocument()),
+                new ServerAddress(),
+                List.of()))
+        .when(this.repo)
+        .persist(ArgumentMatchers.any(UserApi.class));
+
+    given()
+        .queryParams("uId", "testuid", "token", "t")
+        .when()
+        .post("userapi/create/")
+        .then()
+        .statusCode(409)
+        .body("message", notNullValue());
   }
 
   @Test

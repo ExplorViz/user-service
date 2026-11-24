@@ -1,8 +1,10 @@
 package net.explorviz.snapshot.service;
 
+import com.mongodb.MongoWriteException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Collection;
+import net.explorviz.persistence.DuplicateKeys;
 import net.explorviz.snapshot.model.Snapshot;
 import net.explorviz.snapshot.persistence.SnapshotRepository;
 
@@ -123,7 +125,15 @@ public class SnapshotServiceImpl implements SnapshotService {
             sn.getSubscribedUsers(),
             deleteAt);
 
-    this.repository.persist(sharedSnapshot);
+    try {
+      this.repository.persist(sharedSnapshot);
+    } catch (final MongoWriteException e) {
+      if (DuplicateKeys.isDuplicateKey(e)) {
+        // Shared by a concurrent request
+        return 1;
+      }
+      throw e;
+    }
     return 0;
   }
 }

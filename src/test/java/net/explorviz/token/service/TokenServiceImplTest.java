@@ -12,11 +12,11 @@ import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import net.explorviz.snapshot.persistence.SnapshotRepository;
 import net.explorviz.token.InMemRepo;
 import net.explorviz.token.model.LandscapeToken;
 import net.explorviz.token.persistence.LandscapeTokenRepository;
-import net.explorviz.token.service.messaging.EventService;
-import net.explorviz.token.service.messaging.EventServiceImpl;
+import net.explorviz.token.service.messaging.TokenEventOutbox;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -29,13 +29,17 @@ class TokenServiceImplTest {
 
   LandscapeTokenRepository repo;
   InMemRepo inMemRepo;
+  TokenEventOutbox outbox;
+  SnapshotRepository snapshots;
 
   @BeforeEach
   void setUp() {
     this.repo = Mockito.mock(LandscapeTokenRepository.class);
     QuarkusMock.installMockForType(this.repo, LandscapeTokenRepository.class);
-    final EventServiceImpl mockEventService = Mockito.mock(EventServiceImpl.class);
-    QuarkusMock.installMockForType(mockEventService, EventService.class);
+    this.outbox = Mockito.mock(TokenEventOutbox.class);
+    QuarkusMock.installMockForType(this.outbox, TokenEventOutbox.class);
+    this.snapshots = Mockito.mock(SnapshotRepository.class);
+    QuarkusMock.installMockForType(this.snapshots, SnapshotRepository.class);
 
     this.inMemRepo = new InMemRepo();
     Mockito.doAnswer(
@@ -45,6 +49,13 @@ class TokenServiceImplTest {
             })
         .when(this.repo)
         .persist(ArgumentMatchers.any(LandscapeToken.class));
+    Mockito.doAnswer(
+            invocation -> {
+              this.inMemRepo.addToken(invocation.getArgument(0));
+              return null;
+            })
+        .when(this.repo)
+        .create(ArgumentMatchers.any(LandscapeToken.class), ArgumentMatchers.any());
 
     Mockito.when(this.repo.findForUser(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findForUser(invocation.getArgument(0)));
@@ -54,16 +65,8 @@ class TokenServiceImplTest {
   }
 
   private void mockFindByValue() {
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<Object[]>any()))
-        .thenAnswer(invocation -> this.inMemRepo.findByValue(extractTokenValue(invocation)));
-  }
-
-  private String extractTokenValue(final org.mockito.invocation.InvocationOnMock invocation) {
-    final Object secondArg = invocation.getArgument(1);
-    if (secondArg instanceof Object[] params) {
-      return (String) params[0];
-    }
-    return (String) secondArg;
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
+        .thenAnswer(invocation -> this.inMemRepo.findByValue(invocation.getArgument(0)));
   }
 
   @Test
@@ -175,7 +178,7 @@ class TokenServiceImplTest {
   @Test
   void getByTokenValue() {
     final String value = "t1";
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue(value));
 
     final String uid = "testuid";
@@ -196,7 +199,7 @@ class TokenServiceImplTest {
     final String uid = "testuid";
     final String value = "t1";
 
-    Mockito.when(this.repo.find(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.findByValue(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.findByValue("other"));
 
     final LandscapeToken t1 =
@@ -222,12 +225,29 @@ class TokenServiceImplTest {
   void deleteExisting() {
     final String uid = "uid";
     final String tokenValue = "token";
-    Mockito.when(this.repo.delete(ArgumentMatchers.anyString(), ArgumentMatchers.<String>any()))
+    Mockito.when(this.repo.markDeleted(ArgumentMatchers.anyString()))
         .thenAnswer(invocation -> this.inMemRepo.deleteByValue(tokenValue));
     final LandscapeToken t =
         new LandscapeToken(tokenValue, "secret", uid, System.currentTimeMillis(), "");
     this.repo.persist(t);
     this.tokenService.deleteByValue(t);
     assertEquals(0, this.inMemRepo.size());
+    Mockito.verify(this.snapshots).deleteForToken(uid, tokenValue);
+    Mockito.verify(this.outbox).publishSoon(tokenValue);
+  }
+
+  @Test
+  void deleteUnknownDoesNotDeleteSnapshots() {
+    this.tokenService.deleteByValue(new LandscapeToken("unknown", "secret", "uid", 1L, ""));
+    Mockito.verifyNoInteractions(this.snapshots, this.outbox);
+  }
+
+  @Test
+  void unchangedAccessAndAliasAreNotPublished() {
+    final LandscapeToken t = new LandscapeToken("token", "secret", "uid", 1L, "");
+    this.tokenService.grantAccess(t, "other");
+    this.tokenService.revokeAccess(t, "other");
+    this.tokenService.updateAlias(t, "alias");
+    Mockito.verifyNoInteractions(this.outbox);
   }
 }
