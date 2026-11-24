@@ -35,7 +35,7 @@ public class TokenServiceImpl implements TokenService {
   private final LandscapeTokenRepository repository;
   private final EventService eventService;
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
+  @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @ConfigProperty(name = "initial.token.creation.enabled")

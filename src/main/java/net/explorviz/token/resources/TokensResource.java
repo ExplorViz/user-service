@@ -25,7 +25,7 @@ public class TokensResource {
 
   private final TokenService tokenService;
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
+  @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @Inject LaunchMode launchMode;

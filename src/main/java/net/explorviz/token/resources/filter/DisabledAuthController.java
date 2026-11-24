@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Controller to disable authentication if config property {@code quarkus.oidc.enabled} is set to
- * {@code false}.
+ * Controller to disable authentication if config property {@code quarkus.oidc.tenant-enabled} is
+ * set to {@code false}.
  */
 @Alternative
 @Priority(Interceptor.Priority.LIBRARY_AFTER)
@@ -21,7 +21,7 @@ public class DisabledAuthController extends AuthorizationController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DisabledAuthController.class);
 
-  @ConfigProperty(name = "quarkus.oidc.enabled", defaultValue = "false")
+  @ConfigProperty(name = "quarkus.oidc.tenant-enabled", defaultValue = "false")
   /* default */ Instance<Boolean> authEnabled;
 
   @Override

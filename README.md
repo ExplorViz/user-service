@@ -10,10 +10,15 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
 ## Starting the user-service:
-In [application.properties](src%2Fmain%2Fresources%2Fapplication.properties) change line 19 to 
-false (it was set to true, now it is false). Afterwards run: `docker compose up -d`. If the 
-container is ready, start the application with `./gradlew quarkusDev`. The application should be available under
-`localhost:8084`
+Run `docker compose up -d`. If the container is ready, start the application with
+`./gradlew quarkusDev`. The application should be available under `localhost:8084`.
+
+## Authentication
+
+Authentication is disabled by default. To enable it, set `QUARKUS_OIDC_ENABLED=true` when starting
+the service and point `QUARKUS_OIDC_AUTH_SERVER_URL` and `QUARKUS_OIDC_TOKEN_ISSUER` to the Keycloak
+realm. Do not set `QUARKUS_OIDC_ENABLED=false` while building: Quarkus evaluates this
+variable at build time, too, and would remove OIDC support from the resulting artifact.
 
 ## Prerequisites
 
